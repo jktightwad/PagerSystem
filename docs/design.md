@@ -11,15 +11,31 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 - **Radio:** ESP-NOW (ESP32 to ESP32, no router). Pending range test.
 - **Pager board:** WEMOS LOLIN32 Lite (cost). Through-hole / stripboard build,
   no SMD. Large enclosure (hard to lose, room for a big LiPo).
-- **Base:** ESP32 with touchscreen, name entry so everyone can see the queue.
+- **Base:** ESP32 with touchscreen showing the queue, plus an on-screen
+  keyboard to:
+  - register a name against a fob (first tap of an unknown fob), and
+  - pick a name from the registered list, or type a new one, when no fob
+    is available.
+- **Base input:** touchscreen keyboard for typing names, plus a **rotary
+  encoder with push button** (EC11-type, through-hole) to scroll the name
+  list and choose add / edit / delete / select. LVGL supports encoder input
+  alongside touch.
+- **Pager alerts:** 16-LED WS2812 ring, piezo beeper, vibration motor,
+  acknowledge button (see `docs/pager_wiring.md`).
+- **OTA updates:** pagers update themselves from the base when they see a
+  different firmware version (see "OTA updates" below).
 - **Charging:** stacked pagers with pass-through pogo contacts.
 - **Budget first:** cheapest options, phased purchasing.
 - **Security:** security team has approved badge tap and wants to use the
   system as a pen test scenario (scope to be confirmed in writing).
 
 ## Proposed (not yet decided)
-- **Base display:** "Cheap Yellow Display" ESP32 (2.8" ESP32-2432S028R, or a
-  3.5" variant for easier name entry). Its own ESP32 runs ESP-NOW at first.
+- **Base display:** "Cheap Yellow Display" ESP32. The 2.8" resistive model
+  (ESP32-2432S028R) is cheapest but cramped for an on-screen keyboard; a
+  3.5" variant (capacitive if budget allows) is the better fit for name
+  entry. UI built with LVGL (has keyboard and list widgets). Its own ESP32
+  runs ESP-NOW at first. The CYD's microSD slot can hold pager firmware for
+  OTA and the name list.
 - **Charging bus:** 5 V, two stacks of 4 (cheapest). Alternative: one stack of
   8 on a 12 V bus with a buck module per pager.
 - **Stack contacts:** 4-pin magnetic pogo pairs (2 pins V+, 2 GND), keyed
@@ -33,7 +49,9 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   the dock for short periods). To be confirmed by measuring current.
 
 ## Queue flow (proposed)
-1. Tap badge (or type name) on the base, lift the top pager off the stack.
+1. Tap badge on the base: a known fob shows the name; an unknown fob opens
+   the keyboard to register a name. No fob: pick from the name list or type a
+   name. Then lift the top pager off the stack.
 2. Queue shows names in order.
 3. "Next" on the base alerts the next pager; holder presses its button to
    acknowledge. No acknowledgement within X minutes: skip to the next person.
@@ -53,6 +71,27 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
     ESP32/Arduino use, higher cost), or OMNIKEY 5427CK on an ESP32-S3 USB host.
 - Name entry always available as a fallback.
 
+## OTA updates (proposed; proof of concept in `ota_test/`)
+- Pager firmware has a version number and reports it to the base over
+  ESP-NOW. The base broadcasts the version of the firmware it holds.
+- A pager updates only when **on the dock** (powered), **not in the queue**,
+  and the versions **differ** (so uploading an older build rolls back).
+- The base switches on a WPA2 access point on the ESP-NOW channel; the
+  pager joins it, downloads `pager.bin` over HTTP, verifies it against the
+  MD5 the base sends, installs to the spare OTA slot and reboots. One pager
+  at a time; the AP goes off afterwards.
+- New firmware gets onto the base via an upload page (phone or laptop joined
+  to the base AP), or later from the microSD card.
+- Pagers need an OTA partition scheme (e.g. "Minimal SPIFFS (1.9MB APP with
+  OTA)"), so the first flash of every pager must use it.
+- **To verify:** whether automatic rollback after a bad boot is available
+  with the stock Arduino bootloader. Until then, test each release on one
+  pager before uploading it to the base.
+- **Security (pen test relevant):** an OTA path is the easiest way to take
+  over a device. Planned: AP password, MD5 integrity check now; firmware
+  signing (only accept images signed with our key) before deployment.
+- Base updates itself over USB for now; OTA for the base later.
+
 ## Hardening (cheap, planned)
 - Salted hash of CSNs, ESP-NOW encryption (check encrypted peer limit fits
   8 pagers + bridge), message counters against replay.
@@ -61,7 +100,14 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 
 ## Open questions
 - Range test results (see `range_test/`).
-- Badge reader experiment: ST25R3916 or PN5180?
+- Badge reader: PN5180 on order (test sketch in `pn5180_csn_test/`).
+- Base display size: 2.8" vs 3.5" CYD for the keyboard.
+- **Base pin budget:** the CYD exposes only a few spare GPIOs. PN5180 (SPI +
+  BUSY + RST + NSS) plus encoder (A, B, push) likely won't fit directly.
+  Options: (a) a LOLIN32 as a co-processor for the PN5180 (and later the
+  external-antenna radio), talking to the CYD over UART; (b) an I2C encoder
+  module; (c) share the SD card's SPI bus with the PN5180. Check the exact
+  CYD model's free pins first.
 - 5 V two stacks vs 12 V single stack.
 - Queue rules: acknowledgement timeout, max game time?
 - LOLIN32 Lite battery connector (PH 2.0 vs XH 2.54), USB chip, LED pin.
