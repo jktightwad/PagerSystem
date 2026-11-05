@@ -168,6 +168,16 @@ static void gpioLoopbackTest() {
     Serial.printf("  wrote %d, read %d %s\n", level, got, got == level ? "ok" : "MISMATCH");
     if (got == level) pass++;
   }
+  // Hold the output HIGH so it can be checked with a multimeter
+  digitalWrite(SPI_MOSI_PIN, HIGH);
+  Serial.printf("  Holding GPIO %d HIGH for 10 s: measure GPIO %d and GPIO %d to GND now\n",
+                SPI_MOSI_PIN, SPI_MOSI_PIN, SPI_MISO_PIN);
+  for (int sec = 10; sec > 0; sec--) {
+    Serial.printf("    %2d s left, GPIO %d reads %d\n", sec, SPI_MISO_PIN, digitalRead(SPI_MISO_PIN));
+    delay(1000);
+  }
+  digitalWrite(SPI_MOSI_PIN, LOW);
+
   // Pull test on MISO alone: shows whether the pin can move at all
   pinMode(SPI_MOSI_PIN, INPUT);
   pinMode(SPI_MISO_PIN, INPUT_PULLUP);
