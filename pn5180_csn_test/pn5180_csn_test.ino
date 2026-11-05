@@ -210,7 +210,8 @@ void setup() {
     Serial.println();
     if (!ok) {
       Serial.println("PN5180 NOT responding over SPI (BUSY never went HIGH).");
-      Serial.println("Check: 3.3V at the module, GND, NSS, SCK, MOSI (not swapped with MISO), BUSY, RST.");
+      Serial.printf("Check: 3.3V at the module, GND, NSS -> GPIO %d, SCK -> GPIO %d, MOSI -> GPIO %d, BUSY -> GPIO %d, RST -> GPIO %d.\n",
+                    PN5180_NSS, SCK, MOSI, PN5180_BUSY, PN5180_RST);
     } else {
       Serial.printf("Version bytes: %02X %02X %02X %02X %02X %02X\n", v[0], v[1], v[2], v[3], v[4], v[5]);
       bool allZero = true, allFF = true;
@@ -224,7 +225,8 @@ void setup() {
         break;
       }
       Serial.println("Commands reach the PN5180 (BUSY works) but replies are all 00 or FF:");
-      Serial.println("check the MISO wire (PN5180 MISO -> board MISO pin shown above).");
+      Serial.printf("check MISO (PN5180 MISO -> GPIO %d) and MOSI (PN5180 MOSI -> GPIO %d), SCK -> GPIO %d.\n",
+                    MISO, MOSI, SCK);
     }
     Serial.println("Retrying in 3 s...");
     delay(3000);
