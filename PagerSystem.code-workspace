@@ -1,0 +1,14 @@
+{
+  "folders": [
+    { "name": "range_base", "path": "range_test/range_base" },
+    { "name": "range_walker", "path": "range_test/range_walker" },
+    { "name": "pn5180_csn_test", "path": "pn5180_csn_test" },
+    { "name": "pager_alert_test", "path": "pager_alert_test" },
+    { "name": "ota_base", "path": "ota_test/ota_base" },
+    { "name": "ota_pager", "path": "ota_test/ota_pager" },
+    { "name": "docs (PagerSystem root)", "path": "." }
+  ],
+  "settings": {
+    "git.openRepositoryInParentFolders": "always"
+  }
+}
