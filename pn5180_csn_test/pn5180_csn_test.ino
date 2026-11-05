@@ -203,11 +203,14 @@ void setup() {
   // 0x14: EEPROM version, 2 bytes each; addresses as used by the ATrappmann
   // PN5180 library). All 00 or all FF means data isn't coming back on MISO.
   while (true) {
+    // sendBytes() overwrites cmd with what came back on MISO while sending.
+    // Per the datasheet (Fig. 8) the PN5180 answers FF FF FF during a command.
     uint8_t cmd[] = {PN5180_READ_EEPROM, 0x10, 6};
     bool ok = nfc.sendBytes(cmd, sizeof(cmd));
     uint8_t v[6] = {0};
     if (ok) ok = nfc.readBytes(v, sizeof(v));
     Serial.println();
+    Serial.printf("MISO during command: %02X %02X %02X (expect FF FF FF)\n", cmd[0], cmd[1], cmd[2]);
     if (!ok) {
       Serial.println("PN5180 NOT responding over SPI (BUSY never went HIGH).");
       Serial.printf("Check: 3.3V at the module, GND, NSS -> GPIO %d, SCK -> GPIO %d, MOSI -> GPIO %d, BUSY -> GPIO %d, RST -> GPIO %d.\n",
