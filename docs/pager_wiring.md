@@ -78,3 +78,13 @@ Motor only: 1N4148 across the motor, cathode (band) to LiPo +
 GPIO, IRQ, AUX and REQ are not used. Pins match the playfultechnology
 library README. GPIO 5 is a strapping pin, which is fine for NSS (the
 library's own suggested wiring); move it if boot problems appear.
+
+### Troubleshooting SPI (learned on the bench)
+- `SPI send error 3`: commands aren't reaching the PN5180 (power, NSS, SCK,
+  MOSI) or BUSY isn't wired.
+- `MISO during command: 00 00 00` and version bytes all 00: no data coming
+  back. Check MISO, then run the sketch's GPIO loopback test (type `l` with a
+  jumper from the MOSI pin to the MISO pin).
+- One ESP32-C3 SuperMini on the bench had a **dead GPIO 5 input** (pad
+  measured 3.3 V, chip read 0). Fixed by moving MISO to GPIO 0 and MOSI to
+  GPIO 1 via the `PN5180_SCK/MISO/MOSI` build flags in `platformio.ini`.

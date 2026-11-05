@@ -60,6 +60,12 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 
 ## Badge tap
 - Office fobs are **HID iCLASS, SE enabled** (Flipper Picopass read the CSN).
+- **Confirmed working: PN5180** (`pn5180_csn_test/`) reads the CSN with no
+  keys, using ACTALL / IDENTIFY / SELECT in ISO 15693 mode with the PN5180's
+  hardware CRC disabled. Reply CRC verified in software: CRC-16 (reflected
+  poly 0x8408), preset **E012h, not inverted**. Stable across repeated reads.
+  Still to check: matches Flipper byte order, colleague fob differs, read
+  range, reading through the 3D-printed front panel.
 - Plan: identify by **CSN only**, store a salted hash, never touch the SE
   access data. CSN is not secret and can be replayed: fine for a pool queue.
 - RC522 / PN532 can't read iCLASS.
@@ -100,7 +106,8 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 
 ## Open questions
 - Range test results (see `range_test/`).
-- Badge reader: PN5180 on order (test sketch in `pn5180_csn_test/`).
+- Badge reader: **PN5180 chosen** (CSN read confirmed); range and panel
+  thickness still to test.
 - Base display size: 2.8" vs 3.5" CYD for the keyboard.
 - **Base pin budget:** the CYD exposes only a few spare GPIOs. PN5180 (SPI +
   BUSY + RST + NSS) plus encoder (A, B, push) likely won't fit directly.
