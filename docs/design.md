@@ -29,6 +29,24 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 - **Security:** security team has approved badge tap and wants to use the
   system as a pen test scenario (scope to be confirmed in writing).
 
+## Radio range (POC result)
+- Home trial (shop and back yard), ESP32-C3 SuperMini base, LOLIN32 Lite
+  walker, channel 1, LR mode off: solid near the base, marginal to failing
+  at -85 to -96 dBm. **Line of sight made the biggest difference**; the base
+  side heard ~3-5 dB worse than the walker (consistent with the SuperMini's
+  small antenna, not proven).
+- **Accepted as good enough for the POC.** Office test still to do.
+- **Base stays low-profile and reachable** (pagers dock on it), so height for
+  range comes from moving the antenna or radio, not the base:
+  - enclosure keeps a mounting point (printed knockout) for an **SMA
+    bulkhead** + u.FL pigtail: stubby antenna on the base, or a cable to a
+    small antenna mounted higher;
+  - or a **remote radio module** (small ESP32 with external antenna) mounted
+    high, linked to the base by a thin power + serial cable.
+- Further options if needed: LR mode, a mains-powered relay node.
+- User guidance later: keep pagers on top of the desk, not in drawers or
+  behind monitors.
+
 ## Proposed (not yet decided)
 - **Base display:** "Cheap Yellow Display" ESP32. The 2.8" resistive model
   (ESP32-2432S028R) is cheapest but cramped for an on-screen keyboard; a
@@ -105,7 +123,7 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   Teams needs Workflows webhooks (Office 365 connectors retired May 2026).
 
 ## Open questions
-- Range test results (see `range_test/`).
+- Office range test (see `range_test/`); home POC trial done.
 - Badge reader: **PN5180 chosen** (CSN read confirmed); range and panel
   thickness still to test.
 - Base display size: 2.8" vs 3.5" CYD for the keyboard.
