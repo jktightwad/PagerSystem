@@ -17,7 +17,9 @@
 
 #define CHANNEL      1      // Wi-Fi channel 1-13; must match walker
 #define USE_LR_MODE  0      // 1 = Espressif Long Range mode; must match walker
+#ifndef LED_PIN
 #define LED_PIN      22     // LOLIN32 Lite onboard LED (believed active LOW; check yours)
+#endif
 
 const uint32_t MAGIC = 0x504F4F4C;  // "POOL"
 

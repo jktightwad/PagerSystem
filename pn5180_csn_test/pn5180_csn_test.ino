@@ -23,11 +23,21 @@
 #include <SPI.h>
 #include <PN5180.h>
 
-// Wiring (ESP32 VSPI defaults: MOSI 23, MISO 19, SCK 18).
 // Connect BOTH 5V (RF power) and 3.3V (logic) on the PN5180 board.
+// SCK/MISO/MOSI are the board's default SPI pins (the library calls
+// SPI.begin() with no arguments):
+//   classic ESP32 / LOLIN32 Lite: SCK 18, MISO 19, MOSI 23
+//   ESP32-C3 SuperMini:           SCK 4,  MISO 5,  MOSI 6
+// NSS/BUSY/RST can be overridden from platformio.ini build_flags.
+#ifndef PN5180_NSS
 #define PN5180_NSS   5
+#endif
+#ifndef PN5180_BUSY
 #define PN5180_BUSY  17
+#endif
+#ifndef PN5180_RST
 #define PN5180_RST   16
+#endif
 
 // Print the full CSN (needed to compare with the Flipper). Set to 0 to show
 // only the first and last byte, e.g. when pasting output somewhere public.

@@ -24,7 +24,9 @@
 
 #define CHANNEL           1     // must match base
 #define USE_LR_MODE       0     // must match base
+#ifndef LED_PIN
 #define LED_PIN           22    // LOLIN32 Lite onboard LED (believed active LOW; check yours)
+#endif
 #define PING_INTERVAL_MS  250
 #define REPORT_MS         5000
 

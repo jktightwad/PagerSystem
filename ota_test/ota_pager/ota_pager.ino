@@ -27,7 +27,9 @@
 #define AP_SSID      "PoolPager-OTA"
 #define AP_PASS      "change-me-please"
 #define BASE_URL     "http://192.168.4.1"
+#ifndef LED_PIN
 #define LED_PIN      22                  // onboard LED (believed active LOW)
+#endif
 #define CHECK_EVERY_MS 60000
 
 static bool connectToBase() {
