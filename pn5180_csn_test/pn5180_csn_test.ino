@@ -182,9 +182,19 @@ static bool readCsn(uint8_t *csn, bool verbose) {
 
 void setup() {
   Serial.begin(115200);
-  delay(500);
+  // Boards with native USB serial (e.g. ESP32-C3 SuperMini) need the monitor
+  // to connect first, or the startup messages are lost. Wait up to 5 s.
+  uint32_t waitStart = millis();
+  while (!Serial && millis() - waitStart < 5000) delay(10);
+  delay(200);
   Serial.println("\nPN5180 iCLASS CSN test");
+  Serial.printf("Pins: NSS %d, BUSY %d, RST %d, default SPI SCK %d MISO %d MOSI %d\n",
+                PN5180_NSS, PN5180_BUSY, PN5180_RST, SCK, MISO, MOSI);
+  pinMode(PN5180_BUSY, INPUT);
+  Serial.printf("BUSY pin reads %s before reset (should be LOW when idle)\n",
+                digitalRead(PN5180_BUSY) ? "HIGH" : "LOW");
   nfc.begin();
+  Serial.println("PN5180 reset done, starting reads");
   Serial.println("Commands: v = toggle verbose, i = try standard ISO 15693 inventory (wiring check)");
 }
 
