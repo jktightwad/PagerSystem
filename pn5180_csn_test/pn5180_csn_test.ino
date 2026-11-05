@@ -21,6 +21,7 @@
 // STATUS: written, not compiled or tested.
 
 #include <SPI.h>
+#include <sdkconfig.h>
 #include <PN5180.h>
 
 // Connect BOTH 5V (RF power) and 3.3V (logic) on the PN5180 board.
@@ -196,6 +197,8 @@ static void gpioLoopbackTest() {
     pinMode(p, INPUT);
   }
   Serial.println(found ? "" : " none");
+#else
+  Serial.println("  (pin scan only implemented for ESP32-C3)");
 #endif
   digitalWrite(SPI_MOSI_PIN, LOW);
 
