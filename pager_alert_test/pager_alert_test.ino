@@ -29,6 +29,8 @@
                                 // 0 = passive piezo / magnetic buzzer (driven with a tone)
 #define VIBE_STRENGTH    180    // 0-255 PWM duty. A 3 V motor on a 4.2 V LiPo: ~180 = ~3 V
 #define BEEP_FREQ_HZ     2700   // passive only: try 2000-4000 to find the loudest
+#define ACTIVE_DRIVE_HZ  0      // active only: 0 = plain on/off (normal). >0 = pulse the
+                                // buzzer at this rate instead; use 'f' to compare by ear
 #define DIVIDER_RATIO    2.0f   // both dividers are 100k/100k
 
 Adafruit_NeoPixel ring(RING_LEDS, PIN_RING, NEO_GRB + NEO_KHZ800);
@@ -39,12 +41,28 @@ uint32_t stateSince = 0;
 
 // ---------------- Outputs ----------------
 
-void beeper(bool on) {
-#if ACTIVE_BEEPER
+// Plain DC on/off for the beeper pin (also used to restore it after tone())
+void beeperDc(bool on) {
+  pinMode(PIN_BEEPER, OUTPUT);
   digitalWrite(PIN_BEEPER, on ? HIGH : LOW);
+}
+
+void beeperTone(int hz) {
+  if (hz > 0) {
+    tone(PIN_BEEPER, hz);
+  } else {
+    noTone(PIN_BEEPER);
+    beeperDc(false);
+  }
+}
+
+void beeper(bool on) {
+#if ACTIVE_BEEPER && ACTIVE_DRIVE_HZ == 0
+  beeperDc(on);
+#elif ACTIVE_BEEPER
+  beeperTone(on ? ACTIVE_DRIVE_HZ : 0);
 #else
-  if (on) tone(PIN_BEEPER, BEEP_FREQ_HZ);
-  else noTone(PIN_BEEPER);
+  beeperTone(on ? BEEP_FREQ_HZ : 0);
 #endif
 }
 
@@ -186,17 +204,38 @@ void printStatus() {
                 digitalRead(PIN_BUTTON) == LOW ? "pressed" : "released");
 }
 
-#if !ACTIVE_BEEPER
-// Sweep the passive piezo to find its loudest frequency
-void beepSweep() {
-  for (int f = 1500; f <= 5000; f += 250) {
-    Serial.printf("%d Hz\n", f);
-    tone(PIN_BEEPER, f);
-    delay(400);
-  }
-  noTone(PIN_BEEPER);
+// Play the plain DC beep (an active buzzer's own tone) as a loudness reference
+void beepReference() {
+  Serial.println("  REF: plain on/off (buzzer's own tone)");
+  beeperDc(true);
+  delay(700);
+  beeperDc(false);
+  delay(500);
 }
-#endif
+
+// Sweep drive frequencies to find the loudest / most noticeable. For an
+// active buzzer the pitch is set by its internal oscillator, so pulsing it
+// mainly changes the sound character; the REF beep is replayed every few
+// steps to compare against. A phone sound-meter app gives numbers.
+void beepSweep() {
+  const int freqs[] = {250, 500, 750, 1000, 1500, 2000, 2300, 2500, 2700, 3000,
+                       3300, 3600, 4000, 4500, 5000};
+  Serial.println("Beeper sweep (note the step that sounds loudest):");
+  beepReference();
+  int step = 1;
+  for (int f : freqs) {
+    Serial.printf("  #%d: %d Hz\n", step, f);
+    beeperTone(f);
+    delay(700);
+    beeperTone(0);
+    delay(500);
+    if (step % 4 == 0) beepReference();
+    step++;
+  }
+  beepReference();
+  Serial.println("Done. Set ACTIVE_DRIVE_HZ (active) or BEEP_FREQ_HZ (passive) to the winner,");
+  Serial.println("or leave ACTIVE_DRIVE_HZ 0 if REF was loudest.");
+}
 
 void setup() {
   Serial.begin(115200);
@@ -212,11 +251,8 @@ void setup() {
   allOff();
 
   Serial.println("\nPager alert test");
-  Serial.println("a = alert, s = stop/ack, t = component test, b = battery/dock/button status"
-#if !ACTIVE_BEEPER
-                 ", f = beeper frequency sweep"
-#endif
-  );
+  Serial.println("a = alert, s = stop/ack, t = component test, b = battery/dock/button status,");
+  Serial.println("f = beeper frequency sweep, r = reference beep");
   printStatus();
   setState(IDLE);
 }
@@ -228,9 +264,8 @@ void loop() {
       case 's': if (state == ALERT) setState(ACKED); else setState(IDLE); break;
       case 't': componentTest(); setState(IDLE); break;
       case 'b': printStatus(); break;
-#if !ACTIVE_BEEPER
       case 'f': beepSweep(); break;
-#endif
+      case 'r': beepReference(); break;
     }
   }
 
