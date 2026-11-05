@@ -38,6 +38,29 @@
 #ifndef PN5180_RST
 #define PN5180_RST   16
 #endif
+// Optional: move SCK/MISO/MOSI off the board defaults (e.g. to work around a
+// damaged pin). Define all three in platformio.ini build_flags.
+#if defined(PN5180_SCK) && defined(PN5180_MISO) && defined(PN5180_MOSI)
+#define SPI_SCK_PIN  PN5180_SCK
+#define SPI_MISO_PIN PN5180_MISO
+#define SPI_MOSI_PIN PN5180_MOSI
+#define CUSTOM_SPI_PINS 1
+#else
+#define SPI_SCK_PIN  SCK
+#define SPI_MISO_PIN MISO
+#define SPI_MOSI_PIN MOSI
+#define CUSTOM_SPI_PINS 0
+#endif
+
+// Start SPI on the chosen pins (the library's begin() uses the defaults)
+static void startSpi() {
+#if CUSTOM_SPI_PINS
+  SPI.end();
+  SPI.begin(SPI_SCK_PIN, SPI_MISO_PIN, SPI_MOSI_PIN);
+#else
+  SPI.begin();
+#endif
+}
 
 // Print the full CSN (needed to compare with the Flipper). Set to 0 to show
 // only the first and last byte, e.g. when pasting output somewhere public.
@@ -132,31 +155,31 @@ static void printCsn(const uint8_t *csn) {
 // Plain GPIO test of the MOSI -> MISO pins, without SPI. Needs a jumper from
 // the MOSI pin to the MISO pin (PN5180 MISO disconnected).
 static void gpioLoopbackTest() {
-  Serial.printf("\nGPIO loopback test: driving GPIO %d (MOSI), reading GPIO %d (MISO)\n", MOSI, MISO);
+  Serial.printf("\nGPIO loopback test: driving GPIO %d (MOSI), reading GPIO %d (MISO)\n", SPI_MOSI_PIN, SPI_MISO_PIN);
   SPI.end();  // release the pins from the SPI peripheral
-  pinMode(MOSI, OUTPUT);
-  pinMode(MISO, INPUT);
+  pinMode(SPI_MOSI_PIN, OUTPUT);
+  pinMode(SPI_MISO_PIN, INPUT);
   int pass = 0;
   for (int i = 0; i < 4; i++) {
     int level = i % 2;
-    digitalWrite(MOSI, level);
+    digitalWrite(SPI_MOSI_PIN, level);
     delay(5);
-    int got = digitalRead(MISO);
+    int got = digitalRead(SPI_MISO_PIN);
     Serial.printf("  wrote %d, read %d %s\n", level, got, got == level ? "ok" : "MISMATCH");
     if (got == level) pass++;
   }
   // Pull test on MISO alone: shows whether the pin can move at all
-  pinMode(MOSI, INPUT);
-  pinMode(MISO, INPUT_PULLUP);
+  pinMode(SPI_MOSI_PIN, INPUT);
+  pinMode(SPI_MISO_PIN, INPUT_PULLUP);
   delay(5);
-  int up = digitalRead(MISO);
-  pinMode(MISO, INPUT_PULLDOWN);
+  int up = digitalRead(SPI_MISO_PIN);
+  pinMode(SPI_MISO_PIN, INPUT_PULLDOWN);
   delay(5);
-  int down = digitalRead(MISO);
+  int down = digitalRead(SPI_MISO_PIN);
   Serial.printf("  MISO with pull-up reads %d, with pull-down reads %d (MOSI floating)\n", up, down);
   Serial.println(pass == 4 ? "  RESULT: pins and jumper work as GPIO"
                            : "  RESULT: GPIO path broken (pin, solder joint or jumper)");
-  pinMode(MISO, INPUT);
+  pinMode(SPI_MISO_PIN, INPUT);
   SPI.begin();  // hand the pins back to SPI
 }
 
@@ -220,12 +243,14 @@ void setup() {
   while (!Serial && millis() - waitStart < 5000) delay(10);
   delay(200);
   Serial.println("\nPN5180 iCLASS CSN test");
-  Serial.printf("Pins: NSS %d, BUSY %d, RST %d, default SPI SCK %d MISO %d MOSI %d\n",
-                PN5180_NSS, PN5180_BUSY, PN5180_RST, SCK, MISO, MOSI);
+  Serial.printf("Pins: NSS %d, BUSY %d, RST %d, SPI SCK %d MISO %d MOSI %d (%s)\n",
+                PN5180_NSS, PN5180_BUSY, PN5180_RST, SPI_SCK_PIN, SPI_MISO_PIN, SPI_MOSI_PIN,
+                CUSTOM_SPI_PINS ? "custom" : "board default");
   pinMode(PN5180_BUSY, INPUT);
   Serial.printf("BUSY pin reads %s before reset (should be LOW when idle)\n",
                 digitalRead(PN5180_BUSY) ? "HIGH" : "LOW");
   nfc.begin();
+  startSpi();
   Serial.println("PN5180 reset done");
 
   // Check the SPI link before anything else: the PN5180 must raise BUSY in
@@ -245,7 +270,7 @@ void setup() {
     if (!ok) {
       Serial.println("PN5180 NOT responding over SPI (BUSY never went HIGH).");
       Serial.printf("Check: 3.3V at the module, GND, NSS -> GPIO %d, SCK -> GPIO %d, MOSI -> GPIO %d, BUSY -> GPIO %d, RST -> GPIO %d.\n",
-                    PN5180_NSS, SCK, MOSI, PN5180_BUSY, PN5180_RST);
+                    PN5180_NSS, SPI_SCK_PIN, SPI_MOSI_PIN, PN5180_BUSY, PN5180_RST);
     } else {
       Serial.printf("Version bytes: %02X %02X %02X %02X %02X %02X\n", v[0], v[1], v[2], v[3], v[4], v[5]);
       bool allZero = true, allFF = true;
@@ -260,7 +285,7 @@ void setup() {
       }
       Serial.println("Commands reach the PN5180 (BUSY works) but replies are all 00 or FF:");
       Serial.printf("check MISO (PN5180 MISO -> GPIO %d) and MOSI (PN5180 MOSI -> GPIO %d), SCK -> GPIO %d.\n",
-                    MISO, MOSI, SCK);
+                    SPI_MISO_PIN, SPI_MOSI_PIN, SPI_SCK_PIN);
     }
     Serial.println("Retrying in 3 s... (type l + Enter for a GPIO loopback test)");
     for (int i = 0; i < 300; i++) {
