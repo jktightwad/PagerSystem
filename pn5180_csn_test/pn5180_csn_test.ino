@@ -129,6 +129,37 @@ static void printCsn(const uint8_t *csn) {
 #endif
 }
 
+// Plain GPIO test of the MOSI -> MISO pins, without SPI. Needs a jumper from
+// the MOSI pin to the MISO pin (PN5180 MISO disconnected).
+static void gpioLoopbackTest() {
+  Serial.printf("\nGPIO loopback test: driving GPIO %d (MOSI), reading GPIO %d (MISO)\n", MOSI, MISO);
+  SPI.end();  // release the pins from the SPI peripheral
+  pinMode(MOSI, OUTPUT);
+  pinMode(MISO, INPUT);
+  int pass = 0;
+  for (int i = 0; i < 4; i++) {
+    int level = i % 2;
+    digitalWrite(MOSI, level);
+    delay(5);
+    int got = digitalRead(MISO);
+    Serial.printf("  wrote %d, read %d %s\n", level, got, got == level ? "ok" : "MISMATCH");
+    if (got == level) pass++;
+  }
+  // Pull test on MISO alone: shows whether the pin can move at all
+  pinMode(MOSI, INPUT);
+  pinMode(MISO, INPUT_PULLUP);
+  delay(5);
+  int up = digitalRead(MISO);
+  pinMode(MISO, INPUT_PULLDOWN);
+  delay(5);
+  int down = digitalRead(MISO);
+  Serial.printf("  MISO with pull-up reads %d, with pull-down reads %d (MOSI floating)\n", up, down);
+  Serial.println(pass == 4 ? "  RESULT: pins and jumper work as GPIO"
+                           : "  RESULT: GPIO path broken (pin, solder joint or jumper)");
+  pinMode(MISO, INPUT);
+  SPI.begin();  // hand the pins back to SPI
+}
+
 // One complete read attempt. Returns true and fills csn[8] on success.
 static bool readCsn(uint8_t *csn, bool verbose) {
   uint8_t rx[16];
@@ -231,8 +262,11 @@ void setup() {
       Serial.printf("check MISO (PN5180 MISO -> GPIO %d) and MOSI (PN5180 MOSI -> GPIO %d), SCK -> GPIO %d.\n",
                     MISO, MOSI, SCK);
     }
-    Serial.println("Retrying in 3 s...");
-    delay(3000);
+    Serial.println("Retrying in 3 s... (type l + Enter for a GPIO loopback test)");
+    for (int i = 0; i < 300; i++) {
+      if (Serial.available() && Serial.read() == 'l') gpioLoopbackTest();
+      delay(10);
+    }
     nfc.hardReset();
   }
   Serial.println("Commands: v = toggle verbose, i = try standard ISO 15693 inventory (wiring check)");
