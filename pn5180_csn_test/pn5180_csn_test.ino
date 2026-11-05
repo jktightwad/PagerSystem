@@ -137,7 +137,8 @@ static bool readCsn(uint8_t *csn, bool verbose) {
 
   nfc.loadISO15693config();
   if (!nfc.activateRF()) {
-    Serial.println("RF on failed (SPI works, so check the 5V supply to the PN5180)");
+    Serial.printf("RF on failed. IRQ_STATUS %08lX (check the 5V supply to the PN5180)\n",
+                  (unsigned long)nfc.readRegister(IRQ_STATUS));
     return false;
   }
   delay(10);  // let the card power up (Picopass uses a 10 ms guard time)
@@ -198,18 +199,33 @@ void setup() {
 
   // Check the SPI link before anything else: the PN5180 must raise BUSY in
   // response to a command. If it doesn't, RF/card errors are meaningless.
+  // Then read the version bytes from EEPROM (0x10: product, 0x12: firmware,
+  // 0x14: EEPROM version, 2 bytes each; addresses as used by the ATrappmann
+  // PN5180 library). All 00 or all FF means data isn't coming back on MISO.
   while (true) {
-    uint8_t cmd[] = {PN5180_READ_REGISTER, IRQ_STATUS};
+    uint8_t cmd[] = {PN5180_READ_EEPROM, 0x10, 6};
     bool ok = nfc.sendBytes(cmd, sizeof(cmd));
-    uint8_t reply[4];
-    if (ok) ok = nfc.readBytes(reply, sizeof(reply));
+    uint8_t v[6] = {0};
+    if (ok) ok = nfc.readBytes(v, sizeof(v));
     Serial.println();
-    if (ok) {
-      Serial.println("SPI link OK: PN5180 is responding. Starting reads.");
-      break;
+    if (!ok) {
+      Serial.println("PN5180 NOT responding over SPI (BUSY never went HIGH).");
+      Serial.println("Check: 3.3V at the module, GND, NSS, SCK, MOSI (not swapped with MISO), BUSY, RST.");
+    } else {
+      Serial.printf("Version bytes: %02X %02X %02X %02X %02X %02X\n", v[0], v[1], v[2], v[3], v[4], v[5]);
+      bool allZero = true, allFF = true;
+      for (uint8_t b : v) {
+        if (b != 0x00) allZero = false;
+        if (b != 0xFF) allFF = false;
+      }
+      if (!allZero && !allFF) {
+        Serial.printf("SPI link OK: product v%d.%d, firmware v%d.%d. Starting reads.\n",
+                      v[1], v[0], v[3], v[2]);
+        break;
+      }
+      Serial.println("Commands reach the PN5180 (BUSY works) but replies are all 00 or FF:");
+      Serial.println("check the MISO wire (PN5180 MISO -> board MISO pin shown above).");
     }
-    Serial.println("PN5180 NOT responding over SPI (BUSY never went HIGH).");
-    Serial.println("Check: 3.3V at the module, GND, NSS, SCK, MOSI (not swapped with MISO), BUSY, RST.");
     Serial.println("Retrying in 3 s...");
     delay(3000);
     nfc.hardReset();
