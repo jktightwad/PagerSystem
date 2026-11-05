@@ -11,8 +11,8 @@ is on.
 | Function | LOLIN32 pin | Parts |
 |---|---|---|
 | WS2812 ring DIN | GPIO 26 | 330 Ω series resistor, close to the ring |
-| Piezo beeper | GPIO 25 | 1 kΩ to NPN base |
-| Vibration motor | GPIO 27 | 1 kΩ to NPN base |
+| Active buzzer | GPIO 25 | 1 kΩ to NPN base |
+| Vibration motor (3 V coreless) | GPIO 27 | NPN (330 Ω) or logic-level MOSFET, see below |
 | Acknowledge button | GPIO 33 | Button to GND (internal pull-up). RTC pin, can wake from deep sleep |
 | Dock sense | GPIO 34 | 100 kΩ / 100 kΩ divider from the dock 5 V (before the diode) |
 | Battery voltage | GPIO 35 | 100 kΩ / 100 kΩ divider from battery + |
@@ -28,7 +28,7 @@ Dock pogo 5V ──┬───────────────────�
 
 LiPo + ──┬──► LOLIN32 JST battery connector
          ├──► WS2812 ring +5V/VCC   (+ 470 µF electrolytic across ring VCC/GND)
-         ├──► piezo +, motor +       (switched on their GND side by the NPNs)
+         ├──► buzzer +, motor +      (switched on their GND side)
          └── 100k ──┬── 100k ── GND  (battery sense -> GPIO 35)
                     └──► GPIO 35
 ```
@@ -47,19 +47,63 @@ LiPo + ──┬──► LOLIN32 JST battery connector
   dark. If standby time turns out poor, add a P-channel MOSFET to switch the
   ring's supply.
 
-## Drivers (identical for beeper and motor)
+## Beeper: active buzzer (GPIO 25)
 
 ```
-GPIO ── 1k ──► 2N2222 base
-               2N2222 emitter ── GND
-               2N2222 collector ── load (-)
-               load (+) ── LiPo +
-Motor only: 1N4148 across the motor, cathode (band) to LiPo +
+ LiPo + ──┬──────────────┐
+          │              │
+      1N4148         Buzzer (+)   (longer leg / "+" mark)
+     (optional,       Buzzer (-)
+      band to LiPo +)    │
+          └──────────────┤
+                         C
+ GPIO 25 ── 1 kΩ ──────► B  2N2222 / PN2222A
+                         E
+                         │
+                        GND
 ```
+- Sketch: `ACTIVE_BEEPER 1` (default). Check the buzzer's rated voltage;
+  a 5 V-only part will be quieter at LiPo voltage.
+- TO-92 2N2222A / PN2222A is usually E-B-C (flat face toward you, legs
+  down). Check the datasheet for your exact part.
 
-- **Beeper type:** set `ACTIVE_BEEPER` in the sketch. Active buzzers just
-  need on/off. Passive piezos and magnetic buzzers are driven with a tone;
-  use the `f` command to find the loudest frequency.
+## Vibration: 3 V coreless motor (GPIO 27)
+
+Needs an **eccentric weight** on the shaft to vibrate. Measure its running
+current at 3 V (weight fitted) to choose the driver:
+
+| Running current | Driver |
+|---|---|
+| under ~300 mA | 2N2222 with a **330 Ω** base resistor |
+| ~300 mA - 1 A, or unknown | logic-level MOSFET (TO-220): **IRLZ44N** or **IRLB8721**, 100 Ω gate resistor, 100 kΩ gate-to-GND |
+
+```
+ LiPo + ──┬───────────────┐
+          │               │
+       1N5819          Motor (+)
+      (band to         Motor (-)
+       LiPo +)            │
+          └───────────────┤
+                          D
+ GPIO 27 ── 100 Ω ──┬───► G   IRLZ44N / IRLB8721  (G-D-S, check datasheet)
+                    │     S
+                  100 kΩ  │
+                    │     │
+                   GND   GND
+```
+(2N2222 version: same, with GPIO 27 -> 330 Ω -> base, emitter to GND,
+collector to motor (-), no 100 kΩ.)
+
+- **1N5819 Schottky across the motor is required** (band toward LiPo +).
+- **470 µF electrolytic** across LiPo + / GND near the motor and ring, so
+  motor start-up doesn't brown out the ESP32.
+- The sketch drives the motor with 20 kHz PWM; `VIBE_STRENGTH` (0-255) sets
+  the strength. ~180 averages ~3 V from a full LiPo.
+- Optional: 100 nF ceramic across the motor terminals for noise.
+- Bench test without a battery: use the LOLIN32 **3V3** pin as "LiPo +"
+  (not 5V for a 3 V motor).
+- Run the motor and buzzer grounds back to the LOLIN32 GND separately from
+  the LED ring's ground.
 
 ## PN5180 (base unit, badge test)
 

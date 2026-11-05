@@ -16,7 +16,7 @@
 // ---- Pins (all avoid ESP32 strapping pins 0, 2, 5, 12, 15) ----
 #define PIN_RING      26   // WS2812 DIN, via 330 ohm resistor
 #define PIN_BEEPER    25   // NPN base (1k) -> piezo
-#define PIN_VIBE      27   // NPN base (1k) -> vibration motor
+#define PIN_VIBE      27   // NPN base (330R-1k) or logic-level MOSFET gate (100R) -> motor
 #define PIN_BUTTON    33   // to GND; RTC pin so it can wake from deep sleep later
 #define PIN_DOCK_ADC  34   // 100k/100k divider from the dock 5 V tap (ADC1)
 #define PIN_BATT_ADC  35   // 100k/100k divider from battery + (ADC1)
@@ -25,8 +25,9 @@
 // ---- Options ----
 #define RING_LEDS        16
 #define MAX_BRIGHTNESS   64     // 0-255. 16 LEDs at full white can draw ~1 A; keep low
-#define ACTIVE_BEEPER    0      // 1 = active buzzer (has its own oscillator, just on/off)
+#define ACTIVE_BEEPER    1      // 1 = active buzzer (has its own oscillator, just on/off)
                                 // 0 = passive piezo / magnetic buzzer (driven with a tone)
+#define VIBE_STRENGTH    180    // 0-255 PWM duty. A 3 V motor on a 4.2 V LiPo: ~180 = ~3 V
 #define BEEP_FREQ_HZ     2700   // passive only: try 2000-4000 to find the loudest
 #define DIVIDER_RATIO    2.0f   // both dividers are 100k/100k
 
@@ -47,7 +48,8 @@ void beeper(bool on) {
 #endif
 }
 
-void vibe(bool on) { digitalWrite(PIN_VIBE, on ? HIGH : LOW); }
+// Motor is driven with 20 kHz PWM (above hearing) so its strength can be set
+void vibe(bool on) { ledcWrite(PIN_VIBE, on ? VIBE_STRENGTH : 0); }
 
 void ringFill(uint32_t color) {
   ring.fill(color);
@@ -199,7 +201,7 @@ void beepSweep() {
 void setup() {
   Serial.begin(115200);
   pinMode(PIN_BEEPER, OUTPUT);
-  pinMode(PIN_VIBE, OUTPUT);
+  ledcAttach(PIN_VIBE, 20000, 8);  // 20 kHz, 8-bit duty
   pinMode(PIN_BUTTON, INPUT_PULLUP);
   pinMode(PIN_BOARD_LED, OUTPUT);
   digitalWrite(PIN_BOARD_LED, HIGH);
