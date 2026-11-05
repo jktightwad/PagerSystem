@@ -176,6 +176,27 @@ static void gpioLoopbackTest() {
     Serial.printf("    %2d s left, GPIO %d reads %d\n", sec, SPI_MISO_PIN, digitalRead(SPI_MISO_PIN));
     delay(1000);
   }
+
+#if CONFIG_IDF_TARGET_ESP32C3
+  // Which pins actually see the HIGH? Finds a mislabelled pin or jumper on the
+  // wrong pad. Pins are read with a pull-down so unconnected ones read 0.
+  // Skips the driven pin, USB (18, 19) and in-use PN5180 control pins.
+  const int scan[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 21};
+  Serial.print("  Pins reading HIGH while the output is HIGH:");
+  int found = 0;
+  for (int p : scan) {
+    if (p == SPI_MOSI_PIN || p == PN5180_NSS || p == PN5180_BUSY || p == PN5180_RST ||
+        p == SPI_SCK_PIN) continue;
+    pinMode(p, INPUT_PULLDOWN);
+    delay(2);
+    if (digitalRead(p)) {
+      Serial.printf(" GPIO %d", p);
+      found++;
+    }
+    pinMode(p, INPUT);
+  }
+  Serial.println(found ? "" : " none");
+#endif
   digitalWrite(SPI_MOSI_PIN, LOW);
 
   // Pull test on MISO alone: shows whether the pin can move at all
