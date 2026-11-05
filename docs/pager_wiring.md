@@ -69,8 +69,10 @@ LiPo + ──┬──► LOLIN32 JST battery connector
 
 ## Vibration: 3 V coreless motor (GPIO 27)
 
-Needs an **eccentric weight** on the shaft to vibrate. Measure its running
-current at 3 V (weight fitted) to choose the driver:
+Same type as the SkHCrusher/customer-pager parts list ("Vibration motor
+3.7V"): a small coreless vibration motor with its eccentric weight already
+fitted. These usually draw well under 300 mA, so the **2N2222 option is
+expected to be enough**; measure the running current at 3 V to confirm:
 
 | Running current | Driver |
 |---|---|
