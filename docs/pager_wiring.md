@@ -1,7 +1,8 @@
 # Pager wiring (draft)
 
 Through-hole / stripboard only. **Not yet built or verified.** Check every pin
-number against the silkscreen on your LOLIN32 Lite before soldering. The pins
+number against the silkscreen on your LOLIN32 Lite before soldering. All pins
+below were confirmed present on the USB-C LOLIN32 Lite pinout. The pins
 below were chosen to avoid ESP32 strapping pins (0, 2, 5, 12, 15) and to keep
 analog inputs on ADC1 (GPIO 32-39), because ADC2 can't be used while the radio
 is on.
@@ -14,38 +15,44 @@ is on.
 | Active buzzer | GPIO 25 | 1 kΩ to NPN base |
 | Vibration motor (3 V coreless) | GPIO 27 | NPN (330 Ω) or logic-level MOSFET, see below |
 | Acknowledge button | GPIO 33 | Button to GND (internal pull-up). RTC pin, can wake from deep sleep |
-| Dock sense | GPIO 34 | 100 kΩ / 100 kΩ divider from the dock 5 V (before the diode) |
+| Dock sense | GPIO 34 | 100 kΩ / 100 kΩ divider from the pogo 5 V (before the diode) |
 | Battery voltage | GPIO 35 | 100 kΩ / 100 kΩ divider from battery + |
 | Onboard LED | GPIO 22 | On the board |
 
 ## Power
 
+The LOLIN32 Lite (USB-C, CH340C version) has **no 5V pin and no BAT pin** on
+its headers: only **3V** and **G**. Battery + is only on the JST connector
+(silkscreen `+` on the pin nearest the board edge; verify with a meter).
+
 ```
 Dock pogo 5V ──┬──────────────────────────────► pass-through to top pogo (thick wire)
                ├── 100k ──┬── 100k ── GND        (dock sense -> GPIO 34)
                │          └──► GPIO 34
-               └── 1N5819 ──► LOLIN32 "5V" pin   (charges the LiPo via onboard charger)
+               └── 1N5819 ──► USB-C plug pigtail VBUS ──► LOLIN32 USB-C port
+Dock pogo GND ─────────────► USB-C plug pigtail GND      (onboard charger + LED)
 
-LiPo + ──┬──► LOLIN32 JST battery connector
-         ├──► WS2812 ring +5V/VCC   (+ 470 µF electrolytic across ring VCC/GND)
-         ├──► buzzer +, motor +      (switched on their GND side)
-         └── 100k ──┬── 100k ── GND  (battery sense -> GPIO 35)
-                    └──► GPIO 35
+LiPo + (JST "+" pin, soldered from underneath) ──┬──► WS2812 ring VCC (+ 470 µF to GND)
+                                                 ├──► buzzer +, motor + (switched on GND side)
+                                                 └── 100k ──┬── 100k ── GND  (battery sense)
+                                                            └──► GPIO 35
 ```
 
-- **Battery + tap:** if your board has no BAT pin, take battery + from the
-  JST lead (splice, or a JST Y-lead).
-- **To verify:** that feeding 5 V into the LOLIN32 "5V" pin charges the
-  battery (it should be the same net as USB VBUS, but check the schematic or
-  test with a meter on the charge LED).
-- The diode drops ~0.3-0.4 V, so the charger sees ~4.6 V. That's above the
-  TP4054's minimum, but measure it on the real stack.
-- **WS2812 on battery voltage (3.0-4.2 V)** with 3.3 V data usually works
-  reliably. Powering the ring from 5 V would need a level shifter on DIN.
-- **Ring current:** up to ~1 A at full white on 16 LEDs. The sketch caps
-  brightness at 64/255. The ring also draws a small idle current even when
-  dark. If standby time turns out poor, add a P-channel MOSFET to switch the
-  ring's supply.
+- **Charging uses a short USB-C plug pigtail** (male USB-C breakout or cut
+  cable) plugged into the board inside the pager, with VBUS/GND wired to the
+  pogo pins. Same approach as SkHCrusher/customer-pager (micro-USB plug).
+  To reprogram, unplug the pigtail and plug in a PC cable (or use OTA).
+- Alternative: a TP4056 charger module charging the LiPo directly from the
+  pogo 5 V; frees the USB-C port but adds a part per pager.
+- **Check LiPo polarity** before plugging in: cheap LiPo JST leads are often
+  reversed relative to the board. Connector size reported as PH 2.0 or
+  XH 2.54 by different sources; compare with the actual board.
+- **Bench testing without a battery:** use the **3V** pin as "LiPo +" for
+  the ring, buzzer and motor (ring at the sketch's default brightness).
+- **WS2812 on battery voltage (3.0-4.2 V)** with 3.3 V data usually works.
+- **Ring current:** up to ~1 A at full white on 16 LEDs; the sketch caps
+  brightness at 64/255. If standby time is poor, add a P-channel MOSFET to
+  switch the ring's supply.
 
 ## Beeper: active buzzer (GPIO 25)
 
