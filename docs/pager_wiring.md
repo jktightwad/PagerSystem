@@ -23,7 +23,7 @@ is on.
 
 The LOLIN32 Lite (USB-C, CH340C version) has **no 5V pin and no BAT pin** on
 its headers: only **3V** and **G**. Battery + is only on the JST connector
-(silkscreen `+` on the pin nearest the board edge; verify with a meter).
+(surface-mount; silkscreen `+` on the pin nearest the board edge).
 
 ```
 Dock pogo 5V ──┬──────────────────────────────► pass-through to top pogo (thick wire)
@@ -32,12 +32,20 @@ Dock pogo 5V ──┬───────────────────�
                └── 1N5819 ──► USB-C plug pigtail VBUS ──► LOLIN32 USB-C port
 Dock pogo GND ─────────────► USB-C plug pigtail GND      (onboard charger + LED)
 
-LiPo + (JST "+" pin, soldered from underneath) ──┬──► WS2812 ring VCC (+ 470 µF to GND)
+LiPo ─► female JST pigtail ─► stripboard BAT+/GND rails ─► male JST pigtail ─► LOLIN32 JST
+BAT+ rail ───────────────────────────────────────┬──► WS2812 ring VCC (+ 470 µF to GND)
                                                  ├──► buzzer +, motor + (switched on GND side)
                                                  └── 100k ──┬── 100k ── GND  (battery sense)
                                                             └──► GPIO 35
 ```
 
+- **Battery tap:** the board's JST connector is surface-mount (no
+  through-hole pins), so the battery is routed through the stripboard with
+  two JST pigtails (female from the battery, male to the board). Battery and
+  board stay unmodified. Match pigtail size to the board (PH 2.0 vs XH 2.54)
+  and check polarity with a meter before plugging into the board.
+- Optional: a through-hole slide switch in the BAT+ rail for storage. A
+  switched-off pager does not charge on the dock.
 - **Charging uses a short USB-C plug pigtail** (male USB-C breakout or cut
   cable) plugged into the board inside the pager, with VBUS/GND wired to the
   pogo pins. Same approach as SkHCrusher/customer-pager (micro-USB plug).
