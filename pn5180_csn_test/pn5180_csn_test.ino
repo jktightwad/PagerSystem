@@ -137,7 +137,7 @@ static bool readCsn(uint8_t *csn, bool verbose) {
 
   nfc.loadISO15693config();
   if (!nfc.activateRF()) {
-    Serial.println("RF on failed (check 5V supply to the PN5180)");
+    Serial.println("RF on failed (SPI works, so check the 5V supply to the PN5180)");
     return false;
   }
   delay(10);  // let the card power up (Picopass uses a 10 ms guard time)
@@ -194,7 +194,26 @@ void setup() {
   Serial.printf("BUSY pin reads %s before reset (should be LOW when idle)\n",
                 digitalRead(PN5180_BUSY) ? "HIGH" : "LOW");
   nfc.begin();
-  Serial.println("PN5180 reset done, starting reads");
+  Serial.println("PN5180 reset done");
+
+  // Check the SPI link before anything else: the PN5180 must raise BUSY in
+  // response to a command. If it doesn't, RF/card errors are meaningless.
+  while (true) {
+    uint8_t cmd[] = {PN5180_READ_REGISTER, IRQ_STATUS};
+    bool ok = nfc.sendBytes(cmd, sizeof(cmd));
+    uint8_t reply[4];
+    if (ok) ok = nfc.readBytes(reply, sizeof(reply));
+    Serial.println();
+    if (ok) {
+      Serial.println("SPI link OK: PN5180 is responding. Starting reads.");
+      break;
+    }
+    Serial.println("PN5180 NOT responding over SPI (BUSY never went HIGH).");
+    Serial.println("Check: 3.3V at the module, GND, NSS, SCK, MOSI (not swapped with MISO), BUSY, RST.");
+    Serial.println("Retrying in 3 s...");
+    delay(3000);
+    nfc.hardReset();
+  }
   Serial.println("Commands: v = toggle verbose, i = try standard ISO 15693 inventory (wiring check)");
 }
 
