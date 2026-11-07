@@ -116,6 +116,33 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   signing (only accept images signed with our key) before deployment.
 - Base updates itself over USB for now; OTA for the base later.
 
+## Ideas from baycom/rps (proposed, not decided)
+Reviewed github.com/baycom/rps (GPL-3.0, ESP32 + SX127x 433 MHz transmitter
+that pages commercial restaurant pagers: LRS, POCSAG, Retekess). Ideas only;
+no code copied.
+- **Plan B for pagers:** buy commercial 433 MHz pagers with their own
+  charging stack (e.g. Retekess) and build only the base + transmitter
+  (ESP32 + SX1278). Gains: pagers and dock solved, 433 MHz goes through walls
+  better. Losses: one-way (no acknowledge), no LED ring, protocols are
+  reverse-engineered and change between pager models.
+- **HTTP paging API** (`/page?...`) for Slack/Teams, automation and phone use.
+  Ours must require authentication (rps leaves it open).
+- **Wi-Fi with AP fallback:** join office Wi-Fi if configured, else run the
+  base's own access point for settings.
+- **Settings page** saved as JSON on flash; **factory reset** by holding a
+  button for 5 s.
+- **Cancel**, **page all** (e.g. "table closed") and **mute all** commands.
+- **Configurable alert duration and repeat interval**, then auto-skip to the
+  next person if unacknowledged.
+- **Dock-based numbering:** pagers get their ID from the base while on the
+  dock, so no manual pager numbers.
+- **Embed web files** (`board_build.embed_txtfiles`) instead of HTML inside
+  the .ino; avoids the prototype-scanner problem hit in the range test.
+- **Live UI updates** via WebSocket / Server-Sent Events.
+- **Ethernet (PoE) base variant** (e.g. Olimex ESP32-POE) for Slack/Teams
+  without depending on Wi-Fi, if IT allows a wired port.
+- **Boot self-test** showing radio / reader failure on the display.
+
 ## Hardening (cheap, planned)
 - Salted hash of CSNs, ESP-NOW encryption (check encrypted peer limit fits
   8 pagers + bridge), message counters against replay.
