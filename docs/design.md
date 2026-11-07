@@ -116,6 +116,46 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   signing (only accept images signed with our key) before deployment.
 - Base updates itself over USB for now; OTA for the base later.
 
+## Web-first UI and queue model (proposed)
+- **All screens are a web page served by the base** on the **office Wi-Fi**
+  (authorized). Any browser works; a dedicated screen is optional (tablet /
+  old phone in kiosk mode at the table). Ask IT for a fixed IP or DHCP
+  reservation; QR code at the table. Check whether the network is
+  WPA2-Enterprise (802.1X): supported on ESP32 but configured differently.
+- **Radio bridge:** a separate small ESP32 runs ESP-NOW on a fixed channel
+  for the pagers and talks to the base over serial, because the base's
+  channel follows the office access point.
+- **Base hardware needs no screen:** radio bridge, PN5180, local feedback
+  (LEDs / small ring + beeper) at the reader.
+- **Flows:** register once (web "Register" -> tap fob at base -> enter name);
+  join the queue from your desk; at the table tap fob and lift a pager (the
+  lift tells the base which pager); visitors pick/type a name instead.
+- **Auth without passwords:** fob registration shows a one-time code that
+  links the browser to the person; only that browser or that person's fob
+  can change their reservation; admin password for settings / page all /
+  mute all. Plain HTTP, so nothing sensitive goes through the page.
+- **Capacity:** clients poll every few seconds (ESP32 holds ~10 sockets).
+- **Queue entries are a person or a group of 2-4.** When the table frees up,
+  choose "next game: 2 / 3 / 4 players"; the base pages the next entries in
+  order until that many players are covered, never splitting a group. Each
+  member may hold a pager, or a group can share the leader's pager.
+  Open: auto-match solo players into games, or always queue complete games?
+
+## Pickup detection with pass-through charging
+- Each pager senses 5 V on its **own bottom pogo pins** (divider -> GPIO 34).
+  Lifting the top pager removes 5 V only from that pager; it reports
+  "lifted" over ESP-NOW. Pagers below are unaffected.
+- Base handling: debounce (off dock > ~2 s); several lifted at once -> ask
+  to return extras; **all** lifted at once -> dock power fault, not pickups;
+  lifted with nobody waiting -> "who took pager N?".
+
+## Pager/base messaging security
+- Do not rely on ESP-NOW's built-in encryption: it is limited to 7 encrypted
+  peers by default (max 17, build-time setting), and we have 8+ devices.
+- Instead every message carries a **counter** (anti-replay) and a **MAC
+  computed with a shared secret key** (authenticity). Messages don't need to
+  be hidden, only proven genuine. Works for direct messages and broadcasts.
+
 ## Ideas from baycom/rps (proposed, not decided)
 Reviewed github.com/baycom/rps (GPL-3.0, ESP32 + SX127x 433 MHz transmitter
 that pages commercial restaurant pagers: LRS, POCSAG, Retekess). Ideas only;
@@ -144,8 +184,8 @@ no code copied.
 - **Boot self-test** showing radio / reader failure on the display.
 
 ## Hardening (cheap, planned)
-- Salted hash of CSNs, ESP-NOW encryption (check encrypted peer limit fits
-  8 pagers + bridge), message counters against replay.
+- Salted hash of CSNs; authenticated ESP-NOW messages (counter + shared-key
+  MAC, see "Pager/base messaging security").
 - If the base later joins Wi-Fi (Slack/Teams), treat it as untrusted IoT.
   Teams needs Workflows webhooks (Office 365 connectors retired May 2026).
 
