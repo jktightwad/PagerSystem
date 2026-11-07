@@ -135,11 +135,31 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   can change their reservation; admin password for settings / page all /
   mute all. Plain HTTP, so nothing sensitive goes through the page.
 - **Capacity:** clients poll every few seconds (ESP32 holds ~10 sockets).
-- **Queue entries are a person or a group of 2-4.** When the table frees up,
-  choose "next game: 2 / 3 / 4 players"; the base pages the next entries in
-  order until that many players are covered, never splitting a group. Each
-  member may hold a pager, or a group can share the leader's pager.
-  Open: auto-match solo players into games, or always queue complete games?
+- Queue model: see "Players, pagers and pairing".
+
+## Players, pagers and pairing (proposed)
+- **Everyone gets their own pager.** The queue is a list of people. When the
+  table frees up, someone chooses "next game: 2 / 3 / 4 players"; the base
+  pages the next N waiting people. **Partners are chosen at the table**, not
+  by the system.
+- **Pagers are numbered like pool balls** (1-8). The LED ring shows the
+  ball's colour when idle/bound: 1 yellow, 2 blue, 3 red, 4 purple,
+  5 orange, 6 green, 7 maroon, 8 white (black can't be lit).
+- **Binding a person to a pager** works from three events, in any order:
+  `SCAN` (fob at the base), `LIFT` (pager leaves the dock) and `CLAIM`
+  (button pressed on a lifted pager). Rules, highest priority first:
+  1. **CLAIM then SCAN** (within 30 s): bind that pager. Always unambiguous.
+  2. **SCAN then LIFT** (within 30 s): bind the lifted pager.
+  3. **LIFT then SCAN** (within 60 s): bind if exactly one lifted pager is
+     unbound; if several are, ask "press the button on your pager, then scan".
+  4. Web fallback: "I have pager N" for visitors / no fob.
+  Binding is confirmed by a chirp + ring flash in the ball colour on the
+  pager and a beep at the base.
+- **Docking means different things by state:** while waiting = leave the
+  queue (after a ~10 s grace period); while paged = "arrived" (turn used);
+  unbound = just returned.
+- **Web "join from desk"** holds a queue position until the person binds a
+  pager (time limit to be decided).
 
 ## Pickup detection with pass-through charging
 - Each pager senses 5 V on its **own bottom pogo pins** (divider -> GPIO 34).

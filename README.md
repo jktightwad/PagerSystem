@@ -21,6 +21,7 @@ From a terminal: `pio run -e esp32c3_supermini -t upload`, then
 | Folder | What it is |
 |---|---|
 | `docs/design.md` | Decisions, proposals, open questions |
+| `docs/test_plan.md` | Test cases for pairing, queue, docking, radio, web, security, OTA, power |
 | `docs/pager_wiring.md` | Pager pin map, power and driver wiring; PN5180 wiring |
 | `range_test/` | ESP-NOW range test (base + walker) |
 | `pager_alert_test/` | WS2812 ring, beeper, vibration, button, dock/battery readings |
