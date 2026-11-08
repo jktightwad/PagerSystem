@@ -168,10 +168,13 @@ void runIdle() {
 // ---------------- Light test ----------------
 // Steady colours for judging the ring through the face / diffusion rig.
 struct Rgb { uint8_t r, g, b; const char *name; };
-const Rgb BALLS[] = {
-  {255, 190, 0, "1 yellow"}, {0, 0, 255, "2 blue"}, {255, 0, 0, "3 red"},
-  {120, 0, 160, "4 purple"}, {255, 70, 0, "5 orange"}, {0, 200, 0, "6 green"},
-  {130, 0, 20, "7 maroon"},  {255, 255, 255, "8 white"}};
+// WS2812 green looks much brighter than red, so yellow/orange need little
+// green and purple needs little red. Tune by eye through the real face with
+// the 'c' command and copy the printed table back here.
+Rgb BALLS[] = {
+  {255, 110, 0, "1 yellow"}, {0, 0, 255, "2 blue"}, {255, 0, 0, "3 red"},
+  {80, 0, 255, "4 purple"},  {255, 35, 0, "5 orange"}, {0, 200, 0, "6 green"},
+  {130, 0, 15, "7 maroon"},  {255, 255, 255, "8 white"}};
 const int NUM_BALLS = sizeof(BALLS) / sizeof(BALLS[0]);
 const uint8_t BRIGHT_STEPS[] = {4, 8, 16, 32, 64, 96, 128, 192, 255};
 int lightColor = 0;
@@ -183,8 +186,26 @@ void showLight() {
   ring.setBrightness(b);
   ring.fill(ring.Color(c.r, c.g, c.b));
   ring.show();
-  Serial.printf("Light: %s at brightness %u/255%s\n", c.name, b,
+  Serial.printf("Light: %s (R %u G %u B %u) at brightness %u/255%s\n", c.name, c.r, c.g, c.b, b,
                 b > 64 ? "  (above 64: use battery/USB 5 V, not the 3V pin, for long)" : "");
+}
+
+// 'c R G B' sets the colour currently shown, e.g. "c 255 100 0"
+void setColorCommand() {
+  int r = Serial.parseInt(), g = Serial.parseInt(), b = Serial.parseInt();
+  if (state != LIGHT) setState(LIGHT);
+  BALLS[lightColor].r = constrain(r, 0, 255);
+  BALLS[lightColor].g = constrain(g, 0, 255);
+  BALLS[lightColor].b = constrain(b, 0, 255);
+  showLight();
+}
+
+// Print the colour table in a form that can be pasted back into the sketch
+void printColorTable() {
+  Serial.println("Rgb BALLS[] = {");
+  for (int i = 0; i < NUM_BALLS; i++)
+    Serial.printf("  {%u, %u, %u, \"%s\"},\n", BALLS[i].r, BALLS[i].g, BALLS[i].b, BALLS[i].name);
+  Serial.println("};");
 }
 
 void lightCommand(char cmd) {
@@ -290,6 +311,7 @@ void setup() {
   Serial.println("a = alert, s = stop/ack, t = component test, b = battery/dock/button status,");
   Serial.println("f = beeper frequency sweep, r = reference beep");
   Serial.println("Light test: l = next ball colour, + / - = brightness, w = white, g = faint glow, s = off");
+  Serial.println("  c R G B = set the shown colour (e.g. c 255 100 0), p = print colour table");
   printStatus();
   setState(IDLE);
 }
@@ -305,6 +327,8 @@ void loop() {
       case 'f': beepSweep(); break;
       case 'r': beepReference(); break;
       case 'l': case '+': case '-': case 'w': case 'g': lightCommand(c); break;
+      case 'c': setColorCommand(); break;
+      case 'p': printColorTable(); break;
     }
   }
 
