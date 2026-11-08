@@ -11,7 +11,7 @@ is on.
 
 | Function | LOLIN32 pin | Parts |
 |---|---|---|
-| WS2812 ring DIN | GPIO 26 | 330 Ω series resistor, close to the ring |
+| WS2812 ring DI (data in) | GPIO 26 | 330 Ω series resistor, close to the ring. DO not connected |
 | Active buzzer | GPIO 25 | 1 kΩ to NPN base |
 | Vibration motor (3 V coreless) | GPIO 27 | NPN (330 Ω) or logic-level MOSFET, see below |
 | Acknowledge button | GPIO 33 | Button to GND (internal pull-up). RTC pin, can wake from deep sleep |

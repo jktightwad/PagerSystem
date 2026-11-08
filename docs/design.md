@@ -164,10 +164,12 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 ## Pager enclosure and stacking (proposed)
 - Looks like a pool ball: **coloured outer border** (ball colour), **white
   centre** (0.8 mm, light passes through) with the **black number**. The
-  16-LED ring sits under the white centre so the face glows. Ring is ~44 mm
-  OD (measure the actual part); white centre at least that wide, total pager
-  roughly 70-80 mm.
-- Even glow: 5-10 mm gap between ring and face, or an extra diffuser layer.
+  16-LED ring sits under the white centre so the face glows. **Measured
+  ring: 68.2 mm OD, 53.6 mm ID** (pins DI, 5V, DO, GND). White centre about
+  72-75 mm; total pager about 90-100 mm (coaster sized). Electronics and
+  battery sit under the ring (the LOLIN32 doesn't fit inside 53.6 mm flat).
+- Even glow: LEDs are ~12 mm apart, so allow 10 mm+ between ring and face,
+  or add a diffuser layer; test-print a few gap heights.
   Number printed thick / full-depth black so it doesn't glow through.
 - **Stacking:** the white centre is slightly raised; the underside has a
   matching recess, so each pager seats on the one below.
