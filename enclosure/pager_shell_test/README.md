@@ -1,32 +1,42 @@
-# Pager shell test (v2)
+# Pager shell test (v3)
 
-Second iteration of the pool-ball pager shell, after the first fit prints.
-Source: `pager_shell_test.scad` (OpenSCAD, everything is a parameter).
-Replaces `ball_fit_test` (v1) and the pogo keystone coupons.
+Pool-ball pager shell, third iteration. Source: `pager_shell_test.scad`
+(OpenSCAD, everything is a parameter; open the Customizer for dropdowns).
 
 ![Preview](preview.png)
 
-## What changed from v1
-| | v1 | v2 |
-|---|---|---|
-| Crown / opening / stacking recess | round | **egg** (72 wide, 76 tall, narrow end at 12 o'clock): keys orientation |
-| Crown above the ball face | 2.5 mm | **1.5 mm** |
-| Number height | 0.75 x 72 mm | **0.6 x 72 = 43 mm** (80 %) |
-| Brim | D-shaped (orientation) | egg-shaped (follows the crown) |
-| Hat fit | 3 variants | **0.05 mm on diameter** (confirmed) |
-| Pogo connector | on a separate keystone | **flush in the coloured ring**, 6 o'clock |
-| Connector retention | screws through the flange | **clamp bar** over the back, 2 blind M2 pilots |
-| Alignment / holding | keystone | **2 magnets** (6 x 2.75 mm) at 2 and 10 o'clock, triangle with the pogo |
+## v3 changes
+- **Hat can't rotate:** the brim has 4 ears with holes that slide over the 4
+  screw columns (the egg still sets which way it goes in).
+- **Chassis:** the columns stop 2 mm short of the ball's back rim; the
+  chassis plate sits there, clamped between ball and base by the same 4
+  screws. It carries the **brim clamp ring**, a **post pressing the ball's
+  pogo connector**, a **pocket under the plate clamping the base's pogo
+  connector**, **4 LED ring posts** (`led_gap` sets LEDs-to-face distance,
+  default 6 mm) and room for electronics.
+- **2 mm radius** on the ball's outer front edge; it starts at 45 deg so the
+  ball still prints face down without supports.
+- Separate pogo clamp bars and brim clamp ring are gone (now in the chassis).
+
+## Assembly (from the back of the ball)
+1. Pogo connector (flat contacts) into the ball face, flange into its pocket.
+2. Magnets into the ball's hidden pockets (same pole towards the face), glue.
+3. Hat in from the back: egg through the opening, ear holes over the columns.
+4. LED ring onto the chassis posts (M2 self-tapping), wired.
+5. Chassis in: plate under the column ends; its post presses the ball's
+   pogo connector, its ring presses the brim.
+6. Base: pogo connector (spring pins) in from the top, magnets pressed in
+   from the underside; then 4 M2.5 x 10 mm screws up through base and
+   chassis plate into the columns.
 
 ## Parts
 | File | Print | Notes |
 |---|---|---|
-| `hat.stl` | white, face down, slicer supports under the brim | Egg crown 0.05 mm under the opening |
-| `number.stl` | black, second part of the hat (multi-material) | 2.4 mm deep: through the 0.8 mm face plus 1.6 mm behind it, so it stays dark with the LEDs on (`number_depth`) |
-| `ball.stl` | ball colour, face down | 104 mm OD, shortened to 14 mm deep for the test |
-| `base.stl` | any, underside up (as exported) | Egg stacking recess, pogo (spring pins), press-in magnets, counterbored screws |
-| `pogo_clamp.stl` | x2 (ball + base) | Pocket for the 1 mm back oval, wire slot, 2 screw holes |
-| `brim_clamp.stl` | any | Loose ring between base and brim |
+| `hat.stl` | white, face down, slicer supports under the brim | |
+| `number.stl` | black, second part of the hat | 2.4 mm deep inlay |
+| `ball.stl` | ball colour, face down | 104 mm OD, 14 mm deep test body (`body_h`) |
+| `chassis.stl` | any, plate down (as exported) | |
+| `base.stl` | any, underside up (as exported) | |
 
 ## Pogo connector
 Measured: 2 mm oval face body, 1 mm flange, 1 mm oval back body (4 mm total).
@@ -34,9 +44,9 @@ Measured: 2 mm oval face body, 1 mm flange, 1 mm oval back body (4 mm total).
   flange pocket from the back**; the 1 mm back oval sticks out of the back.
 - Oval hole 13.45 x **4.3** mm in the model (this printer prints holes about
   0.1 mm small: 4.5 printed 4.4, so 4.3 should print ~4.2).
-- **Clamp bar** (2.4 mm thick) fits over the back oval and presses the flange
-  into its pocket; two M2 self-tapping screws into blind pilots (0.6 mm
-  short of the face). Wire slot through the middle of the bar.
+- Held by the **chassis**: a post presses the ball connector's back oval; a
+  pocket under the chassis plate presses the base connector's back oval.
+  `pogo_post_extra` adds clamp pressure if the ball connector is loose.
 - Ball = flat contacts (top of the pager), base = spring pins (underside).
   When stacked both faces are flush, so the gap is ~0 and the pins compress
   flush.

@@ -197,6 +197,11 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   behind 0.4 mm in the ball, pressed into the base; all magnets same pole
   toward the pager top. PLA sliding fit = 0.05 mm on diameter. See
   `enclosure/pager_shell_test/`.
+- **v3 shell:** hat brim ears slide over the 4 screw columns (no rotation);
+  a **chassis** plate sits under the shortened columns, clamped between ball
+  and base by the same screws, and carries the brim clamp, both pogo
+  connector clamps, the LED ring posts and the electronics; 2 mm radius on
+  the ball's front edge (45-deg start, prints face down).
 - **Pager number is a firmware setting** (set from the web page), so a
   swapped insert needs the number updated too.
 
