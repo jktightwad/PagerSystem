@@ -18,9 +18,10 @@
 //         part = "hat", "number", "ball", "base", "brim_clamp", "pogo_clamp",
 //                "all" (exploded preview)
 
-part = "all";
+/* [Part to show / export] */
+part = "all"; // [all, hat, number, ball, base, brim_clamp, pogo_clamp]
 
-// ---- Sizes ----
+/* [Shape and size] */
 white_d      = 72;     // egg's main circle (covers the 68.2 mm LED ring)
 egg_small_d  = 62;     // second circle of the egg
 egg_shift    = 9;      // how far it sits towards 12 o'clock
@@ -36,13 +37,14 @@ brim_w       = 3;      // brim around the crown, behind the ball face
 brim_t       = 1.6;
 brim_clear_d = 0.05;
 
+/* [Number] */
 number_text  = "2";
 number_font  = "DejaVu Serif:style=Bold";
 number_h     = 0.6 * white_d;   // 80 % of v1 (0.75)
-number_mode  = "inlay";         // "inlay", "raised" (0.6 mm, filament swap) or "none"
+number_mode  = "inlay"; // [inlay, raised, none]
 raised_h     = 0.6;
 
-// Shortened body for the test
+/* [Body, screws and base] */
 ball_wall    = 2.4;
 ball_test_h  = 14;
 boss_d       = 7;
@@ -57,7 +59,7 @@ base_t         = 3.0;
 recess_clear_d = 0.4;   // stacking recess is looser so pagers drop on easily
 recess_d       = protrude + 0.3;
 
-// ---- Pogo connector (measured) ----
+/* [Pogo connector] */
 oval_l        = 13.15;
 oval_w        = 4.0;
 oval_hole_l   = 13.45;  // design sizes; printed ~0.1 mm smaller on this printer
@@ -72,7 +74,7 @@ flange_pocket_w = oval_hole_w;
 pogo_r        = 44;     // radius of the connector centre
 pogo_angle    = 180;    // 6 o'clock
 
-// Clamp bar over the back of the connector
+/* [Pogo clamp bar] */
 pclamp_l      = 28;
 pclamp_w      = 6;
 pclamp_t      = 2.4;
@@ -80,7 +82,7 @@ pclamp_screw_cc = 23.6;
 pclamp_pilot  = 1.8;    // M2 self-tapping pilot, blind
 pclamp_pilot_depth = 2.4;
 
-// ---- Magnets ----
+/* [Magnets] */
 mag_d         = 6.0;
 mag_h         = 2.75;
 mag_skin      = 0.4;    // plastic hiding the magnet in the ball face
@@ -89,6 +91,7 @@ mag_hole_base = 6.0;    // press fit (prints ~5.9)
 mag_r         = 44;
 mag_angles    = [60, 300];  // with the pogo at 180: an equilateral triangle
 
+/* [Hidden] */
 $fn = 128;
 
 module at_angle(r, a) {   // a: clockwise from 12 o'clock
