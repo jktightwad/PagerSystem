@@ -8,7 +8,7 @@
 // The 16-LED ring sits on 4 spacers, bolted through the base with M2 bolts
 // and nuts. The cup drops over the base (its rim sits on the base, outside
 // the lip). Gap from LED tops to the face underside:
-//   gap = cup_inner_h - spacer_h - pcb_t - led_h
+//   gap = cup_inner_h - spacer_h - ring_h
 //
 // Render one part:  openscad -D 'part="base"' -o base.stl ring_test.scad
 //                   (part = "base", "cup", "spacers", or "all" to preview)
@@ -20,11 +20,10 @@ ring_od        = 68.2;
 ring_id        = 53.6;
 hole_outside_x = 37.24;   // measured outside edge to outside edge
 hole_outside_y = 54.8;
-ring_hole_d    = 1.8;
-hole_cx = hole_outside_x - ring_hole_d;   // centre-to-centre = 35.44
-hole_cy = hole_outside_y - ring_hole_d;   // centre-to-centre = 53.00
-pcb_t   = 1.6;   // assumed: measure your ring
-led_h   = 1.6;   // assumed WS2812 5050 height: measure your ring
+ring_hole_d    = 2.0;   // M2 bolt (1.9 mm measured) just passes
+hole_cx = hole_outside_x - ring_hole_d;   // centre-to-centre = 35.24
+hole_cy = hole_outside_y - ring_hole_d;   // centre-to-centre = 52.80
+ring_h  = 2.5;   // measured: PCB + LED height
 
 // ---- Rig ----
 wall        = 2.0;
@@ -115,8 +114,8 @@ module preview() {
   hole_positions() translate([0, 0, base_t]) color("gray") spacer(sh);
   translate([0, 0, base_t + sh])
     color("darkgreen") difference() {
-      cylinder(d = ring_od, h = pcb_t);
-      translate([0, 0, -1]) cylinder(d = ring_id, h = pcb_t + 2);
+      cylinder(d = ring_od, h = ring_h);
+      translate([0, 0, -1]) cylinder(d = ring_id, h = ring_h + 2);
     }
   translate([0, 0, base_t]) color("white", 0.35) cup_upright();
 }
@@ -128,4 +127,4 @@ else preview();
 
 // Gap for each spacer height (shown in the console when rendering)
 for (h = spacer_heights)
-  echo(str("spacer ", h, " mm -> LED-to-face gap ", cup_inner_h - h - pcb_t - led_h, " mm"));
+  echo(str("spacer ", h, " mm -> LED-to-face gap ", cup_inner_h - h - ring_h, " mm"));

@@ -13,16 +13,15 @@ face for an even glow. Source: `ring_test.scad` (OpenSCAD, parametric).
 | `ring_test_spacers.stl` | 1 plate: 4 each of 5, 10, 15, 20, 25 mm | Tubes for M2 bolts |
 
 ## LED-to-face gap per spacer
-Assumes ring PCB 1.6 mm and LEDs 1.6 mm tall (measure yours and change
-`pcb_t` / `led_h` in the .scad if different).
+Ring PCB + LEDs measured at 2.5 mm.
 
 | Spacer | Gap | M2 bolt length (approx.) |
 |---|---|---|
-| 5 mm | 21.8 mm | 10 mm |
-| 10 mm | 16.8 mm | 14-16 mm |
-| 15 mm | 11.8 mm | 20 mm |
-| 20 mm | 6.8 mm | 25 mm |
-| 25 mm | 1.8 mm | 30 mm |
+| 5 mm | 22.5 mm | 10 mm |
+| 10 mm | 17.5 mm | 14-16 mm |
+| 15 mm | 12.5 mm | 20 mm |
+| 20 mm | 7.5 mm | 25 mm |
+| 25 mm | 2.5 mm | 30 mm |
 
 Bolt length = ring PCB + spacer + base (2.4 mm) + nut (~1.6 mm).
 
@@ -34,14 +33,11 @@ Bolt length = ring PCB + spacer + base (2.4 mm) + nut (~1.6 mm).
 4. Drop the cup over the base; the wall notch can line up with the cable.
 5. Run `pager_alert_test` (`t`, then `a`) and compare gaps.
 
-## Check before printing
-- **The ring's holes are 1.8 mm, smaller than an M2 bolt (2.0 mm).** Either
-  drill them to 2.0-2.1 mm (check there are no traces right at the hole
-  edge), or use M1.6 bolts and nuts (then set `nut_af = 3.2` and
-  `bolt_clear_d = 1.9`).
+## Notes
+- Ring holes are ~2.0 mm; an M2 bolt (1.9 mm measured) just passes.
 - Hole spacing was entered as **outside edge to outside edge** (37.24 x
-  54.8 mm), giving centres 35.44 x 53.0 mm. If you measured centre to
-  centre, set `hole_cx = 37.24; hole_cy = 54.8;` and re-export.
+  54.8 mm), giving centres 35.24 x 52.8 mm. If the holes don't line up, set
+  `hole_cx` / `hole_cy` to the measured centre-to-centre values and re-export.
 
 ## Re-exporting STLs
 ```
