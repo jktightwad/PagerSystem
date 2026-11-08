@@ -35,7 +35,7 @@
 
 Adafruit_NeoPixel ring(RING_LEDS, PIN_RING, NEO_GRB + NEO_KHZ800);
 
-enum State { IDLE, ALERT, ACKED };
+enum State { IDLE, ALERT, ACKED, LIGHT };
 State state = IDLE;
 uint32_t stateSince = 0;
 
@@ -111,9 +111,10 @@ bool buttonPressed() {
 
 void setState(State s) {
   state = s;
+  ring.setBrightness(MAX_BRIGHTNESS);  // light test may have changed it
   stateSince = millis();
   allOff();
-  const char *names[] = {"IDLE", "ALERT", "ACKED"};
+  const char *names[] = {"IDLE", "ALERT", "ACKED", "LIGHT"};
   Serial.printf("-> %s\n", names[s]);
 }
 
@@ -162,6 +163,41 @@ void runIdle() {
   ring.clear();
   if (t < 100) ring.setPixelColor(0, ring.Color(0, 0, 20));
   ring.show();
+}
+
+// ---------------- Light test ----------------
+// Steady colours for judging the ring through the face / diffusion rig.
+struct Rgb { uint8_t r, g, b; const char *name; };
+const Rgb BALLS[] = {
+  {255, 190, 0, "1 yellow"}, {0, 0, 255, "2 blue"}, {255, 0, 0, "3 red"},
+  {120, 0, 160, "4 purple"}, {255, 70, 0, "5 orange"}, {0, 200, 0, "6 green"},
+  {130, 0, 20, "7 maroon"},  {255, 255, 255, "8 white"}};
+const int NUM_BALLS = sizeof(BALLS) / sizeof(BALLS[0]);
+const uint8_t BRIGHT_STEPS[] = {4, 8, 16, 32, 64, 96, 128, 192, 255};
+int lightColor = 0;
+int lightStep = 4;   // index into BRIGHT_STEPS (64)
+
+void showLight() {
+  const Rgb &c = BALLS[lightColor];
+  uint8_t b = BRIGHT_STEPS[lightStep];
+  ring.setBrightness(b);
+  ring.fill(ring.Color(c.r, c.g, c.b));
+  ring.show();
+  Serial.printf("Light: %s at brightness %u/255%s\n", c.name, b,
+                b > 64 ? "  (above 64: use battery/USB 5 V, not the 3V pin, for long)" : "");
+}
+
+void lightCommand(char cmd) {
+  bool entering = (state != LIGHT);
+  if (entering) setState(LIGHT);
+  switch (cmd) {
+    case 'l': if (!entering) lightColor = (lightColor + 1) % NUM_BALLS; break;  // next ball colour
+    case '+': if (lightStep < (int)sizeof(BRIGHT_STEPS) - 1) lightStep++; break;
+    case '-': if (lightStep > 0) lightStep--; break;
+    case 'w': lightColor = NUM_BALLS - 1; break;                   // white
+    case 'g': lightStep = 0; break;                                 // docked-glow level
+  }
+  showLight();
 }
 
 // Step through each output on its own, to check wiring
@@ -253,19 +289,22 @@ void setup() {
   Serial.println("\nPager alert test");
   Serial.println("a = alert, s = stop/ack, t = component test, b = battery/dock/button status,");
   Serial.println("f = beeper frequency sweep, r = reference beep");
+  Serial.println("Light test: l = next ball colour, + / - = brightness, w = white, g = faint glow, s = off");
   printStatus();
   setState(IDLE);
 }
 
 void loop() {
   if (Serial.available()) {
-    switch (Serial.read()) {
+    char c = Serial.read();
+    switch (c) {
       case 'a': setState(ALERT); break;
       case 's': if (state == ALERT) setState(ACKED); else setState(IDLE); break;
       case 't': componentTest(); setState(IDLE); break;
       case 'b': printStatus(); break;
       case 'f': beepSweep(); break;
       case 'r': beepReference(); break;
+      case 'l': case '+': case '-': case 'w': case 'g': lightCommand(c); break;
     }
   }
 
@@ -281,6 +320,7 @@ void loop() {
     case ALERT: runAlert(); break;
     case ACKED: runAcked(); break;
     case IDLE:  runIdle();  break;
+    case LIGHT: break;   // holds the colour set by showLight()
   }
 
   // Dock change report
