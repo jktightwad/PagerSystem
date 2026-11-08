@@ -16,7 +16,7 @@ Result column: P = pass, F = fail (note what happened), - = not run.
 
 | ID | Given | When | Expected | Result |
 |---|---|---|---|---|
-| B01 | Registered fob, all pagers docked | SCAN, then LIFT pager 3 within 30 s | Pager 3 bound to the fob owner; pager chirps + ring flashes its ball colour; base beeps; web shows name next to pager 3 | |
+| B01 | Registered fob, all pagers docked | SCAN, then LIFT pager 3 within 30 s | Pager 3 bound to the fob owner; pager chirps + flashes blue x3; base beeps; web shows name next to pager 3 | |
 | B02 | Same | LIFT pager 3, then SCAN within 60 s | Same as B01 | |
 | B03 | Same | LIFT pager 3, press CLAIM, then SCAN | Same as B01 | |
 | B04 | Same | SCAN, wait 31 s, then LIFT | No bind; pager 3 shows as "unbound" on the web; next SCAN within 60 s binds it | |
@@ -29,9 +29,11 @@ Result column: P = pass, F = fail (note what happened), - = not run.
 | B11 | Pager 3 bound to A | B presses CLAIM on pager 3 and SCANs | Rejected or re-bound to B **(confirm)**; event logged | |
 | B12 | Unregistered fob | SCAN then LIFT | Registration prompt on the web ("new fob, enter name"); pager held for it for ~2 min **(confirm)** | |
 | B13 | No fob (visitor) | LIFT pager 6, choose "I have pager 6" on the web, enter name | Pager 6 bound to that name | |
-| B14 | Pager 3 bound | CLAIM pressed again with no SCAN | No change; pager shows its ball colour (bound) | |
+| B14 | Pager 3 bound | CLAIM pressed again with no SCAN | No change; pager keeps its blue "waiting" blip | |
 | B19 | Pager lifted | Touch through a pocket / hand brushing past | No false CLAIM (tune touch sensitivity / require a deliberate tap) | |
 | B20 | Pager lifted | Wet finger or damp surface | No stuck or repeated touches | |
+| B21 | Pager lifted, not yet bound | | Red charge gauge shows (lit LEDs = battery %) until confirmed | |
+| B22 | Pager lifted with a low battery (e.g. 2 LEDs) | | Holder can see it's low and take another pager **(confirm: should the base refuse very low pagers?)** | |
 | B15 | CLAIM pressed | No SCAN within 30 s | Claim expires; pager gives a short "timed out" pattern | |
 | B16 | SCAN | Fob read twice by accident (held on the reader) | Counted as one scan | |
 | B17 | Any | Fob held at the edge of range (flaky read) | Either a clean read or nothing; never a wrong CSN | |
@@ -46,7 +48,7 @@ Result column: P = pass, F = fail (note what happened), - = not run.
 | Q03 | Same | "Next game: 4" | A, B, C, D paged | |
 | Q04 | Only 2 waiting | "Next game: 4" | Both paged; base/web says only 2 available **(confirm)** | |
 | Q05 | Empty queue | "Next game" | Nothing paged; message "queue empty" | |
-| Q06 | A paged | A presses ACK | Pager stops alerting, green confirmation; web shows "A on the way" | |
+| Q06 | A paged (green) | A presses ACK | Light changes green -> blue, chirp, beeper/vibration stop; web shows "A on the way" | |
 | Q07 | A paged | No ACK within the timeout | A skipped; next waiting person paged; A **(confirm: removed / moved back one / kept at front as "missed")** | |
 | Q08 | A paged, ACKed | A DOCKs pager at the table | A marked arrived; pager unbound | |
 | Q09 | A paged, not ACKed | A DOCKs pager at the table | Counts as arrived (ACK implied) | |
@@ -77,7 +79,7 @@ Result column: P = pass, F = fail (note what happened), - = not run.
 | D09 | Pager lifted | Battery low | Low-battery warning on pager and web | |
 | D10 | Pager left off the dock | More than N hours | Web flags "pager N not returned" | |
 | D11 | Pager taken out of radio range | | Base shows "pager N not responding" after its heartbeat is missed | |
-| D12 | Pager placed on the dock | | Ring glows faintly in its ball colour within ~2 s | |
+| D12 | Pager placed on the dock | | Ring glows faintly red within ~2 s (pulsing while charging) | |
 | D13 | Stack of 4 | Middle contact made poor (lift the 3rd slightly) | That pager and every one above it go dark | |
 | D14 | Pager docked | Touch the number | Ignored (no claim, no ACK) | |
 | D15 | Pager placed on the stack | Any rotation other than the keyed one | Does not seat / no contact; never reversed polarity | |

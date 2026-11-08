@@ -142,9 +142,9 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   table frees up, someone chooses "next game: 2 / 3 / 4 players"; the base
   pages the next N waiting people. **Partners are chosen at the table**, not
   by the system.
-- **Pagers are numbered like pool balls** (1-8). The LED ring shows the
-  ball's colour when idle/bound: 1 yellow, 2 blue, 3 red, 4 purple,
-  5 orange, 6 green, 7 maroon, 8 white (black can't be lit).
+- **Pagers are numbered like pool balls** (1-8); the printed number and
+  body colour identify the pager. LED colours follow the state scheme
+  below (red / green / blue only), not the ball colour.
 - **Binding a person to a pager** works from three events, in any order:
   `SCAN` (fob at the base), `LIFT` (pager leaves the dock) and `CLAIM`
   (button pressed on a lifted pager). Rules, highest priority first:
@@ -153,8 +153,8 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   3. **LIFT then SCAN** (within 60 s): bind if exactly one lifted pager is
      unbound; if several are, ask "press the button on your pager, then scan".
   4. Web fallback: "I have pager N" for visitors / no fob.
-  Binding is confirmed by a chirp + ring flash in the ball colour on the
-  pager and a beep at the base.
+  Binding is confirmed by a chirp + **blue** flash on the pager and a beep
+  at the base (see "Pager light and sound states").
 - **Docking means different things by state:** while waiting = leave the
   queue (after a ~10 s grace period); while paged = "arrived" (turn used);
   unbound = just returned.
@@ -174,8 +174,8 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 - **Stacking:** the white centre is slightly raised; the underside has a
   matching recess, so each pager seats on the one below.
 - **Orientation key:** superseded by the egg-shaped crown (v2 shell below).
-- **Docked glow:** a docked pager lights its ring faintly in its ball colour
-  (optionally slow pulse while charging, steady when battery >= ~4.15 V).
+- **Docked glow:** a docked pager glows faintly **red** (slow pulse while
+  charging, steady when battery >= ~4.15 V).
   With a **translucent border**, every pager in the stack glows, and a dark
   one shows a bad contact at or below it.
 - **Button:** TTP223 touch module (active-high) in the **stacking recess on
@@ -199,6 +199,19 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   `enclosure/pager_shell_test/`.
 - **Pager number is a firmware setting** (set from the web page), so a
   swapped insert needs the number updated too.
+
+## Pager light and sound states (decided)
+Only pure **red, green and blue** are used: mixed colours (yellow, purple,
+white) show separate red/green/blue spots through a thin face.
+| State | Light | Sound / vibration |
+|---|---|---|
+| On the dock | Faint **red**: slow pulse while charging, steady when full | - |
+| Lifted, not yet confirmed | **Red charge gauge**: lit LEDs = battery % | - |
+| Bound (confirmed by the base) | **Blue** flash x3 | Chirp |
+| Waiting in the queue | Brief dim **blue** blip every 5 s (proposal) | - |
+| Your turn | **Green** spinning light; faster/brighter after 30 s | Beeps + vibration |
+| Acknowledged (button) | Green changes to **blue**, steady until docked | Chirp |
+Demonstrated by `pager_alert_test` (d / u / k / a / s commands).
 
 ## Pickup detection with pass-through charging
 - Each pager senses 5 V on its **own bottom pogo pins** (divider -> GPIO 34).

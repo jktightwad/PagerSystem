@@ -1,8 +1,15 @@
 // Pager alert hardware test: 16-LED WS2812 ring, piezo beeper, vibration motor,
 // acknowledge button, dock-sense and battery readings.
 //
-// Simulates the real "your turn" alert so we can judge how noticeable it is:
-//   Serial 'a' = start alert, press the pager button (or 's') = acknowledge.
+// Demonstrates the pager's light/sound states (colour scheme decided with
+// the user; only pure red, green and blue are used, they blend cleanly):
+//   DOCKED  red glow: slow pulse while charging, steady when full
+//   LIFTED  red charge gauge (lit LEDs = battery %), until the base confirms
+//   CONFIRM blue flash + chirp: pager is bound to its holder
+//   WAITING bound, in the queue: brief dim blue blip every 5 s (proposal)
+//   ALERT   green spinning light + beeps + vibration: your turn
+//   ACKED   button pressed: green changes to blue, stays blue until docked
+// Serial: d = dock, u = lift, k = confirm, a = your turn, s or button = ack.
 //
 // Libraries: "Adafruit NeoPixel" (1.12 or newer for Arduino-ESP32 core 3.x).
 // Board: WEMOS LOLIN32 Lite, Arduino-ESP32 core 3.x. Serial 115200.
@@ -35,8 +42,8 @@
 
 Adafruit_NeoPixel ring(RING_LEDS, PIN_RING, NEO_GRB + NEO_KHZ800);
 
-enum State { IDLE, ALERT, ACKED, LIGHT };
-State state = IDLE;
+enum State { DOCKED, LIFTED, CONFIRM, WAITING, ALERT, ACKED, LIGHT };
+State state = DOCKED;
 uint32_t stateSince = 0;
 
 // ---------------- Outputs ----------------
@@ -114,55 +121,97 @@ void setState(State s) {
   ring.setBrightness(MAX_BRIGHTNESS);  // light test may have changed it
   stateSince = millis();
   allOff();
-  const char *names[] = {"IDLE", "ALERT", "ACKED", "LIGHT"};
+  const char *names[] = {"DOCKED", "LIFTED", "CONFIRM", "WAITING", "ALERT", "ACKED", "LIGHT"};
   Serial.printf("-> %s\n", names[s]);
 }
 
-// Alert: rotating orange comet on the ring, beep-beep-beep, vibration pulses.
-// After 30 s it escalates (faster, brighter, longer vibration).
+// Colour at a level (0-255) relative to MAX_BRIGHTNESS
+uint32_t red(uint8_t v)   { return ring.Color(v, 0, 0); }
+uint32_t green(uint8_t v) { return ring.Color(0, v, 0); }
+uint32_t blue(uint8_t v)  { return ring.Color(0, 0, v); }
+
+// Battery as 0-100 %. Linear 3.3 V -> 0 %, 4.15 V -> 100 % (rough; a LiPo
+// curve isn't linear). Without the battery divider fitted, simulate 70 %.
+int batteryPercent(bool *simulated) {
+  float v = readVolts(PIN_BATT_ADC);
+  *simulated = v < 2.5f;
+  if (*simulated) return 70;
+  return constrain((int)((v - 3.3f) / (4.15f - 3.3f) * 100.0f), 0, 100);
+}
+
+// DOCKED: faint red. Slow pulse while charging, steady once the battery reads full.
+void runDocked() {
+  bool sim;
+  bool full = batteryPercent(&sim) >= 100;
+  uint8_t v = 24;
+  if (!full) {
+    uint32_t t = (millis() - stateSince) % 3000;          // 3 s breathe
+    uint32_t tri = t < 1500 ? t : 3000 - t;
+    v = 6 + tri * 30 / 1500;                               // 6..36
+  }
+  ringFill(red(v));
+}
+
+// LIFTED: red charge gauge, one LED per 6.25 %, until the base confirms.
+void runLifted() {
+  bool sim;
+  int pct = batteryPercent(&sim);
+  int lit = (pct * RING_LEDS + 99) / 100;                  // round up: 1 % shows 1 LED
+  ring.clear();
+  for (int i = 0; i < lit; i++) ring.setPixelColor(i, red(160));
+  ring.show();
+  static uint32_t lastPrint = 0;
+  if (millis() - lastPrint > 5000 || lastPrint < stateSince) {
+    lastPrint = millis();
+    Serial.printf("Charge gauge: %d %% (%d of %d LEDs)%s\n", pct, lit, RING_LEDS, sim ? " (simulated)" : "");
+  }
+}
+
+// CONFIRM: three quick blue flashes + chirp, then WAITING.
+void runConfirm() {
+  uint32_t t = millis() - stateSince;
+  bool on = (t % 300) < 180;
+  ringFill(on && t < 900 ? blue(200) : 0);
+  beeper(t < 80);
+  if (t > 1000) setState(WAITING);
+}
+
+// WAITING: brief dim blue blip every 5 s (bound, in the queue).
+void runWaiting() {
+  uint32_t t = (millis() - stateSince) % 5000;
+  ringFill(t < 150 ? blue(40) : 0);
+}
+
+// ALERT: green comet, beep-beep-beep, vibration pulses. Escalates after 30 s.
 void runAlert() {
   uint32_t t = millis() - stateSince;
   bool escalated = t > 30000;
 
-  // Ring: comet with a fading tail
   uint16_t stepMs = escalated ? 40 : 70;
   int head = (t / stepMs) % RING_LEDS;
   uint8_t bright = escalated ? 255 : 160;
   ring.clear();
   for (int i = 0; i < 5; i++) {
     int idx = (head - i + RING_LEDS) % RING_LEDS;
-    uint8_t level = bright >> i;
-    ring.setPixelColor(idx, ring.Color(level, level * 2 / 5, 0));  // orange
+    ring.setPixelColor(idx, green(bright >> i));
   }
   ring.show();
 
-  // Beeper: 3 short beeps, then a pause; 2 s cycle (1 s when escalated)
   uint32_t cycle = escalated ? 1000 : 2000;
   uint32_t c = t % cycle;
   bool beepOn = (c < 120) || (c >= 200 && c < 320) || (c >= 400 && c < 520);
   beeper(beepOn);
-
-  // Vibration: 400 ms buzz per cycle (800 ms when escalated)
   vibe(c < (escalated ? 800u : 400u));
 }
 
-// Acknowledged: green fill, one confirmation chirp, back to idle after 3 s
+// ACKED: blue fills the ring with a chirp, then stays steady blue until docked.
 void runAcked() {
   uint32_t t = millis() - stateSince;
   int lit = min((int)(t / 30), RING_LEDS);
   ring.clear();
-  for (int i = 0; i < lit; i++) ring.setPixelColor(i, ring.Color(0, 180, 0));
+  for (int i = 0; i < lit; i++) ring.setPixelColor(i, blue(lit < RING_LEDS ? 200 : 120));
   ring.show();
   beeper(t < 150);
-  if (t > 3000) setState(IDLE);
-}
-
-// Idle: one dim blue blip every 3 s so you can see it's alive
-void runIdle() {
-  uint32_t t = (millis() - stateSince) % 3000;
-  ring.clear();
-  if (t < 100) ring.setPixelColor(0, ring.Color(0, 0, 20));
-  ring.show();
 }
 
 // ---------------- Light test ----------------
@@ -308,21 +357,28 @@ void setup() {
   allOff();
 
   Serial.println("\nPager alert test");
-  Serial.println("a = alert, s = stop/ack, t = component test, b = battery/dock/button status,");
+  Serial.println("States: d = dock, u = lift, k = confirm, a = your turn, s = ack (or press the button)");
+  Serial.println("t = component test, b = battery/dock/button status,");
   Serial.println("f = beeper frequency sweep, r = reference beep");
   Serial.println("Light test: l = next ball colour, + / - = brightness, w = white, g = faint glow, s = off");
   Serial.println("  c R G B = set the shown colour (e.g. c 255 100 0), p = print colour table");
   printStatus();
-  setState(IDLE);
+  setState(onDock() ? DOCKED : LIFTED);
 }
 
 void loop() {
   if (Serial.available()) {
     char c = Serial.read();
     switch (c) {
+      case 'd': setState(DOCKED); break;
+      case 'u': setState(LIFTED); break;
+      case 'k': setState(CONFIRM); break;
       case 'a': setState(ALERT); break;
-      case 's': if (state == ALERT) setState(ACKED); else setState(IDLE); break;
-      case 't': componentTest(); setState(IDLE); break;
+      case 's':
+        if (state == ALERT) setState(ACKED);
+        else if (state == LIGHT) setState(onDock() ? DOCKED : LIFTED);
+        break;
+      case 't': componentTest(); setState(onDock() ? DOCKED : LIFTED); break;
       case 'b': printStatus(); break;
       case 'f': beepSweep(); break;
       case 'r': beepReference(); break;
@@ -336,14 +392,17 @@ void loop() {
   if (pressed && state == ALERT) {
     Serial.printf("Acknowledged after %.1f s\n", (millis() - stateSince) / 1000.0f);
     setState(ACKED);
-  } else if (pressed && state == IDLE) {
+  } else if (pressed) {
     printStatus();  // handy: press the button to see battery/dock status
   }
 
   switch (state) {
     case ALERT: runAlert(); break;
     case ACKED: runAcked(); break;
-    case IDLE:  runIdle();  break;
+    case DOCKED:  runDocked();  break;
+    case LIFTED:  runLifted();  break;
+    case CONFIRM: runConfirm(); break;
+    case WAITING: runWaiting(); break;
     case LIGHT: break;   // holds the colour set by showLight()
   }
 
@@ -353,6 +412,7 @@ void loop() {
   if (dock != lastDock) {
     lastDock = dock;
     Serial.printf("Dock: %s\n", dock ? "placed on dock" : "lifted off dock");
+    if (state != LIGHT) setState(dock ? DOCKED : LIFTED);
   }
 
   delay(10);
