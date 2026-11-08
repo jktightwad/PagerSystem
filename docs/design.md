@@ -271,6 +271,8 @@ no code copied.
   Teams needs Workflows webhooks (Office 365 connectors retired May 2026).
 
 ## Open questions
+- **Deferred (layout pass later):** touch sensor placement, electronics
+  layout on the chassis, final body depth (`body_h`), final dimensions.
 - Office range test (see `range_test/`); home POC trial done.
 - Badge reader: **PN5180 chosen** (CSN read confirmed); range and panel
   thickness still to test.
