@@ -62,3 +62,5 @@ openscad -D 'part="top"' -o pogo_key_top.stl pogo_key_test.scad
 openscad -D 'part="bottom"' -o pogo_key_bottom.stl pogo_key_test.scad
 openscad -D 'part="cal"' -o pogo_key_cal.stl pogo_key_test.scad
 ```
+
+> **Superseded:** the keystone was dropped; the pogo connector now sits flush in the ball/base (`enclosure/pager_shell_test`). The calibration chip is still useful for checking connector depth.

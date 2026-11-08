@@ -54,3 +54,5 @@ openscad -D 'part="ball"'   -o ball.stl   ball_fit_test.scad
 openscad -D 'part="base"'   -o base.stl   ball_fit_test.scad
 openscad -D 'part="clamp"'  -o clamp.stl  ball_fit_test.scad
 ```
+
+> **Superseded by `enclosure/pager_shell_test` (v2).** Kept for reference.

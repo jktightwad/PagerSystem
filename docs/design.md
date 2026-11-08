@@ -173,11 +173,7 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   Number printed thick / full-depth black so it doesn't glow through.
 - **Stacking:** the white centre is slightly raised; the underside has a
   matching recess, so each pager seats on the one below.
-- **Orientation key:** pogo connector **off-centre in the coloured border**
-  (only one rotation makes contact, so polarity is guaranteed); a **flat or
-  notch** on the raised face + matching recess makes it drop in one way and
-  takes the load; **magnets** beside the pogo pins pull it into place. All
-  numbers in a stack face the same way.
+- **Orientation key:** superseded by the egg-shaped crown (v2 shell below).
 - **Docked glow:** a docked pager lights its ring faintly in its ball colour
   (optionally slow pulse while charging, steady when battery >= ~4.15 V).
   With a **translucent border**, every pager in the stack glows, and a dark
@@ -193,6 +189,14 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   carries the stacking recess + touch sensor. Fit test in
   `enclosure/ball_fit_test/`. Ball can be scaled larger than the reference
   picture; the pogo keystone goes in the solid (coloured) area.
+- **v2 shell (after first prints):** crown/opening/recess are **egg
+  shaped** (keys orientation), crown 1.5 mm proud, number 0.6 x white
+  diameter. Pogo connector **flush in the coloured ring** at 6 o'clock (flat
+  contacts on the ball, spring pins on the base), held by a clamp bar over
+  its 1 mm back oval. Two 6 x 2.75 mm magnets at 2 and 10 o'clock: hidden
+  behind 0.4 mm in the ball, pressed into the base; all magnets same pole
+  toward the pager top. PLA sliding fit = 0.05 mm on diameter. See
+  `enclosure/pager_shell_test/`.
 - **Pager number is a firmware setting** (set from the web page), so a
   swapped insert needs the number updated too.
 
