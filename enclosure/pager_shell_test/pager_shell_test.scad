@@ -58,8 +58,11 @@ boss_r       = ball_od / 2 - ball_wall - boss_d / 2 + 0.5;
 boss_angles  = [45, 135, 225, 315];
 
 base_t         = 3.0;
-recess_clear_d = 0.4;   // stacking recess is looser so pagers drop on easily
+recess_clear_d = 0.2;   // stacking fit (diameter). Tighter = better rotation lock,
+                        // harder to set down. The chamfers below guide it in.
 recess_d       = protrude + 0.3;
+recess_chamfer = 0.8;   // lead-in around the recess opening
+crown_chamfer  = 0.4;   // bevel on the crown's top edge
 
 /* [Pogo connector] */
 oval_l        = 13.15;
@@ -122,7 +125,12 @@ module hat_upright() {
   difference() {
     union() {
       linear_extrude(brim_t) egg_2d(brim_w - crown_clear_d / 2);
-      linear_extrude(hat_h) egg_2d(-crown_clear_d / 2);
+      // crown, with a small bevel on its top edge (the egg is convex, so hull works)
+      linear_extrude(hat_h - crown_chamfer) egg_2d(-crown_clear_d / 2);
+      hull() {
+        translate([0, 0, hat_h - crown_chamfer]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2);
+        translate([0, 0, hat_h - 0.01]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2 - crown_chamfer);
+      }
       if (number_mode == "raised")
         translate([0, 0, hat_h]) linear_extrude(raised_h) number_2d();
     }
@@ -191,6 +199,11 @@ module base_upright() {
     cylinder(d = ball_od, h = base_t);
     // egg stacking recess (crown of the pager below); touch sensor goes here
     translate([0, 0, -0.01]) linear_extrude(recess_d) egg_2d(recess_clear_d / 2);
+    // lead-in chamfer at the recess opening
+    hull() {
+      translate([0, 0, -0.01]) linear_extrude(0.01) egg_2d(recess_clear_d / 2 + recess_chamfer);
+      translate([0, 0, recess_chamfer]) linear_extrude(0.01) egg_2d(recess_clear_d / 2);
+    }
     // pogo connector, flush with the underside, spring pins pointing down
     at_angle(pogo_r, pogo_angle) mirror([0, 0, 1]) pogo_cut();
     // magnets pressed in from the underside

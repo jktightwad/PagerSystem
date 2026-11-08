@@ -59,6 +59,14 @@ Measured: 2 mm oval face body, 1 mm flange, 1 mm oval back body (4 mm total).
 5. Two assemblies stack: egg drops in, magnets pull it down, pogo contact
    on both pins (meter).
 
+## Tuning the stacking fit
+- `recess_clear_d` (default 0.2 mm on diameter): how much bigger the base
+  recess is than the crown below. Smaller = snugger, better rotation lock.
+- `egg_shift` / `egg_small_d`: how pronounced the egg is. A subtler egg
+  needs a tighter `recess_clear_d` to still lock the orientation.
+- `recess_chamfer` (0.8) and `crown_chamfer` (0.4): lead-ins that guide a
+  tight fit together. Only `base` and `hat` change when these change.
+
 ## Re-exporting
 ```
 for p in hat number ball base brim_clamp pogo_clamp; do
