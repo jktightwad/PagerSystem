@@ -43,6 +43,8 @@ number_font  = "DejaVu Serif:style=Bold";
 number_h     = 0.6 * white_d;   // 80 % of v1 (0.75)
 number_mode  = "inlay"; // [inlay, raised, none]
 raised_h     = 0.6;
+number_depth = 2.4;     // inlay thickness: 0.8 through the face + 1.6 behind it,
+                        // so bright LEDs can't glow through the black
 
 /* [Body, screws and base] */
 ball_wall    = 2.4;
@@ -126,10 +128,10 @@ module hat_upright() {
     }
     translate([0, 0, -1]) linear_extrude(hat_h - face_t + 1) egg_2d(-crown_clear_d / 2 - crown_wall);
     if (number_mode == "inlay")
-      translate([0, 0, hat_h - face_t - 0.01]) linear_extrude(face_t + 0.02) number_2d();
+      translate([0, 0, hat_h - number_depth - 0.01]) linear_extrude(number_depth + 0.02) number_2d();
   }
 }
-module number_upright() { translate([0, 0, hat_h - face_t]) linear_extrude(face_t) number_2d(); }
+module number_upright() { translate([0, 0, hat_h - number_depth]) linear_extrude(number_depth) number_2d(); }
 
 // ================= Pogo connector cut-outs =================================
 // Outer face of the connector at z = 0 pointing +Z, flush with the surface.

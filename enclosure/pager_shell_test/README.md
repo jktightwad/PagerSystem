@@ -22,7 +22,7 @@ Replaces `ball_fit_test` (v1) and the pogo keystone coupons.
 | File | Print | Notes |
 |---|---|---|
 | `hat.stl` | white, face down, slicer supports under the brim | Egg crown 0.05 mm under the opening |
-| `number.stl` | black, second part of the hat (multi-material) | Full-depth inlay |
+| `number.stl` | black, second part of the hat (multi-material) | 2.4 mm deep: through the 0.8 mm face plus 1.6 mm behind it, so it stays dark with the LEDs on (`number_depth`) |
 | `ball.stl` | ball colour, face down | 104 mm OD, shortened to 14 mm deep for the test |
 | `base.stl` | any, underside up (as exported) | Egg stacking recess, pogo (spring pins), press-in magnets, counterbored screws |
 | `pogo_clamp.stl` | x2 (ball + base) | Pocket for the 1 mm back oval, wire slot, 2 screw holes |
