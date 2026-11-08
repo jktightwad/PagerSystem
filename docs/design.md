@@ -182,8 +182,19 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   (optionally slow pulse while charging, steady when battery >= ~4.15 V).
   With a **translucent border**, every pager in the stack glows, and a dark
   one shows a bad contact at or below it.
-- **Button:** TTP223 touch module (active-high) **behind the black number**
-  (opaque, so it doesn't block light). **Ignored while docked.**
+- **Button:** TTP223 touch module (active-high) in the **stacking recess on
+  the underside** (the recess that keys onto the pager below). **Ignored
+  while docked.**
+- **Construction (proposed):** coloured **ball** body printed face down (one
+  design for all pagers, printed in each ball colour) + swappable white
+  **top hat** number insert: hollow crown with 0.8 mm face passes through the
+  ball face and stands proud (stacking key); D-shaped brim behind the face
+  sets the number upright. **Base** screws on with counterbored screws and
+  carries the stacking recess + touch sensor. Fit test in
+  `enclosure/ball_fit_test/`. Ball can be scaled larger than the reference
+  picture; the pogo keystone goes in the solid (coloured) area.
+- **Pager number is a firmware setting** (set from the web page), so a
+  swapped insert needs the number updated too.
 
 ## Pickup detection with pass-through charging
 - Each pager senses 5 V on its **own bottom pogo pins** (divider -> GPIO 34).
