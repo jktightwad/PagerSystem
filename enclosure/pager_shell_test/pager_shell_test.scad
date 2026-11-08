@@ -1,15 +1,16 @@
-// Pool-ball pager shell test, v3 (OpenSCAD)
+// Pool-ball pager shell test, v4 (OpenSCAD)
 //
-// v3 changes (after the v2 prints):
-//   - hat brim has 4 TABS that hug the 4 screw columns: no rotation in the ball
-//   - columns stop CHASSIS_T short of the ball's back; the new CHASSIS has a
-//     plate that sits there, clamped between ball and base by the same 4
-//     screws. The chassis carries: the brim clamp ring, a post that presses
-//     the ball's pogo connector, a pocket that clamps the base's pogo
-//     connector, LED ring posts, and room for the electronics.
-//   - 2 mm radius on the ball's outer front edge (starts at 45 deg so it
-//     prints face down without supports)
-//   - separate pogo clamp bars and their screw pilots removed
+// v4 changes (after review of v3):
+//   - screw columns are blended into the ball wall with a radius; the hat
+//     brim fills the inside of the ball (0.5 mm gap) and follows that shape,
+//     so the bumps stop it rotating. The brim also holds the ball's pogo
+//     connector (slot for its back + wires) and the hidden magnets.
+//   - chassis clamp ring moved out to the wall, beside the columns, leaving
+//     the middle free for electronics; pogo post removed
+//   - egg tip reduced to 2 mm (was 4) via the new egg_tip setting
+// Kept from v3: columns stop chassis_t short of the back rim, chassis plate
+// clamped between ball and base by the 4 screws (it also clamps the base's
+// pogo connector), LED ring posts, 2 mm radius on the front edge.
 //
 // Coordinates: looking down on the pager face, +Y = 12 o'clock (narrow end
 // of the egg, top of the number). Angles are clockwise from 12 o'clock.
@@ -23,7 +24,8 @@ part = "all"; // [all, hat, number, ball, chassis, base]
 /* [Shape and size] */
 white_d      = 72;     // egg's main circle (covers the 68.2 mm LED ring)
 egg_small_d  = 62;     // second circle of the egg
-egg_shift    = 9;      // how far it sits towards 12 o'clock
+egg_tip      = 2;      // how far the egg's narrow end sticks out past the round
+                       // part (v2/v3: 4). 0 = round (no rotation key).
 ball_od      = 104;    // coloured body
 ball_face_t  = 3.0;
 edge_r       = 2.0;    // radius on the outer front edge of the ball
@@ -32,11 +34,10 @@ crown_wall   = 1.6;
 face_t       = 0.8;
 crown_clear_d = 0.05;  // user's PLA sliding fit (diameter)
 
-brim_w       = 3;      // brim around the crown, behind the ball face
-brim_t       = 1.6;
-brim_clear_d = 0.05;
-tab_w        = 12;     // brim tabs reaching the screw columns (fork ~2.4 mm each side)
-tab_clear_d  = 0.1;    // clearance around the columns in the tab notches
+brim_t       = 1.6;    // hat brim: fills the inside of the ball behind the face
+brim_gap_d   = 0.5;    // brim smaller than the ball's inside by this (diameter)
+column_fillet = 3;     // radius blending the screw columns into the ball wall
+mag_capture_h = 0.3;   // brim recess over each magnet (magnet stands 0.15 proud)
 
 /* [Number] */
 number_text  = "2";
@@ -73,7 +74,7 @@ ring_hole_cx  = 35.24;  // ring mounting holes, centre to centre
 ring_hole_cy  = 52.8;
 ring_post_d   = 5;
 ring_pilot    = 1.8;    // M2 self-tapping
-pogo_post_extra = 0.0;  // make the pogo post this much longer to add clamp pressure
+clamp_ring_w  = 2.0;    // chassis ring pressing the brim's outer edge
 
 /* [Pogo connector] */
 oval_hole_l   = 13.45;  // design sizes; printed ~0.1 mm smaller on this printer
@@ -85,20 +86,19 @@ back_body     = 1.0;    // oval repeated behind the flange
 flange_pocket_l = flange_l + 0.3;
 pogo_r        = 44;
 pogo_angle    = 180;    // 6 o'clock
-pogo_post_l   = 28;
-pogo_post_w   = 6;
 
 /* [Magnets] */
 mag_d         = 6.0;
 mag_h         = 2.75;
-mag_skin      = 0.4;
-mag_hole_ball = 6.05;   // slide in + glue
+mag_skin      = 0.4;    // plastic hiding the magnet on the ball face
+mag_hole_ball = 6.05;   // held in by the hat brim (no glue needed)
 mag_hole_base = 6.0;    // press fit
 mag_r         = 44;
 mag_angles    = [60, 300];
 
 /* [Hidden] */
 $fn = 128;
+egg_shift = egg_tip + (white_d - egg_small_d) / 2;   // centre of the egg's small circle
 
 face_back_z   = body_h - ball_face_t;                 // underside of the ball face
 brim_bottom_z = face_back_z - brim_t;
@@ -124,25 +124,21 @@ module number_2d() {
 
 module bosses_2d(grow = 0) { for (a = boss_angles) at_angle(boss_r, a) circle(d = boss_d + 2 * grow); }
 
-// Brim outline: egg + brim, plus 4 tabs reaching the columns, minus the columns
-module brim_2d(grow = 0) {
-  difference() {
-    union() {
-      egg_2d(brim_w + grow);
-      for (a = boss_angles) hull() {
-        circle(d = tab_w + 2 * grow);
-        at_angle(boss_r, a) circle(d = tab_w + 2 * grow);
-      }
-    }
-    bosses_2d(tab_clear_d / 2 - grow);
-  }
+// Inside of the ball where the columns are: circle minus columns, with the
+// column/wall junctions rounded by column_fillet
+module cavity_2d() {
+  offset(r = column_fillet) offset(delta = -column_fillet)
+    difference() { circle(d = ball_od - 2 * ball_wall); bosses_2d(); }
 }
+
+// Hat brim: the cavity shape, brim_gap_d smaller on diameter
+module brim_2d() { offset(delta = -brim_gap_d / 2) cavity_2d(); }
 
 // ================= Hat (face up, z = 0 at brim underside) ==================
 module hat_upright() {
   difference() {
     union() {
-      linear_extrude(brim_t) brim_2d(-brim_clear_d / 2);
+      linear_extrude(brim_t) brim_2d();
       linear_extrude(hat_h - crown_chamfer) egg_2d(-crown_clear_d / 2);
       hull() {
         translate([0, 0, hat_h - crown_chamfer]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2);
@@ -155,6 +151,11 @@ module hat_upright() {
     translate([0, 0, -1]) linear_extrude(hat_h - face_t + 1) egg_2d(-crown_clear_d / 2 - crown_wall);
     if (number_mode == "inlay")
       translate([0, 0, hat_h - number_depth - 0.01]) linear_extrude(number_depth + 0.02) number_2d();
+    // slot for the ball pogo connector's back oval + wires (brim presses its flange)
+    at_angle(pogo_r, pogo_angle) translate([0, 0, -1]) linear_extrude(brim_t + 2) stadium_2d(oval_hole_l, oval_hole_w);
+    // shallow recesses that capture the magnets standing proud of the face back
+    for (a = mag_angles) at_angle(mag_r, a)
+      translate([0, 0, brim_t - mag_capture_h]) cylinder(d = mag_d + 0.4, h = mag_capture_h + 0.01);
   }
 }
 module number_upright() { translate([0, 0, hat_h - number_depth]) linear_extrude(number_depth) number_2d(); }
@@ -183,23 +184,15 @@ module ball_outer() {
 
 module ball_upright() {
   difference() {
-    union() {
-      difference() {
-        ball_outer();
-        translate([0, 0, -1]) cylinder(d = ball_od - 2 * ball_wall, h = face_back_z + 1);
-      }
-      // columns stop chassis_t above the back rim
-      for (a = boss_angles) at_angle(boss_r, a)
-        translate([0, 0, chassis_t]) cylinder(d = boss_d, h = body_h - chassis_t);
-      // pads behind the face for the hidden magnet pockets
-      for (a = mag_angles) at_angle(mag_r, a)
-        translate([0, 0, body_h - (mag_h + mag_skin + 0.05)]) cylinder(d = mag_d + 3, h = mag_h + mag_skin + 0.05);
-    }
+    ball_outer();
+    // below the column ends: plain circle (the chassis plate goes here)
+    translate([0, 0, -1]) cylinder(d = ball_od - 2 * ball_wall, h = chassis_t + 1);
+    // above: cavity with the columns blended into the wall
+    translate([0, 0, chassis_t - 0.01]) linear_extrude(face_back_z - chassis_t + 0.01) cavity_2d();
     translate([0, 0, -1]) linear_extrude(body_h + 2) egg_2d(0);                       // crown opening
-    translate([0, 0, brim_bottom_z]) linear_extrude(brim_t + 0.01) brim_2d(brim_clear_d / 2);  // brim seat
     at_angle(pogo_r, pogo_angle) translate([0, 0, body_h]) pogo_cut();               // flat contacts
-    for (a = mag_angles) at_angle(mag_r, a)                                          // hidden magnets
-      translate([0, 0, body_h - mag_skin - mag_h - 0.05 - 1]) cylinder(d = mag_hole_ball, h = mag_h + 0.05 + 1);
+    for (a = mag_angles) at_angle(mag_r, a)                                          // magnets, 0.4 mm skin
+      translate([0, 0, face_back_z - 1]) cylinder(d = mag_hole_ball, h = body_h - mag_skin - face_back_z + 1);
     for (a = boss_angles) at_angle(boss_r, a)                                        // screw pilots
       translate([0, 0, chassis_t - 1]) cylinder(d = screw_pilot, h = face_back_z - chassis_t + 0.5, $fn = 24);
   }
@@ -211,20 +204,14 @@ module chassis() {
   difference() {
     union() {
       cylinder(d = plate_d, h = chassis_t);
-      // brim clamp ring: from the plate up to the brim, following the egg
-      linear_extrude(brim_bottom_z) difference() { egg_2d(brim_w - 0.5); egg_2d(brim_w - 2.5); }
-      // post pressing the ball's pogo connector (its back oval)
-      at_angle(pogo_r, pogo_angle)
-        linear_extrude(face_back_z + pogo_post_extra) stadium_2d(pogo_post_l, pogo_post_w);
+      // clamp ring at the wall, beside the columns, pressing the brim's edge
+      linear_extrude(brim_bottom_z) difference() {
+        offset(delta = -brim_gap_d / 2 - chassis_clear) cavity_2d();
+        offset(delta = -brim_gap_d / 2 - chassis_clear - clamp_ring_w) cavity_2d();
+      }
       // LED ring posts
       for (sx = [-1, 1], sy = [-1, 1]) translate([sx * ring_hole_cx / 2, sy * ring_hole_cy / 2, 0])
         cylinder(d = ring_post_d, h = ring_bottom_z, $fn = 32);
-    }
-    // ball pogo: pocket for its 1 mm back oval at the top of the post + wire slot
-    at_angle(pogo_r, pogo_angle) {
-      translate([0, 0, face_back_z + pogo_post_extra - back_body - 0.05])
-        linear_extrude(back_body + 1) stadium_2d(oval_hole_l, oval_hole_w);
-      translate([0, 0, chassis_t]) linear_extrude(50) stadium_2d(8, 2.5);
     }
     // base pogo: pocket underneath the plate for its 1 mm back oval + wire slot
     at_angle(pogo_r, pogo_angle) {
@@ -238,8 +225,6 @@ module chassis() {
       cylinder(d = ring_pilot, h = 50, $fn = 20);
     // wires to the touch sensor in the base recess
     translate([0, 0, -1]) cylinder(d = wire_hole_d, h = chassis_t + 2);
-    // keep clear of the magnet pockets in the base (press-fit magnets stand proud if long)
-    for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -1]) cylinder(d = mag_d + 1, h = 1.5);
   }
 }
 

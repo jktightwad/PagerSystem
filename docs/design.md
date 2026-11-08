@@ -202,6 +202,10 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   and base by the same screws, and carries the brim clamp, both pogo
   connector clamps, the LED ring posts and the electronics; 2 mm radius on
   the ball's front edge (45-deg start, prints face down).
+- **v4 shell:** columns blended into the wall; hat brim fills the ball
+  interior (0.5 mm gap) around the column bumps (no rotation) and holds the
+  ball's pogo connector and magnets; chassis clamp ring at the wall, middle
+  free for electronics; egg tip 2 mm (`egg_tip`).
 - **Pager number is a firmware setting** (set from the web page), so a
   swapped insert needs the number updated too.
 
