@@ -161,6 +161,28 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 - **Web "join from desk"** holds a queue position until the person binds a
   pager (time limit to be decided).
 
+## Pager enclosure and stacking (proposed)
+- Looks like a pool ball: **coloured outer border** (ball colour), **white
+  centre** (0.8 mm, light passes through) with the **black number**. The
+  16-LED ring sits under the white centre so the face glows. Ring is ~44 mm
+  OD (measure the actual part); white centre at least that wide, total pager
+  roughly 70-80 mm.
+- Even glow: 5-10 mm gap between ring and face, or an extra diffuser layer.
+  Number printed thick / full-depth black so it doesn't glow through.
+- **Stacking:** the white centre is slightly raised; the underside has a
+  matching recess, so each pager seats on the one below.
+- **Orientation key:** pogo connector **off-centre in the coloured border**
+  (only one rotation makes contact, so polarity is guaranteed); a **flat or
+  notch** on the raised face + matching recess makes it drop in one way and
+  takes the load; **magnets** beside the pogo pins pull it into place. All
+  numbers in a stack face the same way.
+- **Docked glow:** a docked pager lights its ring faintly in its ball colour
+  (optionally slow pulse while charging, steady when battery >= ~4.15 V).
+  With a **translucent border**, every pager in the stack glows, and a dark
+  one shows a bad contact at or below it.
+- **Button:** TTP223 touch module (active-high) **behind the black number**
+  (opaque, so it doesn't block light). **Ignored while docked.**
+
 ## Pickup detection with pass-through charging
 - Each pager senses 5 V on its **own bottom pogo pins** (divider -> GPIO 34).
   Lifting the top pager removes 5 V only from that pager; it reports

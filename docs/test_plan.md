@@ -30,6 +30,8 @@ Result column: P = pass, F = fail (note what happened), - = not run.
 | B12 | Unregistered fob | SCAN then LIFT | Registration prompt on the web ("new fob, enter name"); pager held for it for ~2 min **(confirm)** | |
 | B13 | No fob (visitor) | LIFT pager 6, choose "I have pager 6" on the web, enter name | Pager 6 bound to that name | |
 | B14 | Pager 3 bound | CLAIM pressed again with no SCAN | No change; pager shows its ball colour (bound) | |
+| B19 | Pager lifted | Touch through a pocket / hand brushing past | No false CLAIM (tune touch sensitivity / require a deliberate tap) | |
+| B20 | Pager lifted | Wet finger or damp surface | No stuck or repeated touches | |
 | B15 | CLAIM pressed | No SCAN within 30 s | Claim expires; pager gives a short "timed out" pattern | |
 | B16 | SCAN | Fob read twice by accident (held on the reader) | Counted as one scan | |
 | B17 | Any | Fob held at the edge of range (flaky read) | Either a clean read or nothing; never a wrong CSN | |
@@ -75,6 +77,13 @@ Result column: P = pass, F = fail (note what happened), - = not run.
 | D09 | Pager lifted | Battery low | Low-battery warning on pager and web | |
 | D10 | Pager left off the dock | More than N hours | Web flags "pager N not returned" | |
 | D11 | Pager taken out of radio range | | Base shows "pager N not responding" after its heartbeat is missed | |
+| D12 | Pager placed on the dock | | Ring glows faintly in its ball colour within ~2 s | |
+| D13 | Stack of 4 | Middle contact made poor (lift the 3rd slightly) | That pager and every one above it go dark | |
+| D14 | Pager docked | Touch the number | Ignored (no claim, no ACK) | |
+| D15 | Pager placed on the stack | Any rotation other than the keyed one | Does not seat / no contact; never reversed polarity | |
+| D16 | Pager placed rotated close to the keyed position | | Magnets pull it into place and it seats | |
+| D17 | Docked pager charging | Battery reaches ~4.15 V | Glow changes from pulsing to steady **(confirm)** | |
+| D18 | Stack of 8 | | All numbers face the same way | |
 
 ## 4. Radio and reliability
 
