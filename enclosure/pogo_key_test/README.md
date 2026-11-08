@@ -28,7 +28,7 @@ supports). The trapezoid only mates one way round.
 | `oval_clear` | 0.25 | Hole clearance per side; raise if the oval won't pass |
 | `body_depth` | 2.0 | Flange face to oval face (measured) |
 | `flange_l`, `flange_t` | 19.2, 1.0 | Measured |
-| `flange_w` | 6.0 | **Not measured yet**: flange's short dimension |
+| `flange_w` | 4.0 | Measured (same as the oval); flange modelled as a rounded-end strip |
 | `flange_hole_outside` | 17.44 | Measured, outside to outside |
 | `flange_hole_d` | 1.6 | **Not measured yet** |
 | `protrude_flat` | 0.2 | Flat contacts above the keystone top |

@@ -24,7 +24,7 @@ oval_w        = 4.0;    // oval body width
 oval_clear    = 0.25;   // added to the hole all round (per side)
 body_depth    = 2.0;    // flange face to oval face
 flange_l      = 19.2;   // flange length
-flange_w      = 6.0;    // flange width: NOT MEASURED YET, guess
+flange_w      = 4.0;    // flange width (measured: same as the oval)
 flange_t      = 1.0;    // flange thickness
 flange_clear  = 0.25;   // pocket clearance per side
 flange_hole_outside = 17.44;  // mounting holes, outside edge to outside edge
@@ -87,8 +87,8 @@ module connector_cut(protrusion, inner_surface_z) {
   // flange pocket from the inside surface up to the flange position
   flange_z = -protrusion - t;   // underside of plastic above flange
   translate([0, 0, inner_surface_z - 1])
-    rounded_rect(flange_l + 2 * flange_clear, flange_w + 2 * flange_clear,
-                 flange_z - inner_surface_z + 1, 1);
+    stadium(flange_l + 2 * flange_clear, flange_w + 2 * flange_clear,
+            flange_z - inner_surface_z + 1);
   // screw pilots
   for (s = [-1, 1]) translate([s * flange_hole_cc / 2, 0, inner_surface_z - 1])
     cylinder(d = screw_pilot_d, h = flange_z - inner_surface_z + 1 + 2, $fn = 16);
@@ -97,7 +97,7 @@ module connector_cut(protrusion, inner_surface_z) {
 module connector_body(protrusion) {   // for the preview only
   color("silver") {
     translate([0, 0, -body_depth]) stadium(oval_l, oval_w, body_depth);
-    translate([0, 0, -body_depth - flange_t]) rounded_rect(flange_l, flange_w, flange_t, 1);
+    translate([0, 0, -body_depth - flange_t]) stadium(flange_l, flange_w, flange_t);
   }
 }
 
