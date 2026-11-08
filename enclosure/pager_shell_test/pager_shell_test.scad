@@ -8,13 +8,16 @@
 //   - chassis clamp ring moved out to the wall, beside the columns, leaving
 //     the middle free for electronics; pogo post removed
 //   - egg tip reduced to 2 mm (was 4) via the new egg_tip setting
+// v5: the base sits INSIDE the bottom of the ball wall, flush with its rim
+//     (no seam on the side); centre wire holes removed (only pogo wires).
+// Ball/chassis coordinates: z = 0 at the top of the base; the ball wall runs
+// down to z = -base_t.
 // Kept from v3: columns stop chassis_t short of the back rim, chassis plate
 // clamped between ball and base by the 4 screws (it also clamps the base's
 // pogo connector), LED ring posts, 2 mm radius on the front edge.
 //
 // Coordinates: looking down on the pager face, +Y = 12 o'clock (narrow end
 // of the egg, top of the number). Angles are clockwise from 12 o'clock.
-// Ball/chassis z = 0 at the back rim of the ball (where it meets the base).
 //
 // Render: openscad -D 'part="ball"' -o ball.stl pager_shell_test.scad
 
@@ -48,7 +51,8 @@ raised_h     = 0.6;
 number_depth = 2.4;     // 0.8 through the face + 1.6 behind it
 
 /* [Body, screws and base] */
-body_h       = 14;      // ball depth (short for the test; the real pager is deeper)
+body_h       = 14;      // ball depth above the base (short for the test; the real
+                        // pager is deeper). The ball wall also wraps the base.
 ball_wall    = 2.4;
 boss_d       = 7;
 screw_pilot  = 2.2;     // M2.5 self-tapping
@@ -63,7 +67,7 @@ recess_clear_d = 0.2;   // stacking fit (diameter)
 recess_d       = protrude + 0.3;
 recess_chamfer = 0.8;
 crown_chamfer  = 0.4;
-wire_hole_d    = 6;     // base/chassis hole for the touch-sensor wires
+base_clear_d   = 0.1;   // base fits inside the bottom of the ball wall (diameter)
 
 /* [Chassis] */
 chassis_t     = 2.0;    // plate between the column ends and the base
@@ -175,7 +179,7 @@ module pogo_cut() {
 module ball_outer() {
   R = ball_od / 2;
   rotate_extrude() hull() {
-    square([R, body_h - edge_r]);
+    translate([0, -base_t]) square([R, body_h - edge_r + base_t]);   // wall wraps the base
     translate([R - edge_r, body_h - edge_r]) circle(r = edge_r, $fn = 48);
     // 45-deg tangent point on the face plane
     square([R - edge_r + edge_r * (sqrt(2) - 1), body_h]);
@@ -186,10 +190,10 @@ module ball_upright() {
   difference() {
     ball_outer();
     // below the column ends: plain circle (the chassis plate goes here)
-    translate([0, 0, -1]) cylinder(d = ball_od - 2 * ball_wall, h = chassis_t + 1);
+    translate([0, 0, -base_t - 1]) cylinder(d = ball_od - 2 * ball_wall, h = base_t + chassis_t + 1);
     // above: cavity with the columns blended into the wall
     translate([0, 0, chassis_t - 0.01]) linear_extrude(face_back_z - chassis_t + 0.01) cavity_2d();
-    translate([0, 0, -1]) linear_extrude(body_h + 2) egg_2d(0);                       // crown opening
+    translate([0, 0, 0]) linear_extrude(body_h + 1) egg_2d(0);                        // crown opening
     at_angle(pogo_r, pogo_angle) translate([0, 0, body_h]) pogo_cut();               // flat contacts
     for (a = mag_angles) at_angle(mag_r, a)                                          // magnets, 0.4 mm skin
       translate([0, 0, face_back_z - 1]) cylinder(d = mag_hole_ball, h = body_h - mag_skin - face_back_z + 1);
@@ -223,15 +227,13 @@ module chassis() {
     // LED ring post pilots
     for (sx = [-1, 1], sy = [-1, 1]) translate([sx * ring_hole_cx / 2, sy * ring_hole_cy / 2, chassis_t])
       cylinder(d = ring_pilot, h = 50, $fn = 20);
-    // wires to the touch sensor in the base recess
-    translate([0, 0, -1]) cylinder(d = wire_hole_d, h = chassis_t + 2);
   }
 }
 
 // ================= Base (right way up; z = 0 underside) ====================
 module base_upright() {
   difference() {
-    cylinder(d = ball_od, h = base_t);
+    cylinder(d = ball_od - 2 * ball_wall - base_clear_d, h = base_t);   // sits inside the ball wall
     translate([0, 0, -0.01]) linear_extrude(recess_d) egg_2d(recess_clear_d / 2);
     hull() {
       translate([0, 0, -0.01]) linear_extrude(0.01) egg_2d(recess_clear_d / 2 + recess_chamfer);
@@ -243,14 +245,13 @@ module base_upright() {
       translate([0, 0, -1]) cylinder(d = screw_clear, h = base_t + 2, $fn = 24);
       translate([0, 0, -0.01]) cylinder(d = screw_head_d, h = screw_head_h, $fn = 32);
     }
-    translate([0, 0, -1]) cylinder(d = wire_hole_d, h = base_t + 2);
   }
 }
 
 // ================= Print orientations ======================================
 module hat_print()    { translate([0, 0, hat_h]) rotate([180, 0, 0]) hat_upright(); }
 module number_print() { translate([0, 0, hat_h]) rotate([180, 0, 0]) number_upright(); }
-module ball_print()   { translate([0, 0, body_h]) rotate([180, 0, 0]) ball_upright(); }
+module ball_print()   { translate([0, 0, body_h]) rotate([180, 0, 0]) ball_upright(); }   // face down
 module base_print()   { translate([0, 0, base_t]) rotate([180, 0, 0]) base_upright(); }
 
 module preview() {

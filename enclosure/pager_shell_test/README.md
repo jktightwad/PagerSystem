@@ -1,4 +1,4 @@
-# Pager shell test (v4)
+# Pager shell test (v5)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns).
@@ -20,6 +20,15 @@ Customizer for grouped settings and dropdowns).
 - Kept: chassis plate under the shortened columns (clamps the base's pogo
   connector), LED ring posts, 2 mm front-edge radius, magnets in the base.
 
+## v5 changes
+- **Base sits inside the bottom of the ball wall**, flush with the rim, so
+  there is no seam on the side (`base_clear_d` 0.1 mm on diameter). The ball
+  is 3 mm taller (wall wraps the base); the inside is unchanged.
+- **Centre wire holes removed** from base and chassis; the only wires are the
+  pogo connectors' (slot in the chassis plate at the base connector).
+- Touch sensor location still to decide (it can't sit in the recess without a
+  wire hole; see chat).
+
 ## Assembly (from the back of the ball)
 1. Pogo connector (flat contacts) into the ball face, flange into its pocket.
 2. Magnets into the ball's pockets, same pole towards the face.
@@ -28,15 +37,16 @@ Customizer for grouped settings and dropdowns).
 4. LED ring onto the chassis posts (M2 self-tapping), wired.
 5. Chassis in: plate under the column ends, ring pressing the brim's edge.
 6. Base: pogo connector (spring pins) in from the top, magnets pressed in
-   from the underside; 4 M2.5 x 10 mm screws up through base and chassis
-   plate into the columns.
+   from the underside; drop it into the bottom of the ball (flush with the
+   rim) and fit 4 M2.5 x 10 mm screws up through base and chassis plate into
+   the columns.
 
 ## Parts
 | File | Print | Notes |
 |---|---|---|
 | `hat.stl` | white, face down, slicer supports under the brim | Brim fills the ball interior |
 | `number.stl` | black, second part of the hat | 2.4 mm deep inlay |
-| `ball.stl` | ball colour, face down | 104 mm OD, 14 mm deep test body (`body_h`) |
+| `ball.stl` | ball colour, face down | 104 mm OD, 17 mm tall (14 mm inside + 3 mm around the base) |
 | `chassis.stl` | any, plate down (as exported) | |
 | `base.stl` | any, underside up (as exported) | |
 
