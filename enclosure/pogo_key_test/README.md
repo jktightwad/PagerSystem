@@ -9,6 +9,7 @@ Source: `pogo_key_test.scad` (OpenSCAD, every dimension is a parameter).
 | File | What it stands in for | Contents |
 |---|---|---|
 | `pogo_key_top.stl` | Top of a pager (and the dock) | Raised trapezoid **keystone** with the **flat-contact** half; flange recessed from underneath; wire groove |
+| `pogo_key_cal.stl` | Calibration chip | Four connector slots with different plastic thickness over the flange |
 | `pogo_key_bottom.stl` | Underside of the pager above | Matching keystone **recess** with the **spring-pin** half (protected inside the recess); flange recessed from the inside; wire groove |
 
 Both STLs are oriented to print with the flange side on the bed (no
@@ -21,35 +22,43 @@ supports). The trapezoid only mates one way round.
 - In the real pager the keystone sits **off-centre in the coloured border**,
   so it also sets the rotation of the whole pager.
 
+## Calibration first: `pogo_key_cal.stl`
+The first coupons left a gap of over 1 mm: the recess was 0.8 mm deeper
+than the keystone, and the connector faces sat below their surfaces. Now:
+- recess depth = keystone height + `seat_clear` (0.15 mm)
+- connector faces are meant to be **flush**, so the seated face gap is about
+  0.15 mm (target: 0.4 mm or less; the pins have ~0.8 mm of travel).
+
+Where a face ends up depends on the plastic over its flange (`cover_t`),
+which depends on the connector's real body height. The chip has four slots
+with **1.20 / 1.35 / 1.50 / 1.65 mm** cover (1-4 notches on the edge; print
+flat as exported). Push a connector half into each slot from underneath and
+find the one where the face is **flush** with the top surface. Set
+`cover_t_flat` and `cover_t_pins` to that value (and `body_depth` to the
+same number), then re-export the coupons. Check both halves: they may
+differ.
+
 ## Parameters to tune (top of the .scad)
 | Parameter | Default | Notes |
 |---|---|---|
 | `oval_l`, `oval_w` | 13.15, 4.0 | Measured |
-| `oval_clear` | 0.25 | Hole clearance per side; raise if the oval won't pass |
-| `body_depth` | 2.0 | Flange face to oval face (measured) |
-| `flange_l`, `flange_t` | 19.2, 1.0 | Measured |
-| `flange_w` | 4.0 | Measured (same as the oval); flange modelled as a rounded-end strip |
-| `flange_hole_outside` | 17.44 | Measured, outside to outside |
-| `flange_hole_d` | 1.6 | **Not measured yet** |
-| `protrude_flat` | 0.2 | Flat contacts above the keystone top |
-| `protrude_pins` | 0.4 | Pin face below the recess ceiling |
-| `seat_gap` | 0.2 | Extra recess depth so the connector faces meet before the plastic bottoms out |
+| `oval_clear` | 0.25 | Hole clearance per side |
+| `body_depth` | 1.5 | Body height above the flange: **estimate** from the first print |
+| `flange_l`, `flange_w`, `flange_t` | 19.2, 4.0, 1.0 | Measured |
+| `cover_t_flat`, `cover_t_pins` | 1.5 | Plastic over the flange; set from the calibration chip |
+| `seat_clear` | 0.15 | Recess depth beyond keystone height = designed face gap when flush |
 | `key_long`, `key_short`, `key_depth`, `key_h` | 28, 22, 12, 3 | Keystone shape |
 | `key_clear` | 0.3 | Recess clearance per side |
 
-Plastic between flange and outer face = `body_depth` - protrusion, so a
-bigger protrusion means thinner plastic over the flange.
+The OpenSCAD console prints the designed face gap; keep it between 0 and 0.4.
 
-## Test
-1. Press each connector half in from the flange side; fix with small
-   self-tapping screws in the pilot holes, or glue.
-2. Stack the coupons: check the keystone only fits one way, the magnets
-   pull the faces together, and the plates sit close (gap about `seat_gap`).
-3. Meter continuity across the joined connector, both pins.
-4. Adjust protrusion / clearances and re-export.
+Screw pilots stop 0.5 mm short of the outer surface; with ~1.5 mm of
+plastic over the flange they only give ~1 mm of grip, so expect to glue or
+clamp the connectors (see the clamp-bar option discussed in chat).
 
 ## Re-exporting
 ```
 openscad -D 'part="top"' -o pogo_key_top.stl pogo_key_test.scad
 openscad -D 'part="bottom"' -o pogo_key_bottom.stl pogo_key_test.scad
+openscad -D 'part="cal"' -o pogo_key_cal.stl pogo_key_test.scad
 ```

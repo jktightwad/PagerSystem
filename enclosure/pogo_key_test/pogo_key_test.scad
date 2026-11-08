@@ -14,7 +14,7 @@
 // Protrusion of each oval face is adjustable.
 //
 // Render: openscad -D 'part="top"' -o pogo_key_top.stl pogo_key_test.scad
-//         part = "top", "bottom", or "all" (assembled preview)
+//         part = "top", "bottom", "cal" (calibration chip), or "all"
 
 part = "all";
 
@@ -22,7 +22,9 @@ part = "all";
 oval_l        = 13.15;  // oval body length
 oval_w        = 4.0;    // oval body width
 oval_clear    = 0.25;   // added to the hole all round (per side)
-body_depth    = 2.0;    // flange face to oval face
+body_depth    = 1.5;    // body height above the flange: ESTIMATED from the first
+                        // print (faces sat below the surface with 1.6-1.8 mm cover);
+                        // confirm with the calibration chip
 flange_l      = 19.2;   // flange length
 flange_w      = 4.0;    // flange width (measured: same as the oval)
 flange_t      = 1.0;    // flange thickness
@@ -32,10 +34,14 @@ flange_hole_d = 1.6;    // NOT MEASURED YET, guess
 flange_hole_cc = flange_hole_outside - flange_hole_d;   // centre-to-centre
 screw_pilot_d = 1.3;    // pilot for small self-tapping screws (or glue)
 
-// Protrusion of each oval face beyond the plastic surface it sits in
-// (positive = sticks out). Spring pins are usually best slightly protruding.
-protrude_flat = 0.2;    // top coupon: flat contacts above the keystone top
-protrude_pins = 0.4;    // bottom coupon: pin face below the recess ceiling
+// Plastic thickness over the flange. This sets where the connector face
+// ends up: face is flush when cover_t equals the real body height above the
+// flange. Find the right value with the calibration chip, then set both.
+cover_t_flat  = 1.5;    // top coupon (keystone, flat contacts)
+cover_t_pins  = 1.5;    // bottom coupon (recess, spring pins)
+protrude_flat = body_depth - cover_t_flat;   // + = face sticks out
+protrude_pins = body_depth - cover_t_pins;
+cal_covers    = [1.2, 1.35, 1.5, 1.65];        // calibration chip slots
 
 // ---- Keystone ----
 key_long  = 28;    // long side of the trapezoid
@@ -44,13 +50,16 @@ key_depth = 12;    // front to back
 key_h     = 3.0;   // how far the keystone stands up
 key_r     = 1.5;   // corner rounding
 key_clear = 0.3;   // recess clearance per side
-seat_gap  = 0.2;   // extra recess depth so connector faces meet before the plastic does
+seat_clear = 0.15; // recess is this much deeper than the keystone is tall
 
 // ---- Coupons ----
 plate_l = 44;
 plate_w = 34;
 top_plate_t    = 3.0;
-bottom_plate_t = key_h + protrude_flat + protrude_pins + seat_gap + 3.0;
+recess_depth   = key_h + seat_clear;
+bottom_plate_t = recess_depth + 3.0;
+// Face gap when seated, if the faces end up where the model says:
+face_gap = seat_clear - protrude_flat - protrude_pins;
 wire_groove_w  = 4;
 wire_groove_d  = 1.5;
 
@@ -89,9 +98,10 @@ module connector_cut(protrusion, inner_surface_z) {
   translate([0, 0, inner_surface_z - 1])
     stadium(flange_l + 2 * flange_clear, flange_w + 2 * flange_clear,
             flange_z - inner_surface_z + 1);
-  // screw pilots
+  // screw pilots: blind, stopping 0.5 mm short of the outer surface
+  pilot_extra = max(0, t - 0.5);
   for (s = [-1, 1]) translate([s * flange_hole_cc / 2, 0, inner_surface_z - 1])
-    cylinder(d = screw_pilot_d, h = flange_z - inner_surface_z + 1 + 2, $fn = 16);
+    cylinder(d = screw_pilot_d, h = flange_z - inner_surface_z + 1 + pilot_extra, $fn = 16);
 }
 
 module connector_body(protrusion) {   // for the preview only
@@ -118,7 +128,7 @@ module top_coupon() {
 // Bottom coupon, modelled in its stacked position (recess facing down).
 module bottom_coupon_stacked() {
   base_z = top_plate_t;                 // sits on the top coupon's plate
-  ceiling_z = base_z + key_h + protrude_flat + protrude_pins + seat_gap;
+  ceiling_z = base_z + recess_depth;
   pin_face_z = ceiling_z - protrude_pins;
   top_z = base_z + bottom_plate_t;
   difference() {
@@ -134,6 +144,21 @@ module bottom_coupon_stacked() {
   }
 }
 
+// Calibration chip: one connector slot per cover thickness; the top surface
+// is the reference. Notches on the near edge: 1 = first value, etc.
+cal_pitch = 10;
+cal_t     = max(cal_covers) + flange_t + 0.6;
+module cal_chip() {
+  n = len(cal_covers);
+  difference() {
+    translate([-14, -cal_pitch / 2, 0]) cube([28, n * cal_pitch, cal_t]);
+    for (i = [0 : n - 1]) translate([0, i * cal_pitch, cal_t])
+      connector_cut(body_depth - cal_covers[i], -cal_t);
+    for (i = [0 : n - 1]) for (j = [0 : i])
+      translate([-14, i * cal_pitch - 2 + j * 1.6, -1]) cylinder(d = 1.0, h = cal_t + 2, $fn = 12);
+  }
+}
+
 // Print orientations: both with the "inside" (flange) face on the bed
 module top_print() { top_coupon(); }
 module bottom_print() {
@@ -145,16 +170,17 @@ module preview() {
   translate([0, 0, top_plate_t + key_h + protrude_flat]) connector_body(protrude_flat);
   translate([0, 0, 25]) {
     color("lightblue", 0.6) bottom_coupon_stacked();
-    pin_face_z = top_plate_t + key_h + protrude_flat + protrude_pins + seat_gap - protrude_pins;
+    pin_face_z = top_plate_t + recess_depth - protrude_pins;
     translate([0, 0, pin_face_z]) mirror([0, 0, 1]) connector_body(protrude_pins);
   }
 }
 
 if (part == "top") top_print();
+else if (part == "cal") cal_chip();
 else if (part == "bottom") bottom_print();
 else preview();
 
-echo(str("Plastic under flange: top ", plastic_t(protrude_flat),
-         " mm, bottom ", plastic_t(protrude_pins), " mm"));
-echo(str("Bottom coupon thickness ", bottom_plate_t, " mm, recess depth ",
-         key_h + protrude_flat + protrude_pins + seat_gap, " mm"));
+echo(str("Face protrusion: flat ", protrude_flat, " mm, pins ", protrude_pins,
+         " mm (if the connector body is ", body_depth, " mm above its flange)"));
+echo(str("Keystone ", key_h, " mm, recess ", recess_depth, " mm, designed face gap ",
+         face_gap, " mm"));
