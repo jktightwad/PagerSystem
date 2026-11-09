@@ -137,6 +137,18 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 - **Capacity:** clients poll every few seconds (ESP32 holds ~10 sockets).
 - Queue model: see "Players, pagers and pairing".
 
+## Number of pagers (decided)
+- **Planned: 8 pagers.** Hats and numbers can be generated for 1-15
+  (`export_numbers` scripts).
+- **Firmware allows more, up to the ESP-NOW limit of 20 directly addressed
+  devices** on the radio that talks to the pagers (the radio bridge, or the
+  base if there is no bridge). Pager IDs are not hard-limited to 8; the
+  firmware rejects a pager beyond the cap with a clear message.
+- Going past 8 is the builder's responsibility: dock power supply and
+  stack current (see "Stacking dock"), dock size, and battery/charging.
+- Message security is done in our own messages (counter + MAC), so the lower
+  ESP-NOW encrypted-peer limit (7 default, 17 max) doesn't apply.
+
 ## Players, pagers and pairing (proposed)
 - **Everyone gets their own pager.** The queue is a list of people. When the
   table frees up, someone chooses "next game: 2 / 3 / 4 players"; the base
