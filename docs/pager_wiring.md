@@ -146,6 +146,7 @@ library's own suggested wiring); move it if boot problems appear.
 - `MISO during command: 00 00 00` and version bytes all 00: no data coming
   back. Check MISO, then run the sketch's GPIO loopback test (type `l` with a
   jumper from the MOSI pin to the MISO pin).
-- One ESP32-C3 SuperMini on the bench had a **dead GPIO 5 input** (pad
-  measured 3.3 V, chip read 0). Fixed by moving MISO to GPIO 0 and MOSI to
-  GPIO 1 via the `PN5180_SCK/MISO/MOSI` build flags in `platformio.ini`.
+- On the ESP32-C3 SuperMini, **using GPIO 5 as MISO didn't work** in this
+  setup (replies read as zeros), although the pin works for other uses; the
+  cause wasn't established. Moving MISO to GPIO 0 and MOSI to GPIO 1 fixed it
+  (`env:esp32c3_supermini_alt_spi` in `pn5180_csn_test/platformio.ini`).
