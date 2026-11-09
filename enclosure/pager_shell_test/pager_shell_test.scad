@@ -57,6 +57,10 @@ column_fillet = 3;
 // minimum plastic under a magnet / the pogo flange; where the brim is too
 // thin, a cap / tongue is added underneath to reach this
 floor_min    = 0.6; // [0.3:0.1:3]
+// side wall around each magnet pocket in a cap (caps only appear if needed)
+cap_wall     = 2.0; // [0.8:0.1:5]
+// magnet pocket diameter in the hat brim
+mag_pocket_d = 6.4; // [6:0.01:7]
 
 /* [Light] */
 // thickness of the white lit face; thicker adds material on the INSIDE,
@@ -201,7 +205,7 @@ module hat_upright() {
         translate([0, 0, tongue_bot]) linear_extrude(brim_bot - tongue_bot + 0.01) tongue_2d();
       if (cap_bot < brim_bot)
         for (a = mag_angles) at_angle(mag_r, a)
-          translate([0, 0, cap_bot]) cylinder(d = mag_d + 1.2, h = brim_bot - cap_bot + 0.01);
+          translate([0, 0, cap_bot]) cylinder(d = mag_pocket_d + 2 * cap_wall, h = brim_bot - cap_bot + 0.01);
       if (number_mode == "raised") translate([0, 0, hat_h]) linear_extrude(raised_h) number_2d();
     }
     translate([0, 0, hat_low - 1]) linear_extrude(hat_h - light_t - hat_low + 1) egg_2d(-crown_clear_d / 2 - crown_wall);
@@ -214,7 +218,7 @@ module hat_upright() {
     }
     // magnets: pocket from the brim top down to just past the magnet
     for (a = mag_angles) at_angle(mag_r, a)
-      translate([0, 0, mag_pocket_bot]) cylinder(d = mag_d + 0.4, h = brim_top - mag_pocket_bot + 1);
+      translate([0, 0, mag_pocket_bot]) cylinder(d = mag_pocket_d, h = brim_top - mag_pocket_bot + 1);
   }
 }
 module number_upright() { translate([0, 0, hat_h - number_depth]) linear_extrude(number_depth) number_2d(); }
@@ -261,6 +265,9 @@ module chassis_abs() {
         offset(delta = -brim_gap_d / 2 - chassis_clear) cavity_2d();
         offset(delta = -brim_gap_d / 2 - chassis_clear - clamp_ring_w) cavity_2d();
         offset(delta = 0.3) tongue_2d();
+        // notches for the magnet caps (only when the brim needs them)
+        if (cap_bot < brim_bot)
+          for (a = mag_angles) at_angle(mag_r, a) circle(d = mag_pocket_d + 2 * cap_wall + 0.6);
       }
       for (sx = [-1, 1], sy = [-1, 1]) translate([sx * ring_hole_cx / 2, sy * ring_hole_cy / 2, base_t])
         cylinder(d = ring_post_d, h = ring_bottom - base_t, $fn = 32);
@@ -332,6 +339,8 @@ echo(str("Ball height ", ball_h, " mm. Free height under the LED ring (internal_
 echo(str("Brim ", brim_t, " mm (", brim_sink, " in the face, ", -brim_bot, " below). Magnet pocket ",
          brim_top - mag_pocket_bot, " deep", cap_bot < brim_bot ? str(", cap ", brim_bot - cap_bot, " mm") : ", no cap",
          "; pogo pocket ", brim_top - ball_flange_gap, " deep", tongue_bot < brim_bot ? str(", tongue ", brim_bot - tongue_bot, " mm") : ", no tongue"));
+assert(mag_r + mag_pocket_d / 2 + cap_wall < ball_od / 2 - ball_wall - 0.2,
+       "magnet caps too wide: they would hit the ball wall (reduce cap_wall or move the magnets in)");
 assert(brim_sink < ball_face_t - 0.5, "brim_sink leaves less than 0.5 mm of face in front of the brim");
 assert(base_t >= protrude + 0.3, "base_t must be at least protrude + 0.3 (stacking recess depth)");
 assert(screw_head_h < base_t - 0.3, "counterbore too deep for the base: less than 0.3 mm left under the screw head");

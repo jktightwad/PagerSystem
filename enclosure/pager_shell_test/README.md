@@ -50,6 +50,9 @@ uses the last F6 render).
   The console reports the sizes. At `brim_t` 2: caps 0.85 mm, tongue 0.4 mm;
   at 2.5: caps 0.35 mm, no tongue; at 2.9: neither.
 - The chassis clamp ring shortens to meet the brim's bottom.
+- Caps are now **`cap_wall` (2 mm) thick round the magnet pocket** (was a
+  fixed 0.4 mm, which sheared off); the clamp ring is notched around them.
+  `mag_pocket_d` (6.4) sets the magnet pocket diameter in the brim.
 
 ## v9 changes
 - **Ball face 2 mm** (`ball_face_t`) and **`internal_h` 4 mm** by default:
