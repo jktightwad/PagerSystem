@@ -206,6 +206,10 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   interior (0.5 mm gap) around the column bumps (no rotation) and holds the
   ball's pogo connector and magnets; chassis clamp ring at the wall, middle
   free for electronics; egg tip 2 mm (`egg_tip`).
+- **v6 shell:** brim 1 mm sunk into the ball face (tongue presses the
+  ball pogo flange, caps hold the magnets); base is a 2 mm ring with the
+  egg recess through it and the chassis plate as the recess ceiling;
+  clamp ring 0.2 mm short; inside height 10 mm in a 17 mm ball.
 - **Pager number is a firmware setting** (set from the web page), so a
   swapped insert needs the number updated too.
 

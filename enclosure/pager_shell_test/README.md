@@ -1,54 +1,49 @@
-# Pager shell test (v5)
+# Pager shell test (v6)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
-Customizer for grouped settings and dropdowns).
+Customizer for grouped settings and dropdowns). To export one part: choose
+`part`, press **F6**, wait for "Rendering finished", then **F7** (export
+uses the last F6 render).
 
 ![Preview](preview.png)
 
-## v4 changes
-- **Screw columns blended into the ball wall** (`column_fillet`, 3 mm).
-- **Hat brim fills the inside of the ball**, `brim_gap_d` (0.5 mm on
-  diameter) smaller, following the column bumps, so the hat can't rotate.
-  The brim also **holds the ball's pogo connector** (slot for its back oval
-  and wires; the brim presses the flange) and **captures the magnets**
-  (0.3 mm recesses; magnets stand 0.15 mm proud of the face back).
-- **Chassis clamp ring moved out to the wall**, next to the columns; the
-  middle of the chassis is free for electronics. Pogo post removed.
-- **`egg_tip` replaces `egg_shift`:** how far the egg's narrow end sticks out
-  past the round part. Now **2 mm** (v2/v3 had 4). With the old setting,
-  `egg_shift = 5` would have made the egg perfectly round.
-- Kept: chassis plate under the shortened columns (clamps the base's pogo
-  connector), LED ring posts, 2 mm front-edge radius, magnets in the base.
-
-## v5 changes
-- **Base sits inside the bottom of the ball wall**, flush with the rim, so
-  there is no seam on the side (`base_clear_d` 0.1 mm on diameter). The ball
-  is 3 mm taller (wall wraps the base); the inside is unchanged.
-- **Centre wire holes removed** from base and chassis; the only wires are the
-  pogo connectors' (slot in the chassis plate at the base connector).
-- Touch sensor location still to decide (it can't sit in the recess without a
-  wire hole; see chat).
+## v6 changes (more room inside, base no longer proud)
+- **Hat brim 1 mm, sunk into a 1 mm pocket** in the back of the 3 mm ball
+  face: face + brim = 3 mm (was 4.6). Still follows the column bumps.
+  - The ball pogo flange shares that layer: the brim has a cut-out round it
+    and a **tongue underneath** that presses the flange (slot for the back
+    oval and wires).
+  - The magnets pass through the brim; **caps underneath** hold them in.
+- **Base is a 2 mm ring**: the egg stacking recess goes right through it and
+  the **chassis plate is the recess ceiling**. Base 2 + plate 2 = 4 mm
+  (was 5). The plate's underside holds the base's pogo flange and magnets.
+- **Clamp ring 0.2 mm short** (`ring_relief`) so print variation (e.g. the
+  supported brim underside) no longer pushes the base ~0.5 mm out.
+- **Magnets at r = 43** (was 44) so their caps clear the clamp ring.
+- **Counterbore 4.8 x 1.2 mm** (fits the 2 mm base).
+- Result: inside height plate top -> face back = **10 mm** (was ~7.4) in
+  the same 17 mm ball.
 
 ## Assembly (from the back of the ball)
-1. Pogo connector (flat contacts) into the ball face, flange into its pocket.
+1. Pogo connector (flat contacts) into the ball face.
 2. Magnets into the ball's pockets, same pole towards the face.
-3. Hat in from the back: egg through the opening, brim around the columns.
-   The brim now holds the connector and magnets.
-4. LED ring onto the chassis posts (M2 self-tapping), wired.
-5. Chassis in: plate under the column ends, ring pressing the brim's edge.
-6. Base: pogo connector (spring pins) in from the top, magnets pressed in
-   from the underside; drop it into the bottom of the ball (flush with the
-   rim) and fit 4 M2.5 x 10 mm screws up through base and chassis plate into
-   the columns.
+3. Hat in from the back: egg through the opening, brim into its pocket
+   (tongue over the pogo flange, caps over the magnets).
+4. LED ring onto the chassis posts.
+5. Base: pogo connector (spring pins) and magnets pressed in from the
+   underside.
+6. Chassis plate onto the base (its pockets take the base pogo flange and
+   magnet tops), then both into the ball; 4 M2.5 x 8-10 mm screws up through
+   base and plate into the columns.
 
 ## Parts
 | File | Print | Notes |
 |---|---|---|
-| `hat.stl` | white, face down, slicer supports under the brim | Brim fills the ball interior |
+| `hat.stl` | white, face down, slicer supports under the brim | Tongue + caps print on top of the brim |
 | `number.stl` | black, second part of the hat | 2.4 mm deep inlay |
-| `ball.stl` | ball colour, face down | 104 mm OD, 17 mm tall (14 mm inside + 3 mm around the base) |
-| `chassis.stl` | any, plate down (as exported) | |
-| `base.stl` | any, underside up (as exported) | |
+| `ball.stl` | ball colour, face down | 104 mm OD, 17 mm tall |
+| `chassis.stl` | any, plate on the bed | Plate underside is visible in the stacking recess |
+| `base.stl` | any, underside on the bed | 2 mm ring |
 
 ## Pogo connector
 Measured: 2 mm oval face body, 1 mm flange, 1 mm oval back body (4 mm total).
@@ -56,8 +51,8 @@ Measured: 2 mm oval face body, 1 mm flange, 1 mm oval back body (4 mm total).
   flange pocket from the back**; the 1 mm back oval sticks out of the back.
 - Oval hole 13.45 x **4.3** mm in the model (this printer prints holes about
   0.1 mm small: 4.5 printed 4.4, so 4.3 should print ~4.2).
-- Ball connector held by the **hat brim** (slot for its back oval); base
-  connector held by a pocket under the **chassis plate**.
+- Ball connector: flange in the brim layer, pressed by the **brim tongue**.
+  Base connector: flange pressed by a pocket under the **chassis plate**.
 - Ball = flat contacts (top of the pager), base = spring pins (underside).
   When stacked both faces are flush, so the gap is ~0 and the pins compress
   flush.
