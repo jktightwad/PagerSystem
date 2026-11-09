@@ -28,6 +28,10 @@
 // Export one part: choose `part`, press F6, wait for "Rendering finished",
 // then F7 (export uses the LAST F6 render).
 
+// The number's font ships with the model so every PC renders the same digit
+// (a missing system font is silently replaced by another, different-sized one).
+use <fonts/DejaVuSerif-Bold.ttf>
+
 /* [Part to show / export] */
 part = "all"; // [all, hat, number, ball, chassis, base]
 
@@ -69,8 +73,9 @@ light_t      = 0.8; // [0.2:0.01:3]
 
 /* [Number] */
 number_text  = "2";
-number_font  = "DejaVu Serif:style=Bold";
-number_h     = 0.6 * white_d;
+number_font  = "DejaVu Serif:style=Bold";   // loaded from fonts/ (see top of file)
+// number size as a fraction of the white circle's diameter (0.6 = 43 mm text size)
+number_scale = 0.6; // [0.2:0.01:1]
 number_mode  = "inlay"; // [inlay, raised, none]
 raised_h     = 0.6;
 number_back  = 1.6;     // black number continues this far behind the lit face (so it doesn't glow)
@@ -148,6 +153,7 @@ mag_angles    = [60, 300];
 
 /* [Hidden] */
 $fn = 128;
+number_h   = number_scale * white_d;
 // Ball height follows from: base + plate + shortest LED post + internal_h +
 // LED ring + LED-to-face gap, up to the white face (minus how far it protrudes)
 ball_h     = base_t + chassis_t + post_min + internal_h + ring_h + led_depth - protrude;
