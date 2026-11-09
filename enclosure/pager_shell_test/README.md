@@ -40,13 +40,19 @@ uses the last F6 render).
 
 ## Number
 - `number_text` sets the digit; `number_scale` its size (fraction of the
-  72 mm white circle). The font ships in `fonts/` so every PC renders it the
-  same.
-- **6 and 9 are underlined automatically** (`underline` = auto / on / off;
-  bar size: `underline_w`, `underline_t`, `underline_gap`). The underline is
-  part of the black inlay.
+  72 mm white circle).
+- Font: **Liberation Sans Bold** (bold sans, same proportions as
+  Arial/Helvetica, close to the pool-ball style). Bundled in `fonts/` with
+  its licence (SIL OFL), so every PC renders it the same. DejaVu Serif Bold
+  is also bundled. Changing font: put the .ttf in `fonts/`, add a
+  `use <fonts/NAME.ttf>` line at the top of the .scad, set `number_font`, and
+  set `digit_h_ratio` (digit height / text size) so the underline sits right.
+- **6 and 9 get a curved underline automatically**, like pool balls
+  (`underline` auto / on / off; `underline_style` arc / bar). Its width,
+  thickness, gap and curve are fractions of the number height, so they scale
+  with it. It's part of the black inlay.
 
-![6 and 9](underline_6_9.png)
+![6, 9 and 2](underline_6_9.png)
 
 ## v10 changes
 - **`brim_t` is now just the brim's thickness (default 2 mm)**; new

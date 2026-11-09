@@ -30,6 +30,7 @@
 
 // The number's font ships with the model so every PC renders the same digit
 // (a missing system font is silently replaced by another, different-sized one).
+use <fonts/LiberationSans-Bold.ttf>
 use <fonts/DejaVuSerif-Bold.ttf>
 
 /* [Part to show / export] */
@@ -73,15 +74,23 @@ light_t      = 0.8; // [0.2:0.01:3]
 
 /* [Number] */
 number_text  = "2";
-number_font  = "DejaVu Serif:style=Bold";   // loaded from fonts/ (see top of file)
+// pool-ball style bold sans (Liberation Sans Bold = Arial/Helvetica metrics);
+// loaded from fonts/ (see top of file). DejaVu Serif Bold is also bundled.
+number_font  = "Liberation Sans:style=Bold";
 // number size as a fraction of the white circle's diameter (0.6 = 43 mm text size)
 number_scale = 0.6; // [0.2:0.01:1]
 // underline under the number (pool-ball style, tells 6 from 9)
 underline    = "auto"; // [auto, on, off]
-// underline bar: width as a fraction of the number height, thickness, gap
-underline_w     = 0.7; // [0.2:0.01:1.5]
-underline_t     = 3.0; // [0.8:0.1:8]
-underline_gap   = 2.5; // [0.5:0.1:8]
+// "arc": curved like the pool-ball 6 / 9; "bar": straight
+underline_style = "arc"; // [arc, bar]
+// underline sizes as fractions of the number height (they scale with it)
+underline_w     = 0.6;  // [0.2:0.01:1.5]
+underline_t     = 0.1;  // [0.03:0.005:0.3]
+underline_gap   = 0.07; // [0.01:0.005:0.3]
+underline_sag   = 0.08; // [0:0.005:0.3]
+// digit height / text size for the chosen font (Liberation Sans Bold 0.98,
+// DejaVu Serif Bold 1.03); positions the underline under the digit
+digit_h_ratio   = 0.98; // [0.6:0.01:1.4]
 number_mode  = "inlay"; // [inlay, raised, none]
 raised_h     = 0.6;
 number_back  = 1.6;     // black number continues this far behind the lit face (so it doesn't glow)
@@ -193,17 +202,37 @@ module egg_2d(grow = 0) {
   offset(delta = grow) hull() { circle(d = white_d); translate([0, egg_shift]) circle(d = egg_small_d); }
 }
 module stadium_2d(l, w) { hull() for (s = [-1, 1]) translate([s * (l - w) / 2, 0]) circle(d = w); }
-// Digits come out ~1.03 x the text size tall (measured for this font)
-module number_2d() {
-  ul = underline == "on" || (underline == "auto" && (number_text == "6" || number_text == "9"));
-  glyph_h = number_h * 1.03;
-  shift = ul ? (underline_gap + underline_t) / 2 : 0;   // keep number + bar centred
-  translate([0, shift]) {
-    text(number_text, size = number_h, font = number_font, halign = "center", valign = "center");
-    if (ul) translate([0, -glyph_h / 2 - underline_gap - underline_t / 2])
-      offset(r = underline_t / 2 - 0.01) square([number_h * underline_w - underline_t, 0.02], center = true);
+module underline_2d() {
+  w = number_h * underline_w;
+  t = number_h * underline_t;
+  if (underline_style == "arc") {
+    // smile-shaped stroke with round ends: lowest in the middle
+    sag = number_h * underline_sag;
+    steps = 24;
+    for (i = [0 : steps - 1]) hull() for (j = [i, i + 1]) {
+      x = -w / 2 + t / 2 + j * (w - t) / steps;
+      u = x / ((w - t) / 2);
+      translate([x, sag * u * u]) circle(d = t, $fn = 32);
+    }
+  } else {
+    offset(r = t / 2 - 0.01) square([w - t, 0.02], center = true);
   }
 }
+module number_2d() {
+  ul = underline == "on" || (underline == "auto" && (number_text == "6" || number_text == "9"));
+  glyph_h = number_h * digit_h_ratio;
+  gap = number_h * underline_gap;
+  t = number_h * underline_t;
+  sag = underline_style == "arc" ? number_h * underline_sag : 0;
+  ul_h = t + sag;                                   // height of the underline shape
+  shift = ul ? (gap + ul_h) / 2 : 0;                // keep number + underline centred
+  translate([0, shift]) {
+    text(number_text, size = number_h, font = number_font, halign = "center", valign = "center");
+    // underline's top (its ends, for an arc) sits gap below the digit
+    if (ul) translate([0, -glyph_h / 2 - gap - t / 2 - sag]) underline_2d();
+  }
+}
+
 module bosses_2d() { for (a = boss_angles) at_angle(boss_r, a) circle(d = boss_d); }
 module cavity_2d() {
   offset(r = column_fillet) offset(delta = -column_fillet)
