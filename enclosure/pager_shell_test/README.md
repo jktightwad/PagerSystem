@@ -1,4 +1,4 @@
-# Pager shell test (v6)
+# Pager shell test (v7)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -24,6 +24,20 @@ uses the last F6 render).
 - Result: inside height plate top -> face back = **10 mm** (was ~7.4) in
   the same 17 mm ball.
 
+## v7 changes
+- `egg_tip` **1 mm**; stacking fit `recess_clear_d` **0.1 mm** (was 0.2).
+- Shell screws **M2 x 8 mm self-tapping**: pilot 1.7, clearance 2.3,
+  counterbore 4.2 x 1.5 mm so the head sits fully below the base surface
+  (0.5 mm of base under the head; measure your screw head and set
+  `screw_head_d` / `screw_head_h`).
+- LED ring screws **M2 x 6 mm self-tapping**; shortest post that takes them
+  is `post_min` (= 6 - 1.6 PCB + 0.6 = 5 mm).
+- **`internal_h`** (Body group): the FREE height for electronics under the
+  LED ring, beyond the minimum. The ball height is now calculated:
+  `ball_h = base_t + chassis_t + post_min + internal_h + ring_h + led_gap - protrude + face_t`
+  At `internal_h = 0` the ball is 16.8 mm. Add to `internal_h` and the ball
+  grows by the same amount. The console prints the result after F5/F6.
+
 ## Assembly (from the back of the ball)
 1. Pogo connector (flat contacts) into the ball face.
 2. Magnets into the ball's pockets, same pole towards the face.
@@ -33,15 +47,15 @@ uses the last F6 render).
 5. Base: pogo connector (spring pins) and magnets pressed in from the
    underside.
 6. Chassis plate onto the base (its pockets take the base pogo flange and
-   magnet tops), then both into the ball; 4 M2.5 x 8-10 mm screws up through
-   base and plate into the columns.
+   magnet tops), then both into the ball; 4 M2 x 8 mm self-tapping screws up
+   through base and plate into the columns.
 
 ## Parts
 | File | Print | Notes |
 |---|---|---|
 | `hat.stl` | white, face down, slicer supports under the brim | Tongue + caps print on top of the brim |
 | `number.stl` | black, second part of the hat | 2.4 mm deep inlay |
-| `ball.stl` | ball colour, face down | 104 mm OD, 17 mm tall |
+| `ball.stl` | ball colour, face down | 104 mm OD, 16.8 mm tall at `internal_h` = 0 |
 | `chassis.stl` | any, plate on the bed | Plate underside is visible in the stacking recess |
 | `base.stl` | any, underside on the bed | 2 mm ring |
 

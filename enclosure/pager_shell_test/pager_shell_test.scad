@@ -27,9 +27,8 @@ part = "all"; // [all, hat, number, ball, chassis, base]
 /* [Shape and size] */
 white_d      = 72;     // egg's main circle (covers the 68.2 mm LED ring)
 egg_small_d  = 62;
-egg_tip      = 2;      // how far the egg's narrow end sticks out (0 = round)
+egg_tip      = 1;      // how far the egg's narrow end sticks out (0 = round)
 ball_od      = 104;
-ball_h       = 17;     // overall ball height (test value; real pager deeper)
 ball_face_t  = 3.0;    // face, INCLUDING the 1 mm brim pocket on its back
 edge_r       = 2.0;
 protrude     = 1.5;    // crown face above the ball face
@@ -54,18 +53,21 @@ raised_h     = 0.6;
 number_depth = 2.4;     // face_t through the face + 1.6 behind it
 
 /* [Body, screws and base] */
+internal_h   = 0;       // FREE height for electronics under the LED ring, on top of
+                        // the minimum. The ball height is calculated from this.
 ball_wall    = 2.4;
 boss_d       = 7;
-screw_pilot  = 2.2;     // M2.5 self-tapping
-screw_clear  = 2.9;
-screw_head_d = 4.8;
-screw_head_h = 1.2;     // counterbore in the 2 mm base
+// Shell screws: M2 x 8 mm self-tapping, head recessed fully in the base
+screw_pilot  = 1.7;     // in the columns
+screw_clear  = 2.3;     // through base and chassis plate
+screw_head_d = 4.2;     // M2 pan head (measure yours)
+screw_head_h = 1.5;     // counterbore depth (head height); leaves base_t - this under the head
 boss_r       = ball_od / 2 - ball_wall - boss_d / 2 + 0.5;
 boss_angles  = [45, 135, 225, 315];
 
 base_t         = 2.0;   // base ring = depth of the stacking recess
 base_clear_d   = 0.1;   // base inside the ball wall (diameter)
-recess_clear_d = 0.2;   // stacking fit (diameter)
+recess_clear_d = 0.1;   // stacking fit (diameter): crown of the pager below in the base ring
 recess_chamfer = 0.8;
 
 /* [Chassis] */
@@ -78,7 +80,10 @@ ring_h        = 2.5;    // measured LED ring thickness
 ring_hole_cx  = 35.24;
 ring_hole_cy  = 52.8;
 ring_post_d   = 5;
-ring_pilot    = 1.8;
+ring_pilot    = 1.7;    // LED ring screws: M2 x 6 mm self-tapping
+ring_pcb_t    = 1.6;    // ring PCB only (the screw goes through this)
+ring_screw_l  = 6;
+post_min      = ring_screw_l - ring_pcb_t + 0.6;   // shortest post that takes the screw
 
 /* [Pogo connector] */
 oval_hole_l   = 13.45;
@@ -103,6 +108,9 @@ mag_angles    = [60, 300];
 
 /* [Hidden] */
 $fn = 128;
+// Ball height follows from: base + plate + shortest LED post + internal_h +
+// LED ring + LED-to-face gap, up to the white face (minus how far it protrudes)
+ball_h     = base_t + chassis_t + post_min + internal_h + ring_h + led_gap - protrude + face_t;
 egg_shift  = egg_tip + (white_d - egg_small_d) / 2;
 face_back  = ball_h - ball_face_t;            // back of the face (brim underside)
 col_start  = base_t + chassis_t;              // columns start here
@@ -261,8 +269,8 @@ else if (part == "chassis") chassis();
 else if (part == "base") base_print();
 else preview();
 
-echo(str("Inside height: plate top ", col_start, " to face back ", face_back, " = ",
-         face_back - col_start, " mm. LED ring bottom at ", ring_bottom, " mm (posts ",
-         ring_bottom - col_start, " mm above the plate)"));
+echo(str("Ball height ", ball_h, " mm. Free height under the LED ring (internal_h) ", internal_h,
+         " mm; LED posts ", ring_bottom - col_start, " mm (minimum ", post_min, "); inside height plate top to face back ",
+         face_back - col_start, " mm"));
 assert(base_t >= protrude + 0.3, "base_t must be at least protrude + 0.3 (stacking recess depth)");
-assert(ring_bottom > col_start + 1, "led_gap too large for ball_h: no room for the LED ring posts");
+assert(screw_head_h < base_t - 0.3, "counterbore too deep for the base: less than 0.3 mm left under the screw head");
