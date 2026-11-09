@@ -47,12 +47,16 @@ crown_wall   = 1.6;
 crown_clear_d = 0.05; // [0:0.01:1]
 crown_chamfer = 0;     // bevel on the crown's top edge (0 = none)
 
-brim_t       = 1.0;    // hat brim, sunk into the back of the ball face
+// hat brim thickness (part sits in the face pocket, the rest hangs below)
+brim_t       = 2.0; // [0.6:0.1:6]
+// how much of the brim sits in the pocket in the back of the ball face
+brim_sink    = 1.0; // [0:0.1:3]
 // brim smaller than the ball's inside (diameter)
 brim_gap_d   = 0.5; // [0:0.01:2]
 column_fillet = 3;
-pad_min      = 0.8;    // tongue plastic under the ball pogo flange
-cap_wall     = 0.6;    // plastic under the magnet in each brim cap
+// minimum plastic under a magnet / the pogo flange; where the brim is too
+// thin, a cap / tongue is added underneath to reach this
+floor_min    = 0.6; // [0.3:0.1:3]
 
 /* [Light] */
 // thickness of the white lit face; thicker adds material on the INSIDE,
@@ -146,7 +150,9 @@ ball_h     = base_t + chassis_t + post_min + internal_h + ring_h + led_depth - p
 egg_shift  = egg_tip + (white_d - egg_small_d) / 2;
 face_back  = ball_h - ball_face_t;            // back of the face (brim underside)
 col_start  = base_t + chassis_t;              // columns start here
-hat_h      = brim_t + (ball_face_t - brim_t) + protrude;
+hat_h      = ball_face_t + protrude;           // hat z = 0 is the face back plane
+brim_top   = brim_sink;                         // brim top (in the face pocket)
+brim_bot   = brim_sink - brim_t;                // brim bottom (below the face back if < 0)
 face_under = ball_h + protrude - light_t;     // underside of the white face
 ring_bottom = ball_h + protrude - led_depth - ring_h;
 number_depth = light_t + number_back;
@@ -155,11 +161,14 @@ mag_bottom  = ball_h - mag_skin - mag_h;      // magnet bottom (below face_back)
 // short of the surface that should press it, so a presser is added.
 pogo_depth   = face_body + flange_t;          // face to back of flange
 ball_flange_gap = ball_face_t - pogo_depth;   // ball: face back plane vs flange back
-pad_t = max(0, -ball_flange_gap) + pad_min;   // tongue thickness
-// magnets stand proud of the face back by this much; brim caps take it up
+// magnets stand proud of the face back by this much
 mag_proud  = max(0, mag_skin + mag_h - ball_face_t);
-cap_recess = mag_proud + 0.1;
-cap_t      = cap_recess + cap_wall;
+mag_pocket_bot = -mag_proud - 0.1;                  // magnet pocket floor (hat z)
+mag_floor_bot  = mag_pocket_bot - floor_min;        // plastic needed down to here
+pogo_floor_bot = ball_flange_gap - floor_min;       // under the flange (hat z)
+cap_bot    = min(brim_bot, mag_floor_bot);          // cap reaches here (= brim_bot: no cap)
+tongue_bot = min(brim_bot, pogo_floor_bot);
+hat_low    = min(cap_bot, tongue_bot);              // lowest point of the hat
 base_flange_gap = base_t - pogo_depth;        // base: base top vs flange back
 
 // ================= Helpers =================================================
@@ -181,38 +190,31 @@ module tongue_2d() { at_angle(pogo_r, pogo_angle) stadium_2d(flange_pocket_l + 4
 module hat_upright() {
   difference() {
     union() {
-      linear_extrude(brim_t) brim_2d();
-      linear_extrude(hat_h - crown_chamfer) egg_2d(-crown_clear_d / 2);
+      translate([0, 0, brim_bot]) linear_extrude(brim_t) brim_2d();
+      translate([0, 0, brim_bot]) linear_extrude(hat_h - brim_bot - crown_chamfer) egg_2d(-crown_clear_d / 2);
       if (crown_chamfer > 0) hull() {
         translate([0, 0, hat_h - crown_chamfer]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2);
         translate([0, 0, hat_h - 0.01]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2 - crown_chamfer);
       }
-      // tongue under the brim pressing the ball pogo flange; if the flange
-      // ends short of the face back, a presser reaches up to it
-      translate([0, 0, -pad_t]) linear_extrude(pad_t + 0.01) tongue_2d();
-      if (ball_flange_gap > 0)
-        at_angle(pogo_r, pogo_angle) linear_extrude(ball_flange_gap)
-          stadium_2d(flange_pocket_l - 0.3, flange_pocket_w - 0.2);
-      // caps under the brim holding the magnets
-      for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -cap_t]) cylinder(d = mag_d + 1.2, h = cap_t + 0.01);
+      // only where the brim is too thin: tongue under the pogo flange, caps under the magnets
+      if (tongue_bot < brim_bot)
+        translate([0, 0, tongue_bot]) linear_extrude(brim_bot - tongue_bot + 0.01) tongue_2d();
+      if (cap_bot < brim_bot)
+        for (a = mag_angles) at_angle(mag_r, a)
+          translate([0, 0, cap_bot]) cylinder(d = mag_d + 1.2, h = brim_bot - cap_bot + 0.01);
       if (number_mode == "raised") translate([0, 0, hat_h]) linear_extrude(raised_h) number_2d();
     }
-    translate([0, 0, -max(pad_t, cap_t) - 1]) linear_extrude(hat_h - light_t + max(pad_t, cap_t) + 1) egg_2d(-crown_clear_d / 2 - crown_wall);
+    translate([0, 0, hat_low - 1]) linear_extrude(hat_h - light_t - hat_low + 1) egg_2d(-crown_clear_d / 2 - crown_wall);
     if (number_mode == "inlay")
       translate([0, 0, hat_h - number_depth - 0.01]) linear_extrude(number_depth + 0.02) number_2d();
-    // pogo: flange sits in the brim layer (cut-out); back oval + wires through the tongue
+    // pogo: pocket from the brim top down to the flange's back; back oval + wires right through
     at_angle(pogo_r, pogo_angle) {
-      translate([0, 0, max(0, ball_flange_gap) - 0.01]) linear_extrude(brim_t + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
-      translate([0, 0, -pad_t - 1]) linear_extrude(pad_t + brim_t + 2) stadium_2d(oval_hole_l, oval_hole_w);
-      // flange sticking out past the face back: recess in the tongue
-      if (ball_flange_gap < 0)
-        translate([0, 0, ball_flange_gap - 0.01]) linear_extrude(-ball_flange_gap + 0.02) stadium_2d(flange_pocket_l, flange_pocket_w);
+      translate([0, 0, ball_flange_gap]) linear_extrude(brim_top - ball_flange_gap + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
+      translate([0, 0, hat_low - 1]) linear_extrude(brim_top - hat_low + 2) stadium_2d(oval_hole_l, oval_hole_w);
     }
-    // magnets pass through the brim; caps have a shallow recess for the 0.15 mm overhang
-    for (a = mag_angles) at_angle(mag_r, a) {
-      translate([0, 0, -0.01]) cylinder(d = mag_d + 0.4, h = brim_t + 1);
-      translate([0, 0, -cap_recess]) cylinder(d = mag_d + 0.4, h = cap_recess + 0.02);
-    }
+    // magnets: pocket from the brim top down to just past the magnet
+    for (a = mag_angles) at_angle(mag_r, a)
+      translate([0, 0, mag_pocket_bot]) cylinder(d = mag_d + 0.4, h = brim_top - mag_pocket_bot + 1);
   }
 }
 module number_upright() { translate([0, 0, hat_h - number_depth]) linear_extrude(number_depth) number_2d(); }
@@ -237,7 +239,7 @@ module ball_upright() {
   difference() {
     ball_outer();
     translate([0, 0, -1]) cylinder(d = ball_od - 2 * ball_wall, h = col_start + 1);          // base + plate
-    translate([0, 0, col_start - 0.01]) linear_extrude(face_back + brim_t - col_start + 0.01) cavity_2d();  // + brim pocket
+    translate([0, 0, col_start - 0.01]) linear_extrude(face_back + brim_sink - col_start + 0.01) cavity_2d();  // + brim pocket
     translate([0, 0, -1]) linear_extrude(ball_h + 2) egg_2d(0);                              // crown opening
     at_angle(pogo_r, pogo_angle) translate([0, 0, ball_h]) pogo_cut();                       // flat contacts
     for (a = mag_angles) at_angle(mag_r, a)
@@ -250,7 +252,7 @@ module ball_upright() {
 // ================= Chassis (absolute z; plate from base_t) =================
 module chassis_abs() {
   plate_d = ball_od - 2 * ball_wall - 2 * chassis_clear;
-  ring_top = face_back - ring_relief;
+  ring_top = face_back + brim_bot - ring_relief;   // meets the brim's bottom
   difference() {
     union() {
       translate([0, 0, base_t]) cylinder(d = plate_d, h = chassis_t);
@@ -326,6 +328,10 @@ else preview();
 
 echo(str("Ball height ", ball_h, " mm. Free height under the LED ring (internal_h) ", internal_h,
          " mm; LED posts ", ring_bottom - col_start, " mm (minimum ", post_min, "); LED tops to the underside of the lit face ",
-         led_depth - light_t, " mm; inside height plate top to face back ", face_back - col_start, " mm"));
+         led_depth - light_t, " mm; inside height plate top to brim bottom ", face_back + brim_bot - col_start, " mm"));
+echo(str("Brim ", brim_t, " mm (", brim_sink, " in the face, ", -brim_bot, " below). Magnet pocket ",
+         brim_top - mag_pocket_bot, " deep", cap_bot < brim_bot ? str(", cap ", brim_bot - cap_bot, " mm") : ", no cap",
+         "; pogo pocket ", brim_top - ball_flange_gap, " deep", tongue_bot < brim_bot ? str(", tongue ", brim_bot - tongue_bot, " mm") : ", no tongue"));
+assert(brim_sink < ball_face_t - 0.5, "brim_sink leaves less than 0.5 mm of face in front of the brim");
 assert(base_t >= protrude + 0.3, "base_t must be at least protrude + 0.3 (stacking recess depth)");
 assert(screw_head_h < base_t - 0.3, "counterbore too deep for the base: less than 0.3 mm left under the screw head");

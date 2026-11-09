@@ -1,4 +1,4 @@
-# Pager shell test (v9)
+# Pager shell test (v10)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -37,6 +37,19 @@ uses the last F6 render).
   `ball_h = base_t + chassis_t + post_min + internal_h + ring_h + led_gap - protrude + face_t`
   At `internal_h = 0` the ball is 16.8 mm. Add to `internal_h` and the ball
   grows by the same amount. The console prints the result after F5/F6.
+
+## v10 changes
+- **`brim_t` is now just the brim's thickness (default 2 mm)**; new
+  **`brim_sink`** (1 mm) is how much of it sits in the pocket in the back of
+  the ball face. Before, `brim_t` was also the pocket depth, so a 2 mm brim
+  cut through the whole 2 mm face.
+- **Magnet and pogo pockets are cut into the brim from its top, only as deep
+  as each part sticks out** (magnet 2.25 mm, flange 1.8 mm with the defaults).
+  Where the brim is too thin to leave `floor_min` (0.6 mm) under a part, a cap
+  (magnets) or tongue (pogo) is added underneath, only as thick as needed.
+  The console reports the sizes. At `brim_t` 2: caps 0.85 mm, tongue 0.4 mm;
+  at 2.5: caps 0.35 mm, no tongue; at 2.9: neither.
+- The chassis clamp ring shortens to meet the brim's bottom.
 
 ## v9 changes
 - **Ball face 2 mm** (`ball_face_t`) and **`internal_h` 4 mm** by default:
