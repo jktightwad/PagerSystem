@@ -26,6 +26,7 @@ From a terminal: `pio run -e esp32c3_supermini -t upload`, then
 | `range_test/` | ESP-NOW range test (base + walker) |
 | `pager_alert_test/` | WS2812 ring, beeper, vibration, button, dock/battery readings |
 | `pn5180_csn_test/` | Read the HID iCLASS CSN with a PN5180 (no keys) |
+| `base_firmware/` | Base firmware (POC): Wi-Fi from `secrets.h`, status page; queue/badge/radio next |
 | `enclosure/` | 3D-printed parts (OpenSCAD): pager shell, LED ring test rig, connector fit tester |
 | `ota_test/` | Over-the-air update proof of concept (base AP + pager) |
 

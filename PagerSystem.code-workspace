@@ -1,5 +1,6 @@
 {
   "folders": [
+    { "name": "base_firmware", "path": "base_firmware" },
     { "name": "range_base", "path": "range_test/range_base" },
     { "name": "range_walker", "path": "range_test/range_walker" },
     { "name": "pn5180_csn_test", "path": "pn5180_csn_test" },
