@@ -38,6 +38,16 @@ uses the last F6 render).
   At `internal_h = 0` the ball is 16.8 mm. Add to `internal_h` and the ball
   grows by the same amount. The console prints the result after F5/F6.
 
+## Number
+- `number_text` sets the digit; `number_scale` its size (fraction of the
+  72 mm white circle). The font ships in `fonts/` so every PC renders it the
+  same.
+- **6 and 9 are underlined automatically** (`underline` = auto / on / off;
+  bar size: `underline_w`, `underline_t`, `underline_gap`). The underline is
+  part of the black inlay.
+
+![6 and 9](underline_6_9.png)
+
 ## v10 changes
 - **`brim_t` is now just the brim's thickness (default 2 mm)**; new
   **`brim_sink`** (1 mm) is how much of it sits in the pocket in the back of

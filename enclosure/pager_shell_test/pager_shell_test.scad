@@ -76,6 +76,12 @@ number_text  = "2";
 number_font  = "DejaVu Serif:style=Bold";   // loaded from fonts/ (see top of file)
 // number size as a fraction of the white circle's diameter (0.6 = 43 mm text size)
 number_scale = 0.6; // [0.2:0.01:1]
+// underline under the number (pool-ball style, tells 6 from 9)
+underline    = "auto"; // [auto, on, off]
+// underline bar: width as a fraction of the number height, thickness, gap
+underline_w     = 0.7; // [0.2:0.01:1.5]
+underline_t     = 3.0; // [0.8:0.1:8]
+underline_gap   = 2.5; // [0.5:0.1:8]
 number_mode  = "inlay"; // [inlay, raised, none]
 raised_h     = 0.6;
 number_back  = 1.6;     // black number continues this far behind the lit face (so it doesn't glow)
@@ -187,7 +193,17 @@ module egg_2d(grow = 0) {
   offset(delta = grow) hull() { circle(d = white_d); translate([0, egg_shift]) circle(d = egg_small_d); }
 }
 module stadium_2d(l, w) { hull() for (s = [-1, 1]) translate([s * (l - w) / 2, 0]) circle(d = w); }
-module number_2d() { text(number_text, size = number_h, font = number_font, halign = "center", valign = "center"); }
+// Digits come out ~1.03 x the text size tall (measured for this font)
+module number_2d() {
+  ul = underline == "on" || (underline == "auto" && (number_text == "6" || number_text == "9"));
+  glyph_h = number_h * 1.03;
+  shift = ul ? (underline_gap + underline_t) / 2 : 0;   // keep number + bar centred
+  translate([0, shift]) {
+    text(number_text, size = number_h, font = number_font, halign = "center", valign = "center");
+    if (ul) translate([0, -glyph_h / 2 - underline_gap - underline_t / 2])
+      offset(r = underline_t / 2 - 0.01) square([number_h * underline_w - underline_t, 0.02], center = true);
+  }
+}
 module bosses_2d() { for (a = boss_angles) at_angle(boss_r, a) circle(d = boss_d); }
 module cavity_2d() {
   offset(r = column_fillet) offset(delta = -column_fillet)
