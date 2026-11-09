@@ -8,11 +8,18 @@ connector with a body and a mounting flange). Source: `pogo_fit_test.scad`.
 - One plate, one slot per clearance. Each slot holds the connector the way
   the pager does: **face flush with the top**, body through a hole, flange
   in a pocket from underneath.
-- Labels: `+body/flange` clearance in mm, added to both length and width.
+- Labels: the **body clearance in hundredths of a mm** (`+5` = +0.05 mm,
+  `-10` = -0.10 mm), 6 mm tall and 0.8 mm deep so they print with a 0.4 mm
+  nozzle. Notches on the left edge give the slot number (1-5) as a backup.
+  The OpenSCAD console lists each slot's exact hole and pocket sizes.
+- Every size setting steps in 0.01 mm in the Customizer.
 - **Defaults = the original measured connector**: 2-pin magnetic pogo,
   stadium (rounded-end) body 13.15 x 4.0 mm, 2.0 mm in front of the flange,
   flange 19.2 x 4.0 x 1.0 mm. Default clearances 0, 0.05, 0.10, 0.15, 0.20.
-- Print **as exported** (top up, pockets on the bed). 48 x 51 x 3 mm.
+- Print **as exported** (top up, pockets on the bed). About 46 x 51 x 3 mm.
+- To test tighter than the connector, use negative clearances in the file:
+  `body_clears = [-0.1, -0.05, 0.0, 0.05, 0.10];` (the Customizer can't edit
+  a 5-value list).
 
 ## Another connector
 In the Customizer, **Connector (real sizes)** group: set `body_shape` /

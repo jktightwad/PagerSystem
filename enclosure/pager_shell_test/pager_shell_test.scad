@@ -27,18 +27,21 @@ part = "all"; // [all, hat, number, ball, chassis, base]
 /* [Shape and size] */
 white_d      = 72;     // egg's main circle (covers the 68.2 mm LED ring)
 egg_small_d  = 62;
-egg_tip      = 1;      // how far the egg's narrow end sticks out (0 = round)
+// how far the egg's narrow end sticks out (0 = round)
+egg_tip      = 1; // [0:0.1:10]
 ball_od      = 104;
 ball_face_t  = 3.0;    // face, INCLUDING the 1 mm brim pocket on its back
 edge_r       = 2.0;
 protrude     = 1.5;    // crown face above the ball face
 crown_wall   = 1.6;
-face_t       = 0.8;    // white face the light shines through
-crown_clear_d = 0.05;
+// white face the light shines through
+face_t       = 0.8; // [0.2:0.01:3]
+crown_clear_d = 0.05; // [0:0.01:1]
 crown_chamfer = 0.4;
 
 brim_t       = 1.0;    // hat brim, sunk into the back of the ball face
-brim_gap_d   = 0.5;    // brim smaller than the ball's inside (diameter)
+// brim smaller than the ball's inside (diameter)
+brim_gap_d   = 0.5; // [0:0.01:2]
 column_fillet = 3;
 pad_t        = 1.0;    // tongue under the brim pressing the pogo flange
 cap_t        = 0.8;    // caps under the brim holding the magnets
@@ -53,29 +56,35 @@ raised_h     = 0.6;
 number_depth = 2.4;     // face_t through the face + 1.6 behind it
 
 /* [Body, screws and base] */
-internal_h   = 0;       // FREE height for electronics under the LED ring, on top of
-                        // the minimum. The ball height is calculated from this.
+// FREE height for electronics under the LED ring, on top of the minimum. The ball height is calculated from this.
+internal_h   = 0; // [0:0.5:60]
 ball_wall    = 2.4;
 boss_d       = 7;
 // Shell screws: M2 x 8 mm self-tapping, head recessed fully in the base
-screw_pilot  = 1.7;     // in the columns
-screw_clear  = 2.3;     // through base and chassis plate
+// in the columns
+screw_pilot  = 1.7; // [1:0.01:5]
+// through base and chassis plate
+screw_clear  = 2.3; // [1:0.01:5]
 screw_head_d = 4.2;     // M2 pan head (measure yours)
 screw_head_h = 1.5;     // counterbore depth (head height); leaves base_t - this under the head
 boss_r       = ball_od / 2 - ball_wall - boss_d / 2 + 0.5;
 boss_angles  = [45, 135, 225, 315];
 
 base_t         = 2.0;   // base ring = depth of the stacking recess
-base_clear_d   = 0.1;   // base inside the ball wall (diameter)
-recess_clear_d = 0.1;   // stacking fit (diameter): crown of the pager below in the base ring
+// base inside the ball wall (diameter)
+base_clear_d   = 0.1; // [0:0.01:1]
+// stacking fit (diameter): crown of the pager below in the base ring
+recess_clear_d = 0.1; // [0:0.01:2]
 recess_chamfer = 0.8;
 
 /* [Chassis] */
 chassis_t     = 2.0;    // plate: ceiling of the stacking recess
 chassis_clear = 0.2;
 clamp_ring_w  = 2.0;
-ring_relief   = 0.2;    // clamp ring this much short of the face back
-led_gap       = 6;      // LED tops to the underside of the white face
+// clamp ring this much short of the face back
+ring_relief   = 0.2; // [0:0.01:2]
+// LED tops to the underside of the white face
+led_gap       = 6; // [0:0.1:30]
 ring_h        = 2.5;    // measured LED ring thickness
 ring_hole_cx  = 35.24;
 ring_hole_cy  = 52.8;
@@ -86,14 +95,19 @@ ring_screw_l  = 6;
 post_min      = ring_screw_l - ring_pcb_t + 0.6;   // shortest post that takes the screw
 
 /* [Pogo connector] */
-oval_hole_l   = 13.45;  // hole for the oval body through the face (connector 13.15)
-oval_hole_w   = 4.3;    // (connector 4.0; this printer prints holes ~0.1 small)
-face_body     = 2.0;    // oval body in front of the flange
+// hole for the oval body through the face (connector 13.15)
+oval_hole_l   = 13.45; // [5:0.01:30]
+// (connector 4.0; this printer prints holes ~0.1 small)
+oval_hole_w   = 4.3; // [1:0.01:10]
+// oval body in front of the flange
+face_body     = 2.0; // [0.4:0.01:6]
 flange_l      = 19.2;
-flange_t      = 1.0;
+flange_t      = 1.0; // [0.2:0.01:5]
 back_body     = 1.0;
-flange_pocket_l = 19.5; // pocket for the flange (flange 19.2 long)
-flange_pocket_w = 4.3;  // pocket width (flange 4.0 wide)
+// pocket for the flange (flange 19.2 long)
+flange_pocket_l = 19.5; // [5:0.01:40]
+// pocket width (flange 4.0 wide)
+flange_pocket_w = 4.3; // [1:0.01:10]
 pogo_r        = 44;
 pogo_angle    = 180;
 tongue_w      = 6.6;    // brim tongue over the ball pogo flange
@@ -102,8 +116,9 @@ tongue_w      = 6.6;    // brim tongue over the ball pogo flange
 mag_d         = 6.0;
 mag_h         = 2.75;
 mag_skin      = 0.4;
-mag_hole_ball = 6.05;
-mag_hole_base = 6.0;    // press fit
+mag_hole_ball = 6.05; // [4:0.01:10]
+// press fit
+mag_hole_base = 6.0; // [4:0.01:10]
 mag_r         = 43;
 mag_angles    = [60, 300];
 
