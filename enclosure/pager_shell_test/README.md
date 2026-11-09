@@ -1,4 +1,4 @@
-# Pager shell test (v8)
+# Pager shell test (v9)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -38,6 +38,24 @@ uses the last F6 render).
   At `internal_h = 0` the ball is 16.8 mm. Add to `internal_h` and the ball
   grows by the same amount. The console prints the result after F5/F6.
 
+## v9 changes
+- **Ball face 2 mm** (`ball_face_t`) and **`internal_h` 4 mm** by default:
+  ball 20.8 mm tall, 14.8 mm inside (plate top to face back).
+- **`light_t`** (new **Light** group): thickness of the white lit face only.
+  Thicker adds material on the inside; the outside height doesn't change.
+  The black number follows it (`number_back` = how far the number continues
+  behind the lit face, 1.6 mm).
+- **`led_depth`** replaces `led_gap`: LED tops measured from the TOP of the
+  white face (6.8 mm = the old 6 mm gap with a 0.8 mm face). The console
+  prints the actual LED-to-face gap.
+- **No chamfers** on the crown edge or the base ring opening
+  (`crown_chamfer`, `recess_chamfer` = 0).
+- **`base_pogo_extra`** (0.2 mm): more room for the base connector's flange
+  in the chassis pocket. The pocket ceiling is a short 3.9 mm bridge, so it
+  doesn't need supports; block supports there if the slicer adds them.
+- With the thinner face the magnets stand 1.15 mm proud of the face back:
+  the brim caps and the pogo tongue resize automatically.
+
 ## v8 changes
 - **Connector sizes from the fit test:** body hole 13.15 x 3.9, flange
   pocket 19.2 x 3.9, face body 1.9, flange 0.9, so the connector face sits
@@ -70,7 +88,7 @@ object with multiple parts"; then set the number's filament to black.
 |---|---|---|
 | `hat.stl` | white, face down, slicer supports under the brim | Tongue + caps print on top of the brim |
 | `number.stl` | black, second part of the hat | 2.4 mm deep inlay |
-| `ball.stl` | ball colour, face down | 104 mm OD, 16.8 mm tall at `internal_h` = 0 |
+| `ball.stl` | ball colour, face down | 104 mm OD, 20.8 mm tall at `internal_h` = 4 |
 | `chassis.stl` | any, plate on the bed | Plate underside is visible in the stacking recess |
 | `base.stl` | any, underside on the bed | 2 mm ring |
 
