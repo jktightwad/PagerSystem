@@ -86,7 +86,7 @@ underline_style = "arc"; // [arc, bar]
 // underline sizes as fractions of the number height (they scale with it)
 underline_w     = 0.6;  // [0.2:0.01:1.5]
 underline_t     = 0.1;  // [0.03:0.005:0.3]
-underline_gap   = 0.07; // [0.01:0.005:0.3]
+underline_gap   = 0.025; // [0:0.005:0.3]
 underline_sag   = 0.08; // [0:0.005:0.3]
 // digit height / text size for the chosen font (Liberation Sans Bold 0.98,
 // DejaVu Serif Bold 1.03); positions the underline under the digit
