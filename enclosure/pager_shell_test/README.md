@@ -1,4 +1,4 @@
-# Pager shell test (v7)
+# Pager shell test (v8)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -38,11 +38,36 @@ uses the last F6 render).
   At `internal_h = 0` the ball is 16.8 mm. Add to `internal_h` and the ball
   grows by the same amount. The console prints the result after F5/F6.
 
+## v8 changes
+- **Hat split into `crown` + `brim`** so nothing needs supports (support
+  marks on the brim made it thick and pushed the stack out).
+  - **crown** (white, face down, with the number): 45-deg lip around its
+    bottom edge, prints without supports.
+  - **brim** (any colour, hidden): flat plate, contact face on the bed;
+    tongue and magnet caps print on top. Its hole is a **press fit** over the
+    crown (`brim_hole_clear_d` 0), so crown + brim act as one piece.
+  - How it stays in: the crown's egg goes out through the face opening, the
+    lip sits under the brim, the brim sits in its pocket behind the face, and
+    the chassis clamp ring presses the brim from below. Pushing the number
+    can't move it because crown and brim are pressed (or glued) together.
+- **Connector sizes from the fit test:** body hole 13.15 x 3.9, flange pocket
+  19.2 x 3.9, face body 1.9, flange 0.9. The flange now ends 0.2 mm short of
+  the face back, so the brim gets a 0.2 mm presser there (automatic); the
+  chassis pocket follows the base connector's depth too.
+- **`export_all.bat` (Windows) / `export_all.sh`**: export all six parts as
+  separate STLs in one go, using the values saved in the .scad.
+
+## Printing the crown and number together
+`crown.stl` and `number.stl` share the same origin. In the slicer, add both
+**in one step** (select both files) and answer **yes** to "load as a single
+object with multiple parts"; then set the number's filament to black.
+
 ## Assembly (from the back of the ball)
 1. Pogo connector (flat contacts) into the ball face.
 2. Magnets into the ball's pockets, same pole towards the face.
-3. Hat in from the back: egg through the opening, brim into its pocket
-   (tongue over the pogo flange, caps over the magnets).
+3. Press the brim onto the crown (lip side), then crown + brim in from the
+   back: egg through the opening, brim into its pocket (tongue over the pogo
+   flange, caps over the magnets).
 4. LED ring onto the chassis posts.
 5. Base: pogo connector (spring pins) and magnets pressed in from the
    underside.
@@ -53,8 +78,9 @@ uses the last F6 render).
 ## Parts
 | File | Print | Notes |
 |---|---|---|
-| `hat.stl` | white, face down, slicer supports under the brim | Tongue + caps print on top of the brim |
-| `number.stl` | black, second part of the hat | 2.4 mm deep inlay |
+| `crown.stl` | white, face down (as exported), no supports | 45-deg lip at the bottom |
+| `brim.stl` | any colour, as exported (contact face on the bed), no supports | Press fit over the crown |
+| `number.stl` | black, second part of the crown | 2.4 mm deep inlay |
 | `ball.stl` | ball colour, face down | 104 mm OD, 16.8 mm tall at `internal_h` = 0 |
 | `chassis.stl` | any, plate on the bed | Plate underside is visible in the stacking recess |
 | `base.stl` | any, underside on the bed | 2 mm ring |

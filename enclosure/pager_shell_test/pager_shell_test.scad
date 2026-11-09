@@ -22,7 +22,7 @@
 // then F7 (export uses the LAST F6 render).
 
 /* [Part to show / export] */
-part = "all"; // [all, hat, number, ball, chassis, base]
+part = "all"; // [all, crown, number, brim, ball, chassis, base]
 
 /* [Shape and size] */
 white_d      = 72;     // egg's main circle (covers the 68.2 mm LED ring)
@@ -44,6 +44,10 @@ brim_t       = 1.0;    // hat brim, sunk into the back of the ball face
 brim_gap_d   = 0.5; // [0:0.01:2]
 column_fillet = 3;
 pad_t        = 1.0;    // tongue under the brim pressing the pogo flange
+lip_h        = 1.0;    // 45-deg lip on the crown that holds the brim (also its width)
+// brim's hole over the crown (diameter). 0 = press fit, so crown + brim act as
+// one piece (add a drop of glue if it's loose)
+brim_hole_clear_d = 0.0; // [-0.2:0.01:0.5]
 cap_t        = 0.8;    // caps under the brim holding the magnets
 cap_recess   = 0.25;   // magnets stand 0.15 proud of the face back
 
@@ -96,18 +100,18 @@ post_min      = ring_screw_l - ring_pcb_t + 0.6;   // shortest post that takes t
 
 /* [Pogo connector] */
 // hole for the oval body through the face (connector 13.15)
-oval_hole_l   = 13.45; // [5:0.01:30]
+oval_hole_l   = 13.15; // [5:0.01:30]
 // (connector 4.0; this printer prints holes ~0.1 small)
-oval_hole_w   = 4.3; // [1:0.01:10]
+oval_hole_w   = 3.9; // [1:0.01:10]
 // oval body in front of the flange
-face_body     = 2.0; // [0.4:0.01:6]
+face_body     = 1.9; // [0.4:0.01:6]
 flange_l      = 19.2;
-flange_t      = 1.0; // [0.2:0.01:5]
+flange_t      = 0.9; // [0.2:0.01:5]
 back_body     = 1.0;
 // pocket for the flange (flange 19.2 long)
-flange_pocket_l = 19.5; // [5:0.01:40]
+flange_pocket_l = 19.2; // [5:0.01:40]
 // pocket width (flange 4.0 wide)
-flange_pocket_w = 4.3; // [1:0.01:10]
+flange_pocket_w = 3.9; // [1:0.01:10]
 pogo_r        = 44;
 pogo_angle    = 180;
 tongue_w      = 6.6;    // brim tongue over the ball pogo flange
@@ -134,6 +138,11 @@ hat_h      = brim_t + (ball_face_t - brim_t) + protrude;
 face_under = ball_h + protrude - face_t;      // underside of the white face
 ring_bottom = face_under - led_gap - ring_h;
 mag_bottom  = ball_h - mag_skin - mag_h;      // magnet bottom (below face_back)
+// Connector depth vs the plastic it sits in. Positive = the flange's back is
+// short of the surface that should press it, so a presser is added.
+pogo_depth   = face_body + flange_t;          // face to back of flange
+ball_flange_gap = ball_face_t - pogo_depth;   // ball: face back plane vs flange back
+base_flange_gap = base_t - pogo_depth;        // base: base top vs flange back
 
 // ================= Helpers =================================================
 module at_angle(r, a) { translate([r * sin(a), r * cos(a), 0]) rotate([0, 0, -a]) children(); }
@@ -150,37 +159,60 @@ module cavity_2d() {
 module brim_2d() { offset(delta = -brim_gap_d / 2) cavity_2d(); }
 module tongue_2d() { at_angle(pogo_r, pogo_angle) stadium_2d(flange_pocket_l + 4, tongue_w); }
 
-// ================= Hat (face up; z = 0 at the face back plane) =============
-module hat_upright() {
+// ================= Hat = crown + brim (face up; z = 0 at the face back plane)
+// Printed as TWO parts so neither needs supports (support marks made the
+// brim thick and pushed the stack out):
+//   crown: white, face down; a 45-deg lip at its bottom edge holds the brim
+//   brim:  flat plate printed with its contact face on the bed; tongue and
+//          magnet caps print on top. Its hole fits over the crown.
+module crown_upright() {
   difference() {
     union() {
-      linear_extrude(brim_t) brim_2d();
-      linear_extrude(hat_h - crown_chamfer) egg_2d(-crown_clear_d / 2);
+      translate([0, 0, -lip_h]) linear_extrude(hat_h + lip_h - crown_chamfer) egg_2d(-crown_clear_d / 2);
       hull() {
         translate([0, 0, hat_h - crown_chamfer]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2);
         translate([0, 0, hat_h - 0.01]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2 - crown_chamfer);
       }
-      // tongue under the brim pressing the ball pogo flange
+      // 45-deg lip under the brim: widest at the bottom, so it prints face down
+      hull() {
+        translate([0, 0, -lip_h]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2 + lip_h);
+        translate([0, 0, -0.01]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2);
+      }
+      if (number_mode == "raised") translate([0, 0, hat_h]) linear_extrude(raised_h) number_2d();
+    }
+    translate([0, 0, -lip_h - 1]) linear_extrude(hat_h - face_t + lip_h + 1) egg_2d(-crown_clear_d / 2 - crown_wall);
+    if (number_mode == "inlay")
+      translate([0, 0, hat_h - number_depth - 0.01]) linear_extrude(number_depth + 0.02) number_2d();
+  }
+}
+
+module brim_upright() {
+  difference() {
+    union() {
+      linear_extrude(brim_t) brim_2d();
+      // tongue under the brim pressing the ball pogo flange; if the flange
+      // ends short of the face back, a presser reaches up to it
       translate([0, 0, -pad_t]) linear_extrude(pad_t + 0.01) tongue_2d();
       // caps under the brim holding the magnets
       for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -cap_t]) cylinder(d = mag_d + 1.2, h = cap_t + 0.01);
-      if (number_mode == "raised") translate([0, 0, hat_h]) linear_extrude(raised_h) number_2d();
     }
-    translate([0, 0, -pad_t - 1]) linear_extrude(hat_h - face_t + pad_t + 1) egg_2d(-crown_clear_d / 2 - crown_wall);
-    if (number_mode == "inlay")
-      translate([0, 0, hat_h - number_depth - 0.01]) linear_extrude(number_depth + 0.02) number_2d();
-    // pogo: flange sits in the brim layer (cut-out); back oval + wires through the tongue
+    // hole for the crown (it rests on the crown's lip)
+    translate([0, 0, -1]) linear_extrude(brim_t + 2) egg_2d(brim_hole_clear_d / 2);
     at_angle(pogo_r, pogo_angle) {
-      translate([0, 0, -0.01]) linear_extrude(brim_t + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
+      translate([0, 0, max(0, ball_flange_gap) - 0.01]) linear_extrude(brim_t + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
       translate([0, 0, -pad_t - 1]) linear_extrude(pad_t + brim_t + 2) stadium_2d(oval_hole_l, oval_hole_w);
+      if (ball_flange_gap < 0)
+        translate([0, 0, ball_flange_gap - 0.01]) linear_extrude(-ball_flange_gap + 0.02) stadium_2d(flange_pocket_l, flange_pocket_w);
     }
-    // magnets pass through the brim; caps have a shallow recess for the 0.15 mm overhang
     for (a = mag_angles) at_angle(mag_r, a) {
       translate([0, 0, -0.01]) cylinder(d = mag_d + 0.4, h = brim_t + 1);
       translate([0, 0, -cap_recess]) cylinder(d = mag_d + 0.4, h = cap_recess + 0.02);
     }
   }
 }
+
+module hat_upright() { crown_upright(); brim_upright(); }   // for previews
+
 module number_upright() { translate([0, 0, hat_h - number_depth]) linear_extrude(number_depth) number_2d(); }
 
 // ================= Pogo cut (outer face at z = 0, pointing +Z) =============
@@ -228,10 +260,15 @@ module chassis_abs() {
       }
       for (sx = [-1, 1], sy = [-1, 1]) translate([sx * ring_hole_cx / 2, sy * ring_hole_cy / 2, base_t])
         cylinder(d = ring_post_d, h = ring_bottom - base_t, $fn = 32);
+      // flange ends inside the base: presser reaches down to it
+      if (base_flange_gap > 0)
+        at_angle(pogo_r, pogo_angle) translate([0, 0, pogo_depth]) linear_extrude(base_flange_gap + 0.01)
+          stadium_2d(flange_pocket_l - 0.3, flange_pocket_w - 0.2);
     }
     // base pogo: flange pocket + back oval + wires, from the plate underside
     at_angle(pogo_r, pogo_angle) {
-      translate([0, 0, base_t - 0.01]) linear_extrude(flange_t + 0.01) stadium_2d(flange_pocket_l, flange_pocket_w);
+      if (base_flange_gap < 0)   // flange reaches above the base: pocket up to its back
+        translate([0, 0, base_t - 0.01]) linear_extrude(-base_flange_gap + 0.01) stadium_2d(flange_pocket_l, flange_pocket_w);
       translate([0, 0, base_t - 1]) linear_extrude(chassis_t + 2) stadium_2d(oval_hole_l, oval_hole_w);
     }
     // base magnets stick up 0.75 mm into the plate
@@ -264,7 +301,8 @@ module base_upright() {
 }
 
 // ================= Print orientations ======================================
-module hat_print()    { translate([0, 0, hat_h]) rotate([180, 0, 0]) hat_upright(); }       // face down
+module crown_print()  { translate([0, 0, hat_h]) rotate([180, 0, 0]) crown_upright(); }     // face down
+module brim_print()   { translate([0, 0, brim_t]) rotate([180, 0, 0]) brim_upright(); }    // contact face on the bed
 module number_print() { translate([0, 0, hat_h]) rotate([180, 0, 0]) number_upright(); }
 module ball_print()   { translate([0, 0, ball_h]) rotate([180, 0, 0]) ball_upright(); }     // face down
 module base_print()   { base_upright(); }                                                    // underside on the bed
@@ -278,7 +316,8 @@ module preview() {
   if (number_mode == "inlay") color("black") translate([0, 0, face_back + e + 0.01]) number_upright();
 }
 
-if (part == "hat") hat_print();
+if (part == "crown") crown_print();
+else if (part == "brim") brim_print();
 else if (part == "number") number_print();
 else if (part == "ball") ball_print();
 else if (part == "chassis") chassis();
