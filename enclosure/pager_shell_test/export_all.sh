@@ -3,7 +3,7 @@
 # Uses the values saved in pager_shell_test.scad (not Customizer presets).
 cd "$(dirname "$0")"
 OPENSCAD=${OPENSCAD:-openscad}
-for p in crown number brim ball chassis base; do
+for p in hat number ball chassis base; do
   echo "Exporting $p.stl ..."
   "$OPENSCAD" -o "$p.stl" -D "part=\"$p\"" pager_shell_test.scad
 done
