@@ -30,6 +30,8 @@ flange_t     = 1.0;
 back_body    = 1.0;       // body behind the flange (needs no pocket here; listed for reference)
 
 /* [Clearances to test (added to length AND width, mm)] */
+// Negative values test holes TIGHTER than the connector, e.g.
+// body_clears = [-0.1, -0.05, 0.0, 0.05, 0.10];
 body_clears   = [0.0, 0.05, 0.10, 0.15, 0.20];
 flange_clears = [0.0, 0.05, 0.10, 0.15, 0.20];   // same count as body_clears
 
@@ -55,6 +57,8 @@ module shape_2d(shape, l, w, r) {
   else offset(r = r) square([l - 2 * r, w - 2 * r], center = true);
 }
 
+function sgn(v) = v >= 0 ? "+" : "";   // negative numbers already carry "-"
+
 module tester() {
   body_cx = margin + max_l / 2;
   difference() {
@@ -73,7 +77,7 @@ module tester() {
       // engraved label: body clearance / flange clearance
       translate([body_cx + max_l / 2 + 3, y, plate_t - label_depth])
         linear_extrude(label_depth + 0.01)
-          text(str("+", body_clears[i], "/", flange_clears[i]), size = label_size * 0.8,
+          text(str(sgn(body_clears[i]), body_clears[i], "/", sgn(flange_clears[i]), flange_clears[i]), size = label_size * 0.8,
                font = label_font, halign = "left", valign = "center");
     }
     // connector name on the end
