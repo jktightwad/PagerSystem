@@ -86,13 +86,14 @@ ring_screw_l  = 6;
 post_min      = ring_screw_l - ring_pcb_t + 0.6;   // shortest post that takes the screw
 
 /* [Pogo connector] */
-oval_hole_l   = 13.45;
-oval_hole_w   = 4.3;
+oval_hole_l   = 13.45;  // hole for the oval body through the face (connector 13.15)
+oval_hole_w   = 4.3;    // (connector 4.0; this printer prints holes ~0.1 small)
 face_body     = 2.0;    // oval body in front of the flange
 flange_l      = 19.2;
 flange_t      = 1.0;
 back_body     = 1.0;
-flange_pocket_l = flange_l + 0.3;
+flange_pocket_l = 19.5; // pocket for the flange (flange 19.2 long)
+flange_pocket_w = 4.3;  // pocket width (flange 4.0 wide)
 pogo_r        = 44;
 pogo_angle    = 180;
 tongue_w      = 6.6;    // brim tongue over the ball pogo flange
@@ -155,7 +156,7 @@ module hat_upright() {
       translate([0, 0, hat_h - number_depth - 0.01]) linear_extrude(number_depth + 0.02) number_2d();
     // pogo: flange sits in the brim layer (cut-out); back oval + wires through the tongue
     at_angle(pogo_r, pogo_angle) {
-      translate([0, 0, -0.01]) linear_extrude(brim_t + 1) stadium_2d(flange_pocket_l, oval_hole_w);
+      translate([0, 0, -0.01]) linear_extrude(brim_t + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
       translate([0, 0, -pad_t - 1]) linear_extrude(pad_t + brim_t + 2) stadium_2d(oval_hole_l, oval_hole_w);
     }
     // magnets pass through the brim; caps have a shallow recess for the 0.15 mm overhang
@@ -170,7 +171,7 @@ module number_upright() { translate([0, 0, hat_h - number_depth]) linear_extrude
 // ================= Pogo cut (outer face at z = 0, pointing +Z) =============
 module pogo_cut() {
   translate([0, 0, -face_body - 0.01]) linear_extrude(face_body + 1) stadium_2d(oval_hole_l, oval_hole_w);
-  translate([0, 0, -face_body - flange_t - 5]) linear_extrude(flange_t + 5.01) stadium_2d(flange_pocket_l, oval_hole_w);
+  translate([0, 0, -face_body - flange_t - 5]) linear_extrude(flange_t + 5.01) stadium_2d(flange_pocket_l, flange_pocket_w);
 }
 
 // ================= Ball (face up) ==========================================
@@ -215,7 +216,7 @@ module chassis_abs() {
     }
     // base pogo: flange pocket + back oval + wires, from the plate underside
     at_angle(pogo_r, pogo_angle) {
-      translate([0, 0, base_t - 0.01]) linear_extrude(flange_t + 0.01) stadium_2d(flange_pocket_l, oval_hole_w);
+      translate([0, 0, base_t - 0.01]) linear_extrude(flange_t + 0.01) stadium_2d(flange_pocket_l, flange_pocket_w);
       translate([0, 0, base_t - 1]) linear_extrude(chassis_t + 2) stadium_2d(oval_hole_l, oval_hole_w);
     }
     // base magnets stick up 0.75 mm into the plate
