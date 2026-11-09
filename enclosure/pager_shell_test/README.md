@@ -54,6 +54,18 @@ uses the last F6 render).
 
 ![6, 9 and 2](underline_6_9.png)
 
+## Making the full set (1-15)
+- **Same for every pager:** `ball`, `chassis`, `base` (print each ball in its
+  pool-ball colour). Export once with `export_all.bat`.
+- **Per pager:** `hat` + `number`. **`export_numbers.bat`** (Windows) or
+  `export_numbers.sh` writes `numbers/hat_1.stl` + `numbers/number_1.stl` ...
+  `hat_15` + `number_15` (~7 s per number). Edit the list in the script to
+  export only some. 6 and 9 get their underline automatically.
+- `numbers/` is not committed (it changes whenever the design is tuned):
+  re-run the script after changing anything.
+- Two-digit numbers at `number_scale` 0.45: "15" is about 45 mm wide in the
+  72 mm white circle.
+
 ## v10 changes
 - **`brim_t` is now just the brim's thickness (default 2 mm)**; new
   **`brim_sink`** (1 mm) is how much of it sits in the pocket in the back of

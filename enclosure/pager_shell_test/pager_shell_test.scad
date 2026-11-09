@@ -78,7 +78,7 @@ number_text  = "2";
 // loaded from fonts/ (see top of file). DejaVu Serif Bold is also bundled.
 number_font  = "Liberation Sans:style=Bold";
 // number size as a fraction of the white circle's diameter (0.6 = 43 mm text size)
-number_scale = 0.6; // [0.2:0.01:1]
+number_scale = 0.45; // [0.2:0.01:1]
 // underline under the number (pool-ball style, tells 6 from 9)
 underline    = "auto"; // [auto, on, off]
 // "arc": curved like the pool-ball 6 / 9; "bar": straight
@@ -87,7 +87,7 @@ underline_style = "arc"; // [arc, bar]
 underline_w     = 0.6;  // [0.2:0.01:1.5]
 underline_t     = 0.1;  // [0.03:0.005:0.3]
 underline_gap   = 0.025; // [0:0.005:0.3]
-underline_sag   = 0.08; // [0:0.005:0.3]
+underline_sag   = 0.06; // [0:0.005:0.3]
 // digit height / text size for the chosen font (Liberation Sans Bold 0.98,
 // DejaVu Serif Bold 1.03); positions the underline under the digit
 digit_h_ratio   = 0.98; // [0.6:0.01:1.4]
