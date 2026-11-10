@@ -1,5 +1,30 @@
 # Pager wiring (draft)
 
+## Power plan (current)
+```
+bottom pogo 5V --+------------------------------> top pogo 5V   (pass-through to the next pager up)
+                 +- 100k -+- 100k - GND
+                 |        +--> GPIO 34          (dock sense)
+                 +- 1N5819 --> USB-C plug pigtail VBUS --> LOLIN32 USB-C  (onboard charger -> battery)
+bottom pogo GND -+-------------------------------> top pogo GND, pigtail GND
+
+battery + --> P-MOSFET (gate from a GPIO) --> boost board Vin --> 5 V: LED ring + buzzer
+LOLIN32 3V3 --> vibration motor (+), switched on its GND side by an NPN (GPIO 27), diode across the motor
+LED ring DI <-- 330R <-- (74AHCT125 level shifter, if 3.3 V data proves unreliable at 5 V) <-- GPIO 26
+```
+- Top and bottom pogo connectors are both at 6 o'clock, directly above each
+  other, so the pass-through is two short wires.
+- The boost board (3-pin Vin / GND / Vo) has no enable pin; the P-MOSFET
+  switches its input so the boost and the ring's idle current are off when
+  dark. Set the ring data pin LOW before switching off.
+- The buzzer (TDB05, 5 V part) runs from the boost 5 V: the firmware turns
+  the boost on for beeps as well as light.
+- These small boosts are usually rated ~0.5 A out: keep the ring brightness
+  capped (pure red / green / blue at moderate brightness is well inside it).
+- Layout: `enclosure/layout/`.
+
+The sections below are the earlier stripboard notes; pin numbers still apply.
+
 Through-hole / stripboard only. **Not yet built or verified.** Check every pin
 number against the silkscreen on your LOLIN32 Lite before soldering. All pins
 below were confirmed present on the USB-C LOLIN32 Lite pinout. The pins

@@ -46,7 +46,7 @@ ball_od      = 104;
 ball_face_t  = 2.0; // [1.5:0.1:6]
 edge_r       = 2.0;
 protrude     = 1.5;    // crown face above the ball face
-crown_wall   = 1.2;    // crown side wall (LED ring sits inside the crown hollow)
+crown_wall   = 1.6;
 // white face the light shines through
 
 crown_clear_d = 0.05; // [0:0.01:1]
@@ -97,7 +97,7 @@ number_back  = 1.6;     // black number continues this far behind the lit face (
 
 /* [Body, screws and base] */
 // FREE height for electronics under the LED ring, on top of the minimum. The ball height is calculated from this.
-internal_h   = 8.2; // [0:0.1:60]
+internal_h   = 4; // [0:0.1:60]
 ball_wall    = 2.4;
 boss_d       = 7;
 // Shell screws: M2 x 8 mm self-tapping, head recessed fully in the base
@@ -126,7 +126,7 @@ ring_relief   = 0.2; // [0:0.01:2]
 // LED tops to the underside of the white face
 // LED tops below the TOP of the white face (sets the ball height; light_t
 // doesn't change it)
-led_depth     = 2.6; // [1:0.1:30]
+led_depth     = 6.8; // [1:0.1:30]
 ring_h        = 2.5;    // measured LED ring thickness
 ring_od       = 68.2;   // measured LED ring outside diameter
 ring_hole_cx  = 35.24;
@@ -136,6 +136,29 @@ ring_pilot    = 1.7;    // LED ring screws: M2 x 6 mm self-tapping
 ring_pcb_t    = 1.6;    // ring PCB only (the screw goes through this)
 ring_screw_l  = 6;
 post_min      = ring_screw_l - ring_pcb_t + 0.6;   // shortest post that takes the screw
+
+/* [Component mounts] */
+// LOLIN32 Lite lies flat on the plate, long side 12-6 o'clock, USB/JST end
+// towards 6 o'clock; 1 mm channels under its long edges take the solder joints
+lolin_w        = 25.7;
+lolin_l        = 49.6;
+lolin_x        = 0.15;  // centre position on the plate
+lolin_y        = 19.2;  // as far from the pogo (6 o'clock) as fits
+lolin_chan_w   = 3.0;   // channel width (centred on the edge pin rows)
+lolin_chan_d   = 1.0;
+lolin_pin_inset = 1.27; // pin row centre from the board edge
+// vibration motor in U-clips (right side)
+motor_d        = 7.0;
+motor_l        = 26;
+motor_x        = 39.5;
+motor_y        = 0;
+clip_w         = 4;     // clip width along the motor
+clip_wall      = 1.2;
+clip_h         = 5.5;   // clip height (above the plate); must wrap past the motor's centre
+// buzzer sound hole (left lower) through the chassis plate and base ring
+buzzer_x       = -22;
+buzzer_y       = -36;
+sound_hole_d   = 2.0;
 
 /* [Pogo connector] */
 // hole for the oval body through the face (connector 13.15)
@@ -323,6 +346,12 @@ module chassis_abs() {
       }
       for (sx = [-1, 1], sy = [-1, 1]) translate([sx * ring_hole_cx / 2, sy * ring_hole_cy / 2, base_t])
         cylinder(d = ring_post_d, h = ring_bottom - base_t, $fn = 32);
+      // motor U-clips (open at the top; the motor snaps in)
+      for (sy = [-1, 1]) translate([motor_x, motor_y + sy * (motor_l / 2 - clip_w), col_start]) difference() {
+        translate([-motor_d / 2 - clip_wall, -clip_w / 2, 0]) cube([motor_d + 2 * clip_wall, clip_w, clip_h]);
+        translate([0, clip_w, motor_d / 2]) rotate([90, 0, 0]) cylinder(d = motor_d + 0.1, h = clip_w * 3, $fn = 48);
+        translate([-motor_d * 0.42, -clip_w, motor_d / 2 + 0.6]) cube([motor_d * 0.84, clip_w * 3, 10]);   // snap-in opening
+      }
       // flange ends inside the base: presser reaches down to it
       if (base_flange_gap > base_pogo_extra)
         at_angle(pogo_r, pogo_angle) translate([0, 0, pogo_depth + base_pogo_extra]) linear_extrude(base_flange_gap - base_pogo_extra + 0.01)
@@ -334,6 +363,11 @@ module chassis_abs() {
         translate([0, 0, base_t - 0.01]) linear_extrude(-base_flange_gap + base_pogo_extra + 0.01) stadium_2d(flange_pocket_l, flange_pocket_w);
       translate([0, 0, base_t - 1]) linear_extrude(chassis_t + 2) stadium_2d(oval_hole_l, oval_hole_w);
     }
+    // LOLIN32 solder-joint channels along both long edges
+    for (sx = [-1, 1]) translate([lolin_x + sx * (lolin_w / 2 - lolin_pin_inset), lolin_y, col_start - lolin_chan_d])
+      translate([-lolin_chan_w / 2, -lolin_l / 2 - 0.5, 0]) cube([lolin_chan_w, lolin_l + 1, lolin_chan_d + 0.01]);
+    // buzzer sound hole
+    translate([buzzer_x, buzzer_y, base_t - 1]) cylinder(d = sound_hole_d, h = chassis_t + 2, $fn = 24);
     // base magnets stick up 0.75 mm into the plate
     for (a = mag_angles) at_angle(mag_r, a)
       translate([0, 0, base_t - 0.01]) cylinder(d = mag_d + 0.4, h = mag_h - base_t + 0.1);
@@ -356,6 +390,7 @@ module base_upright() {
     }
     at_angle(pogo_r, pogo_angle) mirror([0, 0, 1]) pogo_cut();                      // spring pins
     for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -1]) cylinder(d = mag_hole_base, h = base_t + 2);
+    translate([buzzer_x, buzzer_y, -1]) cylinder(d = sound_hole_d, h = base_t + 2, $fn = 24);   // buzzer sound hole
     for (a = boss_angles) at_angle(boss_r, a) {
       translate([0, 0, -1]) cylinder(d = screw_clear, h = base_t + 2, $fn = 24);
       translate([0, 0, -0.01]) cylinder(d = screw_head_d, h = screw_head_h, $fn = 32);

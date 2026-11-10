@@ -5,17 +5,19 @@ with component outlines, to check fit before designing mounts. Not a part.
 
 ![Layout](layout_sketch.png)
 
-Space (pager_shell_test defaults, ball 20.8 mm): plate ~98.8 mm across;
-**under the LED ring 13.2 mm** (`internal_h` 8.2 + 5 mm minimum post), with
-the LED ring raised to 1.8 mm under the lit face (`led_depth` 2.6) so the
-ball height doesn't change; outside the ring, up to the brim, 13.8 mm. LED
-ring posts at (+-17.6, +-26.4).
+Space (pager_shell_test defaults, ball 20.8 mm, LED ring at its original
+height): plate ~98.8 mm across; **9 mm under the LED ring** (68 mm circle in
+the middle), 13.8 mm outside it up to the brim. LED ring posts at
+(+-17.6, +-26.4).
 
-| Part | Size (mm) | Placement |
+| Part | Size (mm) | Placement (x, y from the centre; +y = 12 o'clock) |
 |---|---|---|
-| LOLIN32 Lite | 49.6 x 25.7 (+1.5 round the edges) | Centre, long axis 12-6 o'clock, between the LED posts (~0.75 mm clear each side); USB-C / JST end towards the pogo connector at 6 o'clock |
-| Boost (3-pin, no enable) | 10.5 x 11 | Right side strip |
-| TTP223 touch | 11 x 14 | Left, over the stacking recess (senses through the 2 mm plate) |
-| Buzzer | 9.2 dia x 5.8 | Left, over the recess; sound hole through the plate into the recess |
-| Vibration motor | 7 x 26 | Outer band at 9 o'clock, clamped to the chassis |
-| Battery 500 mAh | 30 x 35 x ? (thickness to confirm, ~5) | On the plate under the LOLIN32 (stack: battery ~5 + gap 0.5 + LOLIN solder 1.5 + board 1.6 + tallest part ~4-5 = ~13) |
+| LOLIN32 Lite | 49.6 x 25.7 | Middle, flat on the plate, (0.15, 19.2): spans y -5.6 to +44, as far from the pogo as fits. USB-C / JST end towards 6 o'clock. 1 mm channels under both long edges for the solder joints (in the chassis model) |
+| Battery 500 mAh | 30 x 35 x ~5 | Left, (-28, 0) |
+| Boost (3-pin) | 10.5 x 11 | Lower left, (-31, -24) |
+| Buzzer | 9.2 x 5.8 | Lower left, (-22, -36); sound hole through chassis plate + base (in the model) |
+| Vibration motor | 7 x 26 | Right, (39.5, 0), in two U-clips (in the model) |
+| TTP223 touch | 11 x 14 | Right, (22, -12), over the stacking recess |
+
+All heights fit under the LED ring (9 mm): LOLIN32 ~6, battery ~5, boost
+~4, buzzer 5.8.
