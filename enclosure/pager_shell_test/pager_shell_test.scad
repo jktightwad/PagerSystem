@@ -143,6 +143,8 @@ post_min      = ring_screw_l - ring_pcb_t + 0.6;   // shortest post that takes t
 pocket_wall    = 1.2;   // [0.6:0.1:3]
 pocket_h       = 5.0;   // [1:0.5:10] wall height above the plate
 pocket_clear   = 0.3;   // [0:0.05:1] gap round each part
+// cut the clamp ring away behind the boost and touch module
+ring_open_at_parts = true;
 // LED ring posts kept: [x sign, y sign] of the 4 holes (11 and 5 o'clock kept)
 ring_posts     = [[-1, 1], [1, -1]];
 // battery stand-in 30 x 35, left, sharing a wall with the LOLIN32
@@ -275,12 +277,15 @@ module number_2d() {
 // rectangular pocket frame (inner = part + clearance), optional open end at -y
 // open_back: no wall on the local +y side (radially outward when placed with
 // at_angle); side walls run on out to the chassis wall and are trimmed there
-module pocket_rect(w, l, open_bottom = false, open_back = false) {
+// open_left: same on the local -x side (walls run on out to the chassis wall)
+module pocket_rect(w, l, open_bottom = false, open_back = false, open_left = false) {
   iw = w + 2 * pocket_clear; il = l + 2 * pocket_clear;
+  ext = 20;   // how far open sides' walls run on (trimmed at the chassis wall)
   linear_extrude(pocket_h) difference() {
-    if (open_back) translate([-iw / 2 - pocket_wall, -il / 2 - pocket_wall]) square([iw + 2 * pocket_wall, il + pocket_wall + 10]);
-    else square([iw + 2 * pocket_wall, il + 2 * pocket_wall], center = true);
-    translate([-iw / 2, -il / 2]) square([iw, open_back ? il + 20 : il]);
+    translate([-iw / 2 - pocket_wall - (open_left ? ext : 0), -il / 2 - pocket_wall])
+      square([iw + 2 * pocket_wall + (open_left ? ext : 0), il + 2 * pocket_wall + (open_back ? ext : 0)]);
+    translate([-iw / 2 - (open_left ? 2 * ext : 0), -il / 2])
+      square([iw + (open_left ? 2 * ext : 0), il + (open_back ? 2 * ext : 0)]);
     if (open_bottom) translate([0, -il / 2]) square([iw, 2 * pocket_wall + 1], center = true);
   }
 }
@@ -375,6 +380,13 @@ module chassis_abs() {
         offset(delta = -brim_gap_d / 2 - chassis_clear) cavity_2d();
         offset(delta = -brim_gap_d / 2 - chassis_clear - clamp_ring_w) cavity_2d();
         offset(delta = 0.3) tongue_2d();
+        // clamp ring cut away behind the wall-side parts
+        if (ring_open_at_parts) {
+          at_angle(wall_r(boost_w, boost_l, boost_gap), boost_a)
+            translate([-boost_w / 2 - pocket_clear, 0]) square([boost_w + 2 * pocket_clear, 30]);
+          at_angle(wall_r(touch_w, touch_l, touch_gap), touch_a)
+            translate([-touch_w / 2 - pocket_clear, 0]) square([touch_w + 2 * pocket_clear, 30]);
+        }
         // notches for the magnet caps (only when the brim needs them)
         if (cap_bot < brim_bot)
           for (a = mag_angles) at_angle(mag_r, a) circle(d = mag_pocket_d + 2 * cap_wall + 0.6);
@@ -383,8 +395,13 @@ module chassis_abs() {
         cylinder(d = ring_post_d, h = ring_bottom - base_t, $fn = 32);
       // component pockets (layout)
       translate([0, 0, col_start - 0.01]) {
-        translate([bat_x, bat_y]) pocket_rect(bat_w, bat_l);
-        translate([lolin_x, lolin_y]) pocket_rect(lolin_w, lolin_l, open_bottom = true);
+        intersection() {
+          union() {
+            translate([bat_x, bat_y]) pocket_rect(bat_w, bat_l, open_left = true);
+            translate([lolin_x, lolin_y]) pocket_rect(lolin_w, lolin_l, open_bottom = true, open_back = true);
+          }
+          translate([0, 0, -1]) linear_extrude(pocket_h + 2) chassis_inside_2d();
+        }
         intersection() {
           union() {
             at_angle(wall_r(boost_w, boost_l, boost_gap), boost_a) pocket_rect(boost_w, boost_l, open_back = true);
