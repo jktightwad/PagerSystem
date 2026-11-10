@@ -46,7 +46,7 @@ ball_od      = 104;
 ball_face_t  = 2.0; // [1.5:0.1:6]
 edge_r       = 2.0;
 protrude     = 1.5;    // crown face above the ball face
-crown_wall   = 1.6;
+crown_wall   = 1.2;    // crown side wall (LED ring sits inside the crown hollow)
 // white face the light shines through
 
 crown_clear_d = 0.05; // [0:0.01:1]
@@ -97,7 +97,7 @@ number_back  = 1.6;     // black number continues this far behind the lit face (
 
 /* [Body, screws and base] */
 // FREE height for electronics under the LED ring, on top of the minimum. The ball height is calculated from this.
-internal_h   = 4; // [0:0.5:60]
+internal_h   = 8.2; // [0:0.1:60]
 ball_wall    = 2.4;
 boss_d       = 7;
 // Shell screws: M2 x 8 mm self-tapping, head recessed fully in the base
@@ -126,8 +126,9 @@ ring_relief   = 0.2; // [0:0.01:2]
 // LED tops to the underside of the white face
 // LED tops below the TOP of the white face (sets the ball height; light_t
 // doesn't change it)
-led_depth     = 6.8; // [1:0.1:30]
+led_depth     = 2.6; // [1:0.1:30]
 ring_h        = 2.5;    // measured LED ring thickness
+ring_od       = 68.2;   // measured LED ring outside diameter
 ring_hole_cx  = 35.24;
 ring_hole_cy  = 52.8;
 ring_post_d   = 5;
@@ -393,5 +394,8 @@ echo(str("Brim ", brim_t, " mm (", brim_sink, " in the face, ", -brim_bot, " bel
 assert(mag_r + mag_pocket_d / 2 + cap_wall < ball_od / 2 - ball_wall - 0.2,
        "magnet caps too wide: they would hit the ball wall (reduce cap_wall or move the magnets in)");
 assert(brim_sink < ball_face_t - 0.5, "brim_sink leaves less than 0.5 mm of face in front of the brim");
+crown_inner_min = white_d - crown_clear_d - 2 * crown_wall;   // narrowest inside of the crown
+assert(ring_bottom + ring_h <= face_back + brim_bot || crown_inner_min >= ring_od + 0.6,
+       "LED ring is inside the crown hollow but the crown is too narrow for it (reduce crown_wall or lower the ring)");
 assert(base_t >= protrude + 0.3, "base_t must be at least protrude + 0.3 (stacking recess depth)");
 assert(screw_head_h < base_t - 0.3, "counterbore too deep for the base: less than 0.3 mm left under the screw head");

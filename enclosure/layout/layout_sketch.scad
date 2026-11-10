@@ -33,8 +33,8 @@ color("brown") at(41, 270) square([26, 7], center = true);
 color("deepskyblue") translate([-23, 10]) square([11, 14], center = true);
 // stacking recess outline (egg, on the underside)
 color("navy", 0.5) difference() { offset(delta = 0.6) hull() { circle(d = 72); translate([0, 6]) circle(d = 62); } hull() { circle(d = 72); translate([0, 6]) circle(d = 62); } }
-// battery placeholder strip
-color("khaki", 0.8) translate([24, 12]) square([16, 26], center = true);
+// battery 30 x 35 (500 mAh) on the plate, UNDER the LOLIN32
+color("khaki", 0.9) square([30, 35], center = true);
 
 label("LOLIN32", [0, 6], 3.2);
 label("USB-C / JST", [0, -32]);
@@ -43,6 +43,6 @@ label("boost", [24, -6], 2);
 label("buzzer", [-24, -14], 1.8);
 label("touch", [-23, 10], 2);
 translate([-41, 0]) rotate(90) label("motor 7x26", [0, 0], 2);
-translate([24, 12]) rotate(90) label("battery?", [0, 0], 2.2);
+label("battery under", [0, -6], 2.2);
 label("mag", [37.2, 21.5], 2); label("mag", [-37.2, 21.5], 2);
-label("LED ring (9 mm up)", [0, 31], 2.2);
+label("LED ring (13.2 mm up)", [0, 31], 2.2);
