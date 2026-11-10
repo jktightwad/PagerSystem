@@ -147,13 +147,14 @@ pocket_clear   = 0.3;   // [0:0.05:1] gap round each part
 ring_open_at_parts = false;
 // LED ring posts kept: [x sign, y sign] of the 4 holes (11 and 5 o'clock kept)
 ring_posts     = [[-1, 1], [1, -1]];
-// battery stand-in 30 x 35, left, sharing a wall with the LOLIN32
-bat_w = 30; bat_l = 35; bat_x = -25.5; bat_y = 2;
+// battery 503035 (35 x 30 x 5) at 9 o'clock: 3 walls, the chassis ring is the 4th;
+// its inner wall is shared with the LOLIN32
+bat_w = 35; bat_l = 30; bat_gap = 0; bat_a = 270;
 // LOLIN32 Lite: off-centre so the shared battery wall clears; USB/JST end
 // (towards 6 o'clock) left open for the plugs
 lolin_w        = 25.7;
 lolin_l        = 49.6;
-lolin_x        = 4.15;
+lolin_x        = 1.3;
 lolin_y        = 16.9;
 lolin_chan_w   = 3.0;   // 1 mm channels under the long edges for the solder joints
 lolin_chan_d   = 1.0;
@@ -397,13 +398,13 @@ module chassis_abs() {
       translate([0, 0, col_start - 0.01]) {
         intersection() {
           union() {
-            translate([bat_x, bat_y]) pocket_rect(bat_w, bat_l, open_left = true);
             translate([lolin_x, lolin_y]) pocket_rect(lolin_w, lolin_l, open_bottom = true, open_back = true);
           }
           translate([0, 0, -1]) linear_extrude(pocket_h + 2) chassis_inside_2d();
         }
         intersection() {
           union() {
+            at_angle(wall_r(bat_w, bat_l, bat_gap), bat_a) pocket_rect(bat_w, bat_l, open_back = true);
             at_angle(wall_r(boost_w, boost_l, boost_gap), boost_a) pocket_rect(boost_w, boost_l, open_back = true);
             at_angle(wall_r(touch_w, touch_l, touch_gap), touch_a) pocket_rect(touch_w, touch_l, open_back = true);
           }
