@@ -1,4 +1,4 @@
-# Pager shell test (v11)
+# Pager shell test (v12)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,17 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v12 changes
+- Motor: one 8 mm clip (was two 4 mm), bore +0.2 mm (`motor_clear`).
+- LOLIN32: snug tray, 0.05 mm per side; top end against the clamp ring so
+  it can't slide; stop tab 4 mm wide. Position follows the battery.
+- Battery 4 mm further from the pogo (`bat_y`); buzzer on the wall between
+  the 7:30 column and the battery.
+- Power switch mount at the old buzzer spot: riser pads, end clips with
+  hooks, slider slot through the plate and the base. `switch_h` (body
+  height, sets the hook) and `switch_slot_w` are guesses: measure and set.
+- `clip_test` part: switch mount + motor clips at +0.10 / +0.20 / +0.30 mm.
 
 ## v11 changes
 - Lit face (`light_t`) 0.4 mm, ball face (`ball_face_t`) 2.6 mm to cut light

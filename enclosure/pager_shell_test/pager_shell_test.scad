@@ -34,7 +34,7 @@ use <fonts/LiberationSans-Bold.ttf>
 use <fonts/DejaVuSerif-Bold.ttf>
 
 /* [Part to show / export] */
-part = "all"; // [all, hat, number, ball, chassis, base]
+part = "all"; // [all, hat, number, ball, chassis, base, clip_test]
 
 /* [Shape and size] */
 white_d      = 72;     // egg's main circle (covers the 68.2 mm LED ring)
@@ -147,15 +147,16 @@ pocket_clear   = 0.3;   // [0:0.05:1] gap round each part
 ring_open_at_parts = false;
 // LED ring posts kept: [x sign, y sign] of the 4 holes (11 and 5 o'clock kept)
 ring_posts     = [[-1, 1], [1, -1]];
-// battery 503035 (35 x 30 x 5) at 9 o'clock: 3 walls, the chassis ring is the 4th;
-// its inner wall is shared with the LOLIN32
-bat_w = 35; bat_l = 30; bat_gap = 0; bat_a = 270;
-// LOLIN32 Lite: off-centre so the shared battery wall clears; USB/JST end
-// (towards 6 o'clock) left open for the plugs
+// battery 503035 (35 x 30 x 5) at 9 o'clock, back on the clamp ring (3 walls);
+// bat_y moves it along the wall (+ = towards 12 o'clock). Its inner wall is
+// shared with the LOLIN32, which is placed from it automatically.
+bat_w = 35; bat_l = 30; bat_gap = 0; bat_y = 4;
+// LOLIN32 Lite: snug tray (lolin_clear per side); top end against the clamp
+// ring at 12 o'clock, held at the pogo end by a tab. USB/JST end open.
 lolin_w        = 25.7;
 lolin_l        = 49.6;
-lolin_x        = 1.3;
-lolin_y        = 16.9;
+lolin_clear    = 0.05;  // [0:0.01:0.5] per side
+lolin_gap      = 0;     // [0:0.1:10] board top end to the clamp ring
 lolin_chan_w   = 3.0;   // 1 mm channels under the long edges for the solder joints
 lolin_chan_d   = 1.0;
 lolin_pin_inset = 1.27;
@@ -163,27 +164,51 @@ lolin_pin_inset = 1.27;
 lolin_tray_cut = 4;     // [0:0.5:20]
 // tab at the board's pogo-side end that stops it sliding towards the pogo
 lolin_tab_off  = 9.5;   // [0:0.1:25] from the battery-side (left) inside wall to the tab
-lolin_tab_w    = 5;     // [1:0.5:20]
+lolin_tab_w    = 4;     // [1:0.5:20]
 lolin_tab_h    = 4;     // [1:0.5:10]
 lolin_tab_t    = 2;     // [0.8:0.1:5]
 // boost board 10.5 x 11 at ~7 o'clock against the wall (angle clockwise from 12)
 // parts against the chassis wall get no back wall: they sit on the clamp ring.
 // *_gap moves the part in from the wall (0 = touching)
 boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 205;
-// buzzer 9.2 at ~6:30 just inside the LED ring; one sound hole through the plate
-buzzer_d = 9.2; buzzer_r = 28; buzzer_a = 190;
+// buzzer 9.2 on the wall between the 7:30 screw column and the battery;
+// one sound hole through the plate
+buzzer_d = 9.2; buzzer_gap = 0; buzzer_a = 241;
 sound_hole_d   = 2.0;
-// touch module 11 x 14 at ~4 o'clock, back against the wall and the screw column
+// touch module at ~4 o'clock, back against the wall
 touch_w = 24; touch_l = 24.3; touch_gap = 0; touch_a = 114;
-// vibration motor at ~3 o'clock, angled 45 deg towards the LOLIN32, in U-clips
+// vibration motor at ~3 o'clock, angled 45 deg towards the LOLIN32, one clip
 motor_d        = 7.0;
 motor_l        = 26;
 motor_x        = 32;
 motor_y        = 16;
 motor_angle    = 45;    // axis rotation from 12-6 o'clock (CCW)
-clip_w         = 4;
-clip_wall      = 1.2;
+clip_w         = 8;     // [2:0.5:20] clip length along the motor
+clip_wall      = 1.2;   // [0.6:0.1:3]
 clip_h         = 5.5;
+motor_clear    = 0.2;   // [0:0.05:1] added to the motor diameter in the clip
+clip_open      = 0.84;  // [0.5:0.01:0.95] snap opening as a fraction of motor_d
+
+/* [Power switch] */
+// slide switch, upside down: slider pokes down through a slot in the plate
+switch_w       = 8.75;  // [1:0.01:30] along the slider travel
+switch_d       = 5.0;   // [1:0.01:20]
+switch_h       = 4.0;   // [1:0.01:20] body height (MEASURE: sets the clip hook height)
+switch_clear   = 0;     // [0:0.01:0.5] per side
+switch_slider_l = 4.35; // [0:0.01:10] slider length out of the body
+// slider tip ends level with: 0 = bottom of the chassis plate, base_t = bottom of the base
+switch_tip_below = 0;   // [0:0.1:5]
+switch_slot_l  = 5.75;  // [1:0.01:20] slot along the travel
+switch_slot_w  = 2.2;   // [0.5:0.05:6] slot width (MEASURE the slider)
+switch_pad_w   = 1.5;   // [0.5:0.1:5] riser pads under each end
+switch_clip_t  = 1.2;   // [0.6:0.1:3]
+switch_clip_w  = 3;     // [1:0.5:10] clip width (across the switch)
+switch_hook    = 0.6;   // [0.2:0.05:2] hook overhang onto the switch top
+switch_base_slot = true; // cut the slot through the base too
+switch_r = 28; switch_a = 190;
+
+/* [Clip test plate] */
+test_motor_clears = [0.1, 0.2, 0.3];
 
 /* [Pogo connector] */
 // hole for the oval body through the face (connector 13.15)
@@ -286,8 +311,8 @@ module number_2d() {
 // open_back: no wall on the local +y side (radially outward when placed with
 // at_angle); side walls run on out to the chassis wall and are trimmed there
 // open_left: same on the local -x side (walls run on out to the chassis wall)
-module pocket_rect(w, l, open_bottom = false, open_back = false, open_left = false) {
-  iw = w + 2 * pocket_clear; il = l + 2 * pocket_clear;
+module pocket_rect(w, l, open_bottom = false, open_back = false, open_left = false, clear = pocket_clear) {
+  iw = w + 2 * clear; il = l + 2 * clear;
   ext = 20;   // how far open sides' walls run on (trimmed at the chassis wall)
   linear_extrude(pocket_h) difference() {
     translate([-iw / 2 - pocket_wall - (open_left ? ext : 0), -il / 2 - pocket_wall])
@@ -305,6 +330,39 @@ function wall_r(w, l, gap) = sqrt(pow(inside_r - gap, 2) - pow(w / 2 + pocket_cl
 module pocket_round(d) {
   linear_extrude(pocket_h) difference() { circle(d = d + 2 * pocket_clear + 2 * pocket_wall); circle(d = d + 2 * pocket_clear); }
 }
+// battery / LOLIN32 placement (computed from the clamp ring)
+bat_ytop = max(abs(bat_y + bat_w / 2 + pocket_clear), abs(bat_y - bat_w / 2 - pocket_clear));
+bat_cx   = -sqrt(pow(inside_r - bat_gap, 2) - pow(bat_ytop, 2)) + pocket_clear + bat_l / 2;
+lolin_x  = bat_cx + bat_l / 2 + pocket_clear + pocket_wall + lolin_clear + lolin_w / 2;
+lolin_xmax = max(abs(lolin_x - lolin_w / 2 - lolin_clear), abs(lolin_x + lolin_w / 2 + lolin_clear));
+lolin_y  = sqrt(pow(inside_r - lolin_gap, 2) - pow(lolin_xmax, 2)) - lolin_clear - lolin_l / 2;
+buzzer_r = inside_r - buzzer_gap - pocket_clear - buzzer_d / 2;
+switch_pad_h = switch_slider_l - chassis_t - switch_tip_below;
+// motor clip, plate top at z = 0, motor axis along y
+module motor_clip(clear = motor_clear) {
+  bd = motor_d + clear;
+  difference() {
+    translate([-bd / 2 - clip_wall, -clip_w / 2, 0]) cube([bd + 2 * clip_wall, clip_w, clip_h]);
+    translate([0, clip_w, bd / 2]) rotate([90, 0, 0]) cylinder(d = bd, h = clip_w * 3, $fn = 64);
+    translate([-motor_d * clip_open / 2, -clip_w, bd / 2 + 0.6]) cube([motor_d * clip_open, clip_w * 3, 10]);
+  }
+}
+// switch mount (pads + end clips), plate top at z = 0; travel along x
+module switch_mount() {
+  sw = switch_w + 2 * switch_clear; sd = switch_d + 2 * switch_clear;
+  top = switch_pad_h + switch_h + switch_clear;
+  for (sx = [-1, 1]) {
+    // riser pad under each end
+    translate([sx > 0 ? sw / 2 - switch_pad_w : -sw / 2, -switch_d / 2, -0.01]) cube([switch_pad_w, switch_d, switch_pad_h + 0.01]);
+    // clip: arm outside the end, hook over the switch top, sloped lead-in
+    translate([sx * (sw / 2 + switch_clip_t / 2), 0, 0]) mirror([sx < 0 ? 1 : 0, 0, 0]) {
+      translate([-switch_clip_t / 2, -switch_clip_w / 2, -0.01]) cube([switch_clip_t, switch_clip_w, top + 0.01]);
+      translate([-switch_clip_t / 2, switch_clip_w / 2, top]) rotate([90, 0, 0])
+        linear_extrude(switch_clip_w) polygon([[0, 0], [-switch_hook, 0], [0, switch_hook * 2], [switch_clip_t, switch_hook * 2], [switch_clip_t, 0]]);
+    }
+  }
+}
+module switch_slot(h) { translate([-switch_slot_l / 2, -switch_slot_w / 2, 0]) cube([switch_slot_l, switch_slot_w, h]); }
 module bosses_2d() { for (a = boss_angles) at_angle(boss_r, a) circle(d = boss_d); }
 module cavity_2d() {
   offset(r = column_fillet) offset(delta = -column_fillet)
@@ -405,31 +463,28 @@ module chassis_abs() {
       translate([0, 0, col_start - 0.01]) {
         intersection() {
           union() {
-            translate([lolin_x, lolin_y + lolin_tray_cut / 2]) pocket_rect(lolin_w, lolin_l - lolin_tray_cut, open_bottom = true, open_back = true);
+            translate([lolin_x, lolin_y + lolin_tray_cut / 2]) pocket_rect(lolin_w, lolin_l - lolin_tray_cut, open_bottom = true, open_back = true, clear = lolin_clear);
           }
           translate([0, 0, -1]) linear_extrude(pocket_h + 2) chassis_inside_2d();
         }
         intersection() {
           union() {
-            at_angle(wall_r(bat_w, bat_l, bat_gap), bat_a) pocket_rect(bat_w, bat_l, open_back = true);
+            translate([bat_cx, bat_y]) rotate([0, 0, 90]) pocket_rect(bat_w, bat_l, open_back = true);
+            at_angle(buzzer_r, buzzer_a) pocket_round(buzzer_d);
             at_angle(wall_r(boost_w, boost_l, boost_gap), boost_a) pocket_rect(boost_w, boost_l, open_back = true);
             at_angle(wall_r(touch_w, touch_l, touch_gap), touch_a) pocket_rect(touch_w, touch_l, open_back = true);
           }
           translate([0, 0, -1]) linear_extrude(pocket_h + 2) chassis_inside_2d();
         }
-        at_angle(buzzer_r, buzzer_a) pocket_round(buzzer_d);
       }
       // LOLIN32 stop tab, against the board's pogo-side end
-      translate([lolin_x - lolin_w / 2 - pocket_clear + lolin_tab_off,
-                 lolin_y - lolin_l / 2 - pocket_clear - lolin_tab_t, col_start - 0.01])
+      translate([lolin_x - lolin_w / 2 - lolin_clear + lolin_tab_off,
+                 lolin_y - lolin_l / 2 - lolin_clear - lolin_tab_t, col_start - 0.01])
         cube([lolin_tab_w, lolin_tab_t, lolin_tab_h + 0.01]);
       // motor U-clips (open at the top; the motor snaps in)
-      translate([motor_x, motor_y, col_start]) rotate([0, 0, motor_angle])
-        for (sy = [-1, 1]) translate([0, sy * (motor_l / 2 - clip_w), 0]) difference() {
-          translate([-motor_d / 2 - clip_wall, -clip_w / 2, 0]) cube([motor_d + 2 * clip_wall, clip_w, clip_h]);
-          translate([0, clip_w, motor_d / 2]) rotate([90, 0, 0]) cylinder(d = motor_d + 0.1, h = clip_w * 3, $fn = 48);
-          translate([-motor_d * 0.42, -clip_w, motor_d / 2 + 0.6]) cube([motor_d * 0.84, clip_w * 3, 10]);
-        }
+      translate([motor_x, motor_y, col_start]) rotate([0, 0, motor_angle]) motor_clip();
+      // power switch
+      at_angle(switch_r, switch_a) translate([0, 0, col_start]) switch_mount();
       // flange ends inside the base: presser reaches down to it
       if (base_flange_gap > base_pogo_extra)
         at_angle(pogo_r, pogo_angle) translate([0, 0, pogo_depth + base_pogo_extra]) linear_extrude(base_flange_gap - base_pogo_extra + 0.01)
@@ -446,6 +501,7 @@ module chassis_abs() {
       translate([-lolin_chan_w / 2, -lolin_l / 2 - 0.5, 0]) cube([lolin_chan_w, lolin_l + 1, lolin_chan_d + 0.01]);
     // buzzer sound hole
     at_angle(buzzer_r, buzzer_a) translate([0, 0, base_t - 1]) cylinder(d = sound_hole_d, h = chassis_t + 2, $fn = 24);
+    at_angle(switch_r, switch_a) translate([0, 0, base_t - 1]) switch_slot(chassis_t + 2);
     // base magnets stick up 0.75 mm into the plate
     for (a = mag_angles) at_angle(mag_r, a)
       translate([0, 0, base_t - 0.01]) cylinder(d = mag_d + 0.4, h = mag_h - base_t + 0.1);
@@ -468,6 +524,7 @@ module base_upright() {
     }
     at_angle(pogo_r, pogo_angle) mirror([0, 0, 1]) pogo_cut();                      // spring pins
     for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -1]) cylinder(d = mag_hole_base, h = base_t + 2);
+    if (switch_base_slot) at_angle(switch_r, switch_a) translate([0, 0, -1]) switch_slot(base_t + 2);
     for (a = boss_angles) at_angle(boss_r, a) {
       translate([0, 0, -1]) cylinder(d = screw_clear, h = base_t + 2, $fn = 24);
       translate([0, 0, -0.01]) cylinder(d = screw_head_d, h = screw_head_h, $fn = 32);
@@ -490,11 +547,27 @@ module preview() {
   if (number_mode == "inlay") color("black") translate([0, 0, face_back + e + 0.01]) number_upright();
 }
 
+// test plate: switch mount + motor clips at several clearances (labels in hundredths)
+module clip_test() {
+  n = len(test_motor_clears); pitch = motor_d + 2 * clip_wall + 7;
+  L = 22 + n * pitch; W = max(clip_w, switch_d + 4) + 14;
+  difference() {
+    translate([0, -W / 2, 0]) cube([L, W, chassis_t]);
+    translate([10, 0, -1]) switch_slot(chassis_t + 2);
+    for (i = [0 : n - 1]) translate([22 + i * pitch + pitch / 2, -W / 2 + 1.5, chassis_t - 0.6])
+      linear_extrude(1) text(str("+", round(test_motor_clears[i] * 100)), size = 3.5,
+                             font = "Liberation Sans:style=Bold", halign = "center");
+  }
+  translate([10, 0, chassis_t]) switch_mount();
+  for (i = [0 : n - 1]) translate([22 + i * pitch + pitch / 2, 2, chassis_t]) motor_clip(test_motor_clears[i]);
+}
+
 if (part == "hat") hat_print();
 else if (part == "number") number_print();
 else if (part == "ball") ball_print();
 else if (part == "chassis") chassis();
 else if (part == "base") base_print();
+else if (part == "clip_test") clip_test();
 else preview();
 
 echo(str("Ball height ", ball_h, " mm. Free height under the LED ring (internal_h) ", internal_h,
