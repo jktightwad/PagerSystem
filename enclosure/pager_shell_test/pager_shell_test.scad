@@ -355,7 +355,7 @@ module motor_clip(clear = motor_clear) {
 module switch_mount() {
   sw = switch_w + switch_extra_w + 2 * switch_clear; sd = switch_d + 2 * switch_clear;
   top = switch_pad_h + switch_h + switch_clear;
-  if (switch_wall) translate([-sw / 2, -sd / 2 - pocket_wall, -0.01]) cube([sw, pocket_wall, switch_pad_h + switch_h + 0.01]);
+  if (switch_wall) translate([-sw / 2 - switch_clip_t, -sd / 2 - pocket_wall, -0.01]) cube([sw + 2 * switch_clip_t, pocket_wall + 0.01, switch_pad_h + switch_h + 0.01]);
   for (sx = [-1, 1]) {
     // riser pad under each end
     translate([sx > 0 ? sw / 2 - switch_pad_w : -sw / 2, -switch_d / 2, -0.01]) cube([switch_pad_w, switch_d, switch_pad_h + 0.01]);
