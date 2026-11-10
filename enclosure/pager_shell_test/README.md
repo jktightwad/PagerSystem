@@ -1,4 +1,4 @@
-# Pager shell test (v12)
+# Pager shell test (v13)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,13 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v13 changes
+- Motor clip +0.10 mm (tested best).
+- Switch: body 4.5 mm, 0.2 mm longer opening (`switch_extra_w`), 0.6 mm
+  lower (`switch_tip_below` 0.6: slider tip 0.6 mm below the plate, into the
+  base slot), clips 5 mm wide, wall on the pogo side (`switch_wall`), moved
+  between the pogo and the LOLIN32 inside the LED ring (`switch_x/y`).
 
 ## v12 changes
 - Motor: one 8 mm clip (was two 4 mm), bore +0.2 mm (`motor_clear`).

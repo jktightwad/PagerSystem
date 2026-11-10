@@ -31,9 +31,9 @@ the 12 o'clock end and shares its left wall with the battery.
 | LOLIN32 Lite | 49.6 x 25.7 | Placed automatically: left wall shared with the battery, top end against the clamp ring at 12 o'clock, 0.05 mm per side (`lolin_clear`); stop tab 4 wide at the pogo end, 9.5 mm from the battery-side wall |
 | Boost (3-pin) | 10.5 x 11 | 205 deg (~7 o'clock), back on the clamp-ring wall (no pocket back wall; `boost_gap` moves it in) |
 | Buzzer | 9.2 dia | 241 deg, on the wall between the 7:30 screw column and the battery; one sound hole through the plate |
-| Power switch | 8.75 x 5 | 190 deg, r 28 (old buzzer spot); upside down on 1.5 x 5 riser pads, end clips, 5.75 mm slider slot through plate and base (Power switch group) |
+| Power switch | 8.75 x 5 x 4.5 | (1.5, -22.6): between the pogo and the LOLIN32, just inside the LED ring; upside down on riser pads, 5 mm end clips, wall on the pogo side, 5.75 mm slider slot through plate and base |
 | Touch module | 24 x 24.3 | 117 deg (~4 o'clock), back on the clamp-ring wall (no pocket back wall; `touch_gap`), facing the centre |
-| Vibration motor | 7 x 26 | Centre (32, 16), axis turned 45 deg towards the LOLIN32, one 8 mm clip, +0.2 mm on the diameter |
+| Vibration motor | 7 x 26 | Centre (32, 16), axis turned 45 deg towards the LOLIN32, one 8 mm clip, +0.1 mm on the diameter |
 
 All heights fit under the LED ring (9 mm): LOLIN32 ~6, battery ~5, boost
 ~4, buzzer 5.8.

@@ -186,26 +186,30 @@ motor_angle    = 45;    // axis rotation from 12-6 o'clock (CCW)
 clip_w         = 8;     // [2:0.5:20] clip length along the motor
 clip_wall      = 1.2;   // [0.6:0.1:3]
 clip_h         = 5.5;
-motor_clear    = 0.2;   // [0:0.05:1] added to the motor diameter in the clip
+motor_clear    = 0.1;   // [0:0.05:1] added to the motor diameter in the clip
 clip_open      = 0.84;  // [0.5:0.01:0.95] snap opening as a fraction of motor_d
 
 /* [Power switch] */
 // slide switch, upside down: slider pokes down through a slot in the plate
 switch_w       = 8.75;  // [1:0.01:30] along the slider travel
 switch_d       = 5.0;   // [1:0.01:20]
-switch_h       = 4.0;   // [1:0.01:20] body height (MEASURE: sets the clip hook height)
+switch_h       = 4.5;   // [1:0.01:20] body height (sets the clip hook height)
 switch_clear   = 0;     // [0:0.01:0.5] per side
+switch_extra_w = 0.2;   // [0:0.01:2] added to the length along the travel
 switch_slider_l = 4.35; // [0:0.01:10] slider length out of the body
 // slider tip ends level with: 0 = bottom of the chassis plate, base_t = bottom of the base
-switch_tip_below = 0;   // [0:0.1:5]
+switch_tip_below = 0.6; // [0:0.1:5]
 switch_slot_l  = 5.75;  // [1:0.01:20] slot along the travel
 switch_slot_w  = 2.2;   // [0.5:0.05:6] slot width (MEASURE the slider)
 switch_pad_w   = 1.5;   // [0.5:0.1:5] riser pads under each end
 switch_clip_t  = 1.2;   // [0.6:0.1:3]
-switch_clip_w  = 3;     // [1:0.5:10] clip width (across the switch)
+switch_clip_w  = 5;     // [1:0.5:10] clip width (across the switch)
 switch_hook    = 0.6;   // [0.2:0.05:2] hook overhang onto the switch top
 switch_base_slot = true; // cut the slot through the base too
-switch_r = 28; switch_a = 190;
+// wall along the switch's pogo-side (-y) face so it can't slide that way
+switch_wall    = true;
+// between the pogo and the LOLIN32, just inside the LED ring (travel along x)
+switch_x = 1.5; switch_y = -22.6;
 
 /* [Clip test plate] */
 test_motor_clears = [0.1, 0.2, 0.3];
@@ -349,8 +353,9 @@ module motor_clip(clear = motor_clear) {
 }
 // switch mount (pads + end clips), plate top at z = 0; travel along x
 module switch_mount() {
-  sw = switch_w + 2 * switch_clear; sd = switch_d + 2 * switch_clear;
+  sw = switch_w + switch_extra_w + 2 * switch_clear; sd = switch_d + 2 * switch_clear;
   top = switch_pad_h + switch_h + switch_clear;
+  if (switch_wall) translate([-sw / 2, -sd / 2 - pocket_wall, -0.01]) cube([sw, pocket_wall, switch_pad_h + switch_h + 0.01]);
   for (sx = [-1, 1]) {
     // riser pad under each end
     translate([sx > 0 ? sw / 2 - switch_pad_w : -sw / 2, -switch_d / 2, -0.01]) cube([switch_pad_w, switch_d, switch_pad_h + 0.01]);
@@ -484,7 +489,7 @@ module chassis_abs() {
       // motor U-clips (open at the top; the motor snaps in)
       translate([motor_x, motor_y, col_start]) rotate([0, 0, motor_angle]) motor_clip();
       // power switch
-      at_angle(switch_r, switch_a) translate([0, 0, col_start]) switch_mount();
+      translate([switch_x, switch_y]) translate([0, 0, col_start]) switch_mount();
       // flange ends inside the base: presser reaches down to it
       if (base_flange_gap > base_pogo_extra)
         at_angle(pogo_r, pogo_angle) translate([0, 0, pogo_depth + base_pogo_extra]) linear_extrude(base_flange_gap - base_pogo_extra + 0.01)
@@ -501,7 +506,7 @@ module chassis_abs() {
       translate([-lolin_chan_w / 2, -lolin_l / 2 - 0.5, 0]) cube([lolin_chan_w, lolin_l + 1, lolin_chan_d + 0.01]);
     // buzzer sound hole
     at_angle(buzzer_r, buzzer_a) translate([0, 0, base_t - 1]) cylinder(d = sound_hole_d, h = chassis_t + 2, $fn = 24);
-    at_angle(switch_r, switch_a) translate([0, 0, base_t - 1]) switch_slot(chassis_t + 2);
+    translate([switch_x, switch_y]) translate([0, 0, base_t - 1]) switch_slot(chassis_t + 2);
     // base magnets stick up 0.75 mm into the plate
     for (a = mag_angles) at_angle(mag_r, a)
       translate([0, 0, base_t - 0.01]) cylinder(d = mag_d + 0.4, h = mag_h - base_t + 0.1);
@@ -524,7 +529,7 @@ module base_upright() {
     }
     at_angle(pogo_r, pogo_angle) mirror([0, 0, 1]) pogo_cut();                      // spring pins
     for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -1]) cylinder(d = mag_hole_base, h = base_t + 2);
-    if (switch_base_slot) at_angle(switch_r, switch_a) translate([0, 0, -1]) switch_slot(base_t + 2);
+    if (switch_base_slot) translate([switch_x, switch_y]) translate([0, 0, -1]) switch_slot(base_t + 2);
     for (a = boss_angles) at_angle(boss_r, a) {
       translate([0, 0, -1]) cylinder(d = screw_clear, h = base_t + 2, $fn = 24);
       translate([0, 0, -0.01]) cylinder(d = screw_head_d, h = screw_head_h, $fn = 32);
