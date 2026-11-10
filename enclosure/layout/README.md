@@ -22,8 +22,8 @@ clearance round each part (`pocket_clear`); neighbours share walls. LED ring
 posts at 1 and 7 o'clock removed (`ring_posts`), 11 and 5 o'clock kept.
 No pocket walls on the chassis-wall side: the battery's left side and the
 LOLIN32's 12 o'clock end are closed by the clamp ring; behind the boost and
-the touch module the clamp ring itself is cut away (`ring_open_at_parts`),
-so those two are held by the ball wall (and hot glue).
+the touch module the clamp ring can be cut away (`ring_open_at_parts`),
+so those two would be held by the ball wall; off by default (ring kept).
 Angles are clockwise from 12 o'clock.
 
 | Part | Size (mm) | Placement |

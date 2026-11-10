@@ -180,3 +180,9 @@ for p in hat number ball base brim_clamp pogo_clamp; do
   openscad -D "part=\"$p\"" -o $p.stl pager_shell_test.scad
 done
 ```
+
+## chassis.step
+`chassis.step` is the current chassis for editing in Fusion 360 / other CAD.
+It is converted from the STL (OpenSCAD can't write STEP), so it is a valid
+solid but curved surfaces are faceted: flat faces are merged, round ones are
+many flat facets. Regenerate it after changing the chassis if you keep using it.

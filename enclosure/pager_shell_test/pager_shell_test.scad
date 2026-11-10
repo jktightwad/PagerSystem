@@ -144,7 +144,7 @@ pocket_wall    = 1.2;   // [0.6:0.1:3]
 pocket_h       = 5.0;   // [1:0.5:10] wall height above the plate
 pocket_clear   = 0.3;   // [0:0.05:1] gap round each part
 // cut the clamp ring away behind the boost and touch module
-ring_open_at_parts = true;
+ring_open_at_parts = false;
 // LED ring posts kept: [x sign, y sign] of the 4 holes (11 and 5 o'clock kept)
 ring_posts     = [[-1, 1], [1, -1]];
 // battery stand-in 30 x 35, left, sharing a wall with the LOLIN32
