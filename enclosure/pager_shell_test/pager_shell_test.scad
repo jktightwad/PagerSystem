@@ -208,6 +208,8 @@ switch_hook    = 0.6;   // [0.2:0.05:2] hook overhang onto the switch top
 switch_base_slot = true; // cut the slot through the base too
 // wall along the switch's pogo-side (-y) face so it can't slide that way
 switch_wall    = true;
+switch_wall_gap  = 0.6; // [0:0.1:3] gap from each clip so the clips can flex
+switch_wall_drop = 1.5; // [0:0.1:5] wall top below the switch body top
 // between the pogo and the LOLIN32, just inside the LED ring (travel along x)
 switch_x = 1.5; switch_y = -22.6;
 
@@ -355,7 +357,8 @@ module motor_clip(clear = motor_clear) {
 module switch_mount() {
   sw = switch_w + switch_extra_w + 2 * switch_clear; sd = switch_d + 2 * switch_clear;
   top = switch_pad_h + switch_h + switch_clear;
-  if (switch_wall) translate([-sw / 2 - switch_clip_t, -sd / 2 - pocket_wall, -0.01]) cube([sw + 2 * switch_clip_t, pocket_wall + 0.01, switch_pad_h + switch_h + 0.01]);
+  if (switch_wall) translate([-sw / 2 + switch_wall_gap, -sd / 2 - pocket_wall, -0.01])
+    cube([sw - 2 * switch_wall_gap, pocket_wall + 0.01, switch_pad_h + switch_h - switch_wall_drop + 0.01]);
   for (sx = [-1, 1]) {
     // riser pad under each end
     translate([sx > 0 ? sw / 2 - switch_pad_w : -sw / 2, -switch_d / 2, -0.01]) cube([switch_pad_w, switch_d, switch_pad_h + 0.01]);

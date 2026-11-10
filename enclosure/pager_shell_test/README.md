@@ -11,7 +11,7 @@ uses the last F6 render).
 - Motor clip +0.10 mm (tested best).
 - Switch: body 4.5 mm, 0.2 mm longer opening (`switch_extra_w`), 0.6 mm
   lower (`switch_tip_below` 0.6: slider tip 0.6 mm below the plate, into the
-  base slot), clips 5 mm wide, wall on the pogo side (`switch_wall`), moved
+  base slot), clips 5 mm wide, wall on the pogo side (`switch_wall`; 0.6 mm clear of each clip, top 1.5 mm below the body top), moved
   between the pogo and the LOLIN32 inside the LED ring (`switch_x/y`).
 
 ## v12 changes
