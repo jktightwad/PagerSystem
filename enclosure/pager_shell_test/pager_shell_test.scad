@@ -43,8 +43,8 @@ egg_small_d  = 62;
 egg_tip      = 1; // [0:0.1:10]
 ball_od      = 104;
 // ball face thickness, INCLUDING the brim pocket on its back
-ball_face_t  = 2.0; // [1.5:0.1:6]
-edge_r       = 2.0;
+ball_face_t  = 2.6; // [1.5:0.1:6]
+edge_r       = 5.0;
 protrude     = 1.5;    // crown face above the ball face
 crown_wall   = 1.6;
 // white face the light shines through
@@ -70,7 +70,7 @@ mag_pocket_d = 6.4; // [6:0.01:7]
 /* [Light] */
 // thickness of the white lit face; thicker adds material on the INSIDE,
 // so the outside height stays the same
-light_t      = 0.8; // [0.2:0.01:3]
+light_t      = 0.4; // [0.2:0.01:3]
 
 /* [Number] */
 number_text  = "2";
@@ -97,7 +97,7 @@ number_back  = 1.6;     // black number continues this far behind the lit face (
 
 /* [Body, screws and base] */
 // FREE height for electronics under the LED ring, on top of the minimum. The ball height is calculated from this.
-internal_h   = 4; // [0:0.1:60]
+internal_h   = 3; // [0:0.1:60]
 ball_wall    = 2.4;
 boss_d       = 7;
 // Shell screws: M2 x 8 mm self-tapping, head recessed fully in the base
@@ -126,7 +126,7 @@ ring_relief   = 0.2; // [0:0.01:2]
 // LED tops to the underside of the white face
 // LED tops below the TOP of the white face (sets the ball height; light_t
 // doesn't change it)
-led_depth     = 6.8; // [1:0.1:30]
+led_depth     = 7.8; // [1:0.1:30]
 ring_h        = 2.5;    // measured LED ring thickness
 ring_od       = 68.2;   // measured LED ring outside diameter
 ring_hole_cx  = 35.24;
@@ -159,6 +159,13 @@ lolin_y        = 16.9;
 lolin_chan_w   = 3.0;   // 1 mm channels under the long edges for the solder joints
 lolin_chan_d   = 1.0;
 lolin_pin_inset = 1.27;
+// tray side walls stop this much short of the board's pogo-side (6 o'clock) end
+lolin_tray_cut = 4;     // [0:0.5:20]
+// tab at the board's pogo-side end that stops it sliding towards the pogo
+lolin_tab_off  = 9.5;   // [0:0.1:25] from the battery-side (left) inside wall to the tab
+lolin_tab_w    = 5;     // [1:0.5:20]
+lolin_tab_h    = 4;     // [1:0.5:10]
+lolin_tab_t    = 2;     // [0.8:0.1:5]
 // boost board 10.5 x 11 at ~7 o'clock against the wall (angle clockwise from 12)
 // parts against the chassis wall get no back wall: they sit on the clamp ring.
 // *_gap moves the part in from the wall (0 = touching)
@@ -167,7 +174,7 @@ boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 205;
 buzzer_d = 9.2; buzzer_r = 28; buzzer_a = 190;
 sound_hole_d   = 2.0;
 // touch module 11 x 14 at ~4 o'clock, back against the wall and the screw column
-touch_w = 24; touch_l = 24.3; touch_gap = 0; touch_a = 117;
+touch_w = 24; touch_l = 24.3; touch_gap = 0; touch_a = 114;
 // vibration motor at ~3 o'clock, angled 45 deg towards the LOLIN32, in U-clips
 motor_d        = 7.0;
 motor_l        = 26;
@@ -398,7 +405,7 @@ module chassis_abs() {
       translate([0, 0, col_start - 0.01]) {
         intersection() {
           union() {
-            translate([lolin_x, lolin_y]) pocket_rect(lolin_w, lolin_l, open_bottom = true, open_back = true);
+            translate([lolin_x, lolin_y + lolin_tray_cut / 2]) pocket_rect(lolin_w, lolin_l - lolin_tray_cut, open_bottom = true, open_back = true);
           }
           translate([0, 0, -1]) linear_extrude(pocket_h + 2) chassis_inside_2d();
         }
@@ -412,6 +419,10 @@ module chassis_abs() {
         }
         at_angle(buzzer_r, buzzer_a) pocket_round(buzzer_d);
       }
+      // LOLIN32 stop tab, against the board's pogo-side end
+      translate([lolin_x - lolin_w / 2 - pocket_clear + lolin_tab_off,
+                 lolin_y - lolin_l / 2 - pocket_clear - lolin_tab_t, col_start - 0.01])
+        cube([lolin_tab_w, lolin_tab_t, lolin_tab_h + 0.01]);
       // motor U-clips (open at the top; the motor snaps in)
       translate([motor_x, motor_y, col_start]) rotate([0, 0, motor_angle])
         for (sy = [-1, 1]) translate([0, sy * (motor_l / 2 - clip_w), 0]) difference() {
