@@ -28,8 +28,8 @@ Angles are clockwise from 12 o'clock.
 | LOLIN32 Lite | 49.6 x 25.7 | Centre (4.15, 16.9), shifted right so the shared wall clears; USB-C / JST end (6 o'clock side) open; 1 mm channels under the long edges |
 | Boost (3-pin) | 10.5 x 11 | 205 deg (~7 o'clock), back on the clamp-ring wall (no pocket back wall; `boost_gap` moves it in) |
 | Buzzer | 9.2 dia | 190 deg (~6:30), r 28, just inside the LED ring; one sound hole through chassis plate and base |
-| TTP223 touch | 11 x 14 | 117 deg (~4 o'clock), back on the clamp-ring wall (no pocket back wall; `touch_gap`), facing the centre |
-| Vibration motor | 7 x 26 | Centre (32, 9), axis turned 45 deg towards the LOLIN32, two U-clips |
+| Touch module | 24 x 24.3 | 117 deg (~4 o'clock), back on the clamp-ring wall (no pocket back wall; `touch_gap`), facing the centre |
+| Vibration motor | 7 x 26 | Centre (32, 16), axis turned 45 deg towards the LOLIN32, two U-clips |
 
 All heights fit under the LED ring (9 mm): LOLIN32 ~6, battery ~5, boost
 ~4, buzzer 5.8.

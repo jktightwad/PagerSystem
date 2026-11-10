@@ -164,12 +164,12 @@ boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 205;
 buzzer_d = 9.2; buzzer_r = 28; buzzer_a = 190;
 sound_hole_d   = 2.0;
 // touch module 11 x 14 at ~4 o'clock, back against the wall and the screw column
-touch_w = 14; touch_l = 11; touch_gap = 0; touch_a = 117;
+touch_w = 24; touch_l = 24.3; touch_gap = 0; touch_a = 117;
 // vibration motor at ~3 o'clock, angled 45 deg towards the LOLIN32, in U-clips
 motor_d        = 7.0;
 motor_l        = 26;
 motor_x        = 32;
-motor_y        = 9;
+motor_y        = 16;
 motor_angle    = 45;    // axis rotation from 12-6 o'clock (CCW)
 clip_w         = 4;
 clip_wall      = 1.2;
