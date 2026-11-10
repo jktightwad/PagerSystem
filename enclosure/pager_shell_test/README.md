@@ -1,4 +1,4 @@
-# Pager shell test (v10)
+# Pager shell test (v11)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,18 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v11 changes
+- Lit face (`light_t`) 0.4 mm, ball face (`ball_face_t`) 2.6 mm to cut light
+  bleed at the rounded edge, edge radius (`edge_r`) 5 mm.
+- LED ring 1 mm lower: `led_depth` 7.8 (LED tops 7.4 mm below the lit face),
+  `internal_h` 3 so the ball stays 20.8 mm. Plate to brim bottom: 13.2 mm.
+- Chassis: touch module turned 3 deg counter-clockwise (`touch_a` 114) to
+  clear the screw column; LOLIN32 tray side walls 4 mm shorter at the pogo
+  end (`lolin_tray_cut`) with a stop tab at the board end (5 wide, 4 tall,
+  2 thick, 9.5 mm from the battery-side inside wall: `lolin_tab_*`).
+- Thicker face: magnet pocket now has a 0.25 mm cap below the brim; pogo
+  flange pocket needs no tongue.
 
 ## v6 changes (more room inside, base no longer proud)
 - **Hat brim 1 mm, sunk into a 1 mm pocket** in the back of the 3 mm ball
@@ -180,9 +192,3 @@ for p in hat number ball base brim_clamp pogo_clamp; do
   openscad -D "part=\"$p\"" -o $p.stl pager_shell_test.scad
 done
 ```
-
-## chassis.step
-`chassis.step` is the current chassis for editing in Fusion 360 / other CAD.
-It is converted from the STL (OpenSCAD can't write STEP), so it is a valid
-solid but curved surfaces are faceted: flat faces are merged, round ones are
-many flat facets. Regenerate it after changing the chassis if you keep using it.
