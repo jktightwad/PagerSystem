@@ -10,14 +10,26 @@ height): plate ~98.8 mm across; **9 mm under the LED ring** (68 mm circle in
 the middle), 13.8 mm outside it up to the brim. LED ring posts at
 (+-17.6, +-26.4).
 
-| Part | Size (mm) | Placement (x, y from the centre; +y = 12 o'clock) |
+**Current layout (general only, not final)** is modelled directly in the
+chassis (`pager_shell_test.scad`, "Component mounts" group); every position
+and angle is a Customizer setting. `layout_sketch.png` above is the older
+outline sketch.
+
+![Chassis layout](chassis_layout.png)
+
+Pockets: 1.2 mm walls (`pocket_wall`), 3 mm high (`pocket_h`), 0.3 mm
+clearance round each part (`pocket_clear`); neighbours share walls. LED ring
+posts at 1 and 7 o'clock removed (`ring_posts`), 11 and 5 o'clock kept.
+Angles are clockwise from 12 o'clock.
+
+| Part | Size (mm) | Placement |
 |---|---|---|
-| LOLIN32 Lite | 49.6 x 25.7 | Middle, flat on the plate, (0.15, 19.2): spans y -5.6 to +44, as far from the pogo as fits. USB-C / JST end towards 6 o'clock. 1 mm channels under both long edges for the solder joints (in the chassis model) |
-| Battery 500 mAh | 30 x 35 x ~5 | Left, (-28, 0) |
-| Boost (3-pin) | 10.5 x 11 | Lower left, (-31, -24) |
-| Buzzer | 9.2 x 5.8 | Lower left, (-22, -36); sound hole through chassis plate + base (in the model) |
-| Vibration motor | 7 x 26 | Right, (39.5, 0), in two U-clips (in the model) |
-| TTP223 touch | 11 x 14 | Right, (22, -12), over the stacking recess |
+| Battery (white stand-in) | 30 x 35 | Left, centre (-25.5, 2); shares its right wall with the LOLIN32 |
+| LOLIN32 Lite | 49.6 x 25.7 | Centre (4.15, 16.9), shifted right so the shared wall clears; USB-C / JST end (6 o'clock side) open; 1 mm channels under the long edges |
+| Boost (3-pin) | 10.5 x 11 | 205 deg (~7 o'clock), r 40.1, against the clamp-ring wall |
+| Buzzer | 9.2 dia | 190 deg (~6:30), r 28, just inside the LED ring; one sound hole through chassis plate and base |
+| TTP223 touch | 11 x 14 | 117 deg (~4 o'clock), r 40.15, back against the wall/screw column, facing the centre |
+| Vibration motor | 7 x 26 | Centre (32, 9), axis turned 45 deg towards the LOLIN32, two U-clips |
 
 All heights fit under the LED ring (9 mm): LOLIN32 ~6, battery ~5, boost
 ~4, buzzer 5.8.
