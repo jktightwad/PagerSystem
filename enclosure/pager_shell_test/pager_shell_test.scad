@@ -141,7 +141,7 @@ post_min      = ring_screw_l - ring_pcb_t + 0.6;   // shortest post that takes t
 // GENERAL LAYOUT ONLY (not final). Each part sits in a pocket of 1.2 mm walls
 // on the chassis plate; neighbouring pockets share walls. +y = 12 o'clock.
 pocket_wall    = 1.2;   // [0.6:0.1:3]
-pocket_h       = 3.0;   // [1:0.5:10] wall height above the plate
+pocket_h       = 5.0;   // [1:0.5:10] wall height above the plate
 pocket_clear   = 0.3;   // [0:0.05:1] gap round each part
 // LED ring posts kept: [x sign, y sign] of the 4 holes (11 and 5 o'clock kept)
 ring_posts     = [[-1, 1], [1, -1]];
@@ -157,12 +157,14 @@ lolin_chan_w   = 3.0;   // 1 mm channels under the long edges for the solder joi
 lolin_chan_d   = 1.0;
 lolin_pin_inset = 1.27;
 // boost board 10.5 x 11 at ~7 o'clock against the wall (angle clockwise from 12)
-boost_w = 10.5; boost_l = 11; boost_r = 40.1; boost_a = 205;
+// parts against the chassis wall get no back wall: they sit on the clamp ring.
+// *_gap moves the part in from the wall (0 = touching)
+boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 205;
 // buzzer 9.2 at ~6:30 just inside the LED ring; one sound hole through the plate
 buzzer_d = 9.2; buzzer_r = 28; buzzer_a = 190;
 sound_hole_d   = 2.0;
 // touch module 11 x 14 at ~4 o'clock, back against the wall and the screw column
-touch_w = 14; touch_l = 11; touch_r = 40.15; touch_a = 117;
+touch_w = 14; touch_l = 11; touch_gap = 0; touch_a = 117;
 // vibration motor at ~3 o'clock, angled 45 deg towards the LOLIN32, in U-clips
 motor_d        = 7.0;
 motor_l        = 26;
@@ -271,14 +273,22 @@ module number_2d() {
 }
 
 // rectangular pocket frame (inner = part + clearance), optional open end at -y
-module pocket_rect(w, l, open_bottom = false) {
+// open_back: no wall on the local +y side (radially outward when placed with
+// at_angle); side walls run on out to the chassis wall and are trimmed there
+module pocket_rect(w, l, open_bottom = false, open_back = false) {
   iw = w + 2 * pocket_clear; il = l + 2 * pocket_clear;
   linear_extrude(pocket_h) difference() {
-    square([iw + 2 * pocket_wall, il + 2 * pocket_wall], center = true);
-    square([iw, il], center = true);
+    if (open_back) translate([-iw / 2 - pocket_wall, -il / 2 - pocket_wall]) square([iw + 2 * pocket_wall, il + pocket_wall + 10]);
+    else square([iw + 2 * pocket_wall, il + 2 * pocket_wall], center = true);
+    translate([-iw / 2, -il / 2]) square([iw, open_back ? il + 20 : il]);
     if (open_bottom) translate([0, -il / 2]) square([iw, 2 * pocket_wall + 1], center = true);
   }
 }
+// inside of the clamp ring / columns (pockets are trimmed to this)
+module chassis_inside_2d() { offset(delta = -brim_gap_d / 2 - chassis_clear - clamp_ring_w) cavity_2d(); }
+inside_r = (ball_od - 2 * ball_wall) / 2 - brim_gap_d / 2 - chassis_clear - clamp_ring_w;
+// radius that puts a w x l part's back corners on the inside wall
+function wall_r(w, l, gap) = sqrt(pow(inside_r - gap, 2) - pow(w / 2 + pocket_clear, 2)) - l / 2 - pocket_clear;
 module pocket_round(d) {
   linear_extrude(pocket_h) difference() { circle(d = d + 2 * pocket_clear + 2 * pocket_wall); circle(d = d + 2 * pocket_clear); }
 }
@@ -375,9 +385,14 @@ module chassis_abs() {
       translate([0, 0, col_start - 0.01]) {
         translate([bat_x, bat_y]) pocket_rect(bat_w, bat_l);
         translate([lolin_x, lolin_y]) pocket_rect(lolin_w, lolin_l, open_bottom = true);
-        at_angle(boost_r, boost_a) pocket_rect(boost_w, boost_l);
+        intersection() {
+          union() {
+            at_angle(wall_r(boost_w, boost_l, boost_gap), boost_a) pocket_rect(boost_w, boost_l, open_back = true);
+            at_angle(wall_r(touch_w, touch_l, touch_gap), touch_a) pocket_rect(touch_w, touch_l, open_back = true);
+          }
+          translate([0, 0, -1]) linear_extrude(pocket_h + 2) chassis_inside_2d();
+        }
         at_angle(buzzer_r, buzzer_a) pocket_round(buzzer_d);
-        at_angle(touch_r, touch_a) pocket_rect(touch_w, touch_l);
       }
       // motor U-clips (open at the top; the motor snaps in)
       translate([motor_x, motor_y, col_start]) rotate([0, 0, motor_angle])
