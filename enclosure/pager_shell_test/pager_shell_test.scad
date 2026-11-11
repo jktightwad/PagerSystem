@@ -205,13 +205,13 @@ switch_pad_w   = 1.5;   // [0.5:0.1:5] riser pads under each end
 switch_clip_t  = 1.2;   // [0.6:0.1:3]
 switch_clip_w  = 5;     // [1:0.5:10] clip width (across the switch)
 switch_hook    = 0.6;   // [0.2:0.05:2] hook overhang onto the switch top
+switch_hook_t  = 0.6;   // [0:0.05:3] flat lip thickness at the hook tip (was 0: a knife edge)
 switch_base_slot = true; // cut the slot through the base too
 // wall along the switch's pogo-side (-y) face so it can't slide that way
-switch_wall    = true;
-switch_wall_gap  = 0.6; // [0:0.1:3] gap from each clip so the clips can flex
-switch_wall_drop = 1.5; // [0:0.1:5] wall top below the switch body top
-// between the pogo and the LOLIN32, just inside the LED ring (travel along x)
-switch_x = 1.5; switch_y = -22.6;
+switch_wall    = true;   // clip_test only (the chassis uses the boost wall)
+switch_wall_gap  = 0.6; // [0:0.1:3] gap between the clips and the wall so they can flex
+// against the front wall of the boost pocket; switch_dx slides it along that wall
+switch_dx = 0;          // [-10:0.1:10]
 
 /* [Clip test plate] */
 test_motor_clears = [0.1, 0.2, 0.3];
@@ -354,21 +354,32 @@ module motor_clip(clear = motor_clear) {
   }
 }
 // switch mount (pads + end clips), plate top at z = 0; travel along x
-module switch_mount() {
+// The -y side faces a wall (in the chassis: the boost pocket's front wall).
+// Clips stop switch_wall_gap short of that wall so they can flex.
+module switch_mount(own_wall = false) {
   sw = switch_w + switch_extra_w + 2 * switch_clear; sd = switch_d + 2 * switch_clear;
   top = switch_pad_h + switch_h + switch_clear;
-  if (switch_wall) translate([-sw / 2 + switch_wall_gap, -sd / 2 - pocket_wall, -0.01])
-    cube([sw - 2 * switch_wall_gap, pocket_wall + 0.01, switch_pad_h + switch_h - switch_wall_drop + 0.01]);
+  cw = min(switch_clip_w, sd - switch_wall_gap);
+  if (own_wall) translate([-sw / 2 - switch_clip_t - 2, -sd / 2 - pocket_wall, -0.01])
+    cube([sw + 2 * switch_clip_t + 4, pocket_wall, pocket_h + 0.01]);
   for (sx = [-1, 1]) {
     // riser pad under each end
     translate([sx > 0 ? sw / 2 - switch_pad_w : -sw / 2, -switch_d / 2, -0.01]) cube([switch_pad_w, switch_d, switch_pad_h + 0.01]);
-    // clip: arm outside the end, hook over the switch top, sloped lead-in
-    translate([sx * (sw / 2 + switch_clip_t / 2), 0, 0]) mirror([sx < 0 ? 1 : 0, 0, 0]) {
-      translate([-switch_clip_t / 2, -switch_clip_w / 2, -0.01]) cube([switch_clip_t, switch_clip_w, top + 0.01]);
-      translate([-switch_clip_t / 2, switch_clip_w / 2, top]) rotate([90, 0, 0])
-        linear_extrude(switch_clip_w) polygon([[0, 0], [-switch_hook, 0], [0, switch_hook * 2], [switch_clip_t, switch_hook * 2], [switch_clip_t, 0]]);
+    // clip: arm outside the end, hook over the switch top (flat lip + sloped lead-in)
+    translate([sx * (sw / 2 + switch_clip_t / 2), sd / 2 - cw / 2, 0]) mirror([sx < 0 ? 1 : 0, 0, 0]) {
+      translate([-switch_clip_t / 2, -cw / 2, -0.01]) cube([switch_clip_t, cw, top + 0.01]);
+      translate([-switch_clip_t / 2, cw / 2, top]) rotate([90, 0, 0])
+        linear_extrude(cw) polygon([[0, 0], [-switch_hook, 0], [-switch_hook, switch_hook_t],
+                                    [0, switch_hook_t + switch_hook * 2], [switch_clip_t, switch_hook_t + switch_hook * 2], [switch_clip_t, 0]]);
     }
   }
+}
+// switch frame: against the boost pocket's front (centre-side) wall, rotated so
+// the switch's -y side faces that wall
+module switch_place() {
+  at_angle(wall_r(boost_w, boost_l, boost_gap), boost_a)
+    translate([switch_dx, -(boost_l / 2 + pocket_clear) - pocket_wall - (switch_d / 2 + switch_clear)])
+      rotate([0, 0, 180]) children();
 }
 module switch_slot(h) { translate([-switch_slot_l / 2, -switch_slot_w / 2, 0]) cube([switch_slot_l, switch_slot_w, h]); }
 module bosses_2d() { for (a = boss_angles) at_angle(boss_r, a) circle(d = boss_d); }
@@ -492,7 +503,7 @@ module chassis_abs() {
       // motor U-clips (open at the top; the motor snaps in)
       translate([motor_x, motor_y, col_start]) rotate([0, 0, motor_angle]) motor_clip();
       // power switch
-      translate([switch_x, switch_y]) translate([0, 0, col_start]) switch_mount();
+      switch_place() translate([0, 0, col_start]) switch_mount();
       // flange ends inside the base: presser reaches down to it
       if (base_flange_gap > base_pogo_extra)
         at_angle(pogo_r, pogo_angle) translate([0, 0, pogo_depth + base_pogo_extra]) linear_extrude(base_flange_gap - base_pogo_extra + 0.01)
@@ -509,7 +520,7 @@ module chassis_abs() {
       translate([-lolin_chan_w / 2, -lolin_l / 2 - 0.5, 0]) cube([lolin_chan_w, lolin_l + 1, lolin_chan_d + 0.01]);
     // buzzer sound hole
     at_angle(buzzer_r, buzzer_a) translate([0, 0, base_t - 1]) cylinder(d = sound_hole_d, h = chassis_t + 2, $fn = 24);
-    translate([switch_x, switch_y]) translate([0, 0, base_t - 1]) switch_slot(chassis_t + 2);
+    switch_place() translate([0, 0, base_t - 1]) switch_slot(chassis_t + 2);
     // base magnets stick up 0.75 mm into the plate
     for (a = mag_angles) at_angle(mag_r, a)
       translate([0, 0, base_t - 0.01]) cylinder(d = mag_d + 0.4, h = mag_h - base_t + 0.1);
@@ -532,7 +543,7 @@ module base_upright() {
     }
     at_angle(pogo_r, pogo_angle) mirror([0, 0, 1]) pogo_cut();                      // spring pins
     for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -1]) cylinder(d = mag_hole_base, h = base_t + 2);
-    if (switch_base_slot) translate([switch_x, switch_y]) translate([0, 0, -1]) switch_slot(base_t + 2);
+    if (switch_base_slot) switch_place() translate([0, 0, -1]) switch_slot(base_t + 2);
     for (a = boss_angles) at_angle(boss_r, a) {
       translate([0, 0, -1]) cylinder(d = screw_clear, h = base_t + 2, $fn = 24);
       translate([0, 0, -0.01]) cylinder(d = screw_head_d, h = screw_head_h, $fn = 32);
@@ -566,7 +577,7 @@ module clip_test() {
       linear_extrude(1) text(str("+", round(test_motor_clears[i] * 100)), size = 3.5,
                              font = "Liberation Sans:style=Bold", halign = "center");
   }
-  translate([10, 0, chassis_t]) switch_mount();
+  translate([10, 0, chassis_t]) switch_mount(own_wall = switch_wall);
   for (i = [0 : n - 1]) translate([22 + i * pitch + pitch / 2, 2, chassis_t]) motor_clip(test_motor_clears[i]);
 }
 

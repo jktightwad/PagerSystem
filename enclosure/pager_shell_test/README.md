@@ -1,4 +1,4 @@
-# Pager shell test (v13)
+# Pager shell test (v14)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,13 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v14 changes
+- Switch hooks about twice as strong: flat 0.6 mm lip at the tip
+  (`switch_hook_t`) under the sloped lead-in, instead of a knife edge.
+- Switch moved against the boost pocket's front wall, which is now its back
+  wall (own wall removed in the chassis). Clips stop 0.6 mm short of that
+  wall (`switch_wall_gap`) so they can flex. `clip_test` has a matching wall.
 
 ## v13 changes
 - Motor clip +0.10 mm (tested best).
