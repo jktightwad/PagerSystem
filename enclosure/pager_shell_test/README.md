@@ -1,4 +1,4 @@
-# Pager shell test (v15)
+# Pager shell test (v16)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,15 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v16 changes
+- Switch clip arms 1.6 mm with a 1 mm cove at the base outside
+  (`switch_cove_r`); inside the cove is 0.3 mm (limited by the 0.4 mm gap to
+  the riser pad). Test plate: 1.2 / 1.6 / 2.0 mm arms.
+- Motor clip wall 1.6 mm (`clip_wall`, was 1.2).
+- LOLIN32 tray 0.12 mm narrower (`lolin_w_adj`: printed 25.85 for a 25.8
+  design); the battery-side wall stays, the other moves in. Stop tab 0.9 mm
+  closer to the board (`lolin_len_adj`) for the ~1 mm length play.
 
 ## v15 changes
 - Switch clips broke at the base. The riser pads were fused to the inside

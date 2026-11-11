@@ -156,6 +156,11 @@ bat_w = 35; bat_l = 30; bat_gap = 0; bat_y = 4;
 lolin_w        = 25.7;
 lolin_l        = 49.6;
 lolin_clear    = 0.05;  // [0:0.01:0.5] per side
+// print correction on the tray width (printed 25.85 for a 25.8 design): the
+// battery-side wall stays put, the other wall moves in
+lolin_w_adj    = -0.12; // [-1:0.01:1]
+// moves the stop tab towards the board (+) to take up length play
+lolin_len_adj  = 0.9;   // [-3:0.05:3]
 lolin_gap      = 0;     // [0:0.1:10] board top end to the clamp ring
 lolin_chan_w   = 3.0;   // 1 mm channels under the long edges for the solder joints
 lolin_chan_d   = 1.0;
@@ -184,7 +189,7 @@ motor_x        = 32;
 motor_y        = 16;
 motor_angle    = 45;    // axis rotation from 12-6 o'clock (CCW)
 clip_w         = 8;     // [2:0.5:20] clip length along the motor
-clip_wall      = 1.2;   // [0.6:0.1:3]
+clip_wall      = 1.6;   // [0.6:0.1:3]
 clip_h         = 5.5;
 motor_clear    = 0.1;   // [0:0.05:1] added to the motor diameter in the clip
 clip_open      = 0.84;  // [0.5:0.01:0.95] snap opening as a fraction of motor_d
@@ -202,7 +207,10 @@ switch_tip_below = 0.6; // [0:0.1:5]
 switch_slot_l  = 5.75;  // [1:0.01:20] slot along the travel
 switch_slot_w  = 2.2;   // [0.5:0.05:6] slot width (MEASURE the slider)
 switch_pad_w   = 1.5;   // [0.5:0.1:5] riser pads under each end
-switch_clip_t  = 1.2;   // [0.6:0.1:4] clip arm thickness (flex direction)
+switch_clip_t  = 1.6;   // [0.6:0.1:4] clip arm thickness (flex direction)
+// cove (concave fillet) where each clip arm meets the plate; the inner one is
+// limited to fit the gap to the riser pad
+switch_cove_r  = 1.0;   // [0:0.1:3]
 // gap between each riser pad and its clip (0 = pad fused to the arm, which
 // shortens the flexing length and concentrates the bend at the pad top)
 switch_pad_gap = 0.4;   // [0:0.1:1.4]
@@ -219,7 +227,7 @@ switch_dx = 0;          // [-10:0.1:10]
 /* [Clip test plate] */
 test_motor_clears = [0.1, 0.2, 0.3];
 // switch mounts on the test plate, one per clip arm thickness
-test_switch_clip_ts = [1.2, 1.6, 2.4];
+test_switch_clip_ts = [1.2, 1.6, 2.0];
 
 /* [Pogo connector] */
 // hole for the oval body through the face (connector 13.15)
@@ -344,7 +352,7 @@ module pocket_round(d) {
 // battery / LOLIN32 placement (computed from the clamp ring)
 bat_ytop = max(abs(bat_y + bat_w / 2 + pocket_clear), abs(bat_y - bat_w / 2 - pocket_clear));
 bat_cx   = -sqrt(pow(inside_r - bat_gap, 2) - pow(bat_ytop, 2)) + pocket_clear + bat_l / 2;
-lolin_x  = bat_cx + bat_l / 2 + pocket_clear + pocket_wall + lolin_clear + lolin_w / 2;
+lolin_x  = bat_cx + bat_l / 2 + pocket_clear + pocket_wall + lolin_clear + (lolin_w + lolin_w_adj) / 2;
 lolin_xmax = max(abs(lolin_x - lolin_w / 2 - lolin_clear), abs(lolin_x + lolin_w / 2 + lolin_clear));
 lolin_y  = sqrt(pow(inside_r - lolin_gap, 2) - pow(lolin_xmax, 2)) - lolin_clear - lolin_l / 2;
 buzzer_r = inside_r - buzzer_gap - pocket_clear - buzzer_d / 2;
@@ -377,6 +385,12 @@ module switch_mount(own_wall = false, ct = switch_clip_t) {
     // clip: arm outside the end, hook over the switch top (flat lip + sloped lead-in)
     translate([sx * (sw / 2 + ct / 2), sd / 2 - cw / 2, 0]) mirror([sx < 0 ? 1 : 0, 0, 0]) {
       translate([-ct / 2, -cw / 2, -0.01]) cube([ct, cw, top + 0.01]);
+      // coves at the arm base: outer full size, inner kept 0.1 short of the pad
+      ri = min(switch_cove_r, switch_pad_gap - 0.1);
+      translate([0, cw / 2, 0]) rotate([90, 0, 0]) linear_extrude(cw) {
+        translate([ct / 2, 0]) cove_2d(switch_cove_r);
+        if (ri > 0) translate([-ct / 2, 0]) mirror([1, 0]) cove_2d(ri);
+      }
       translate([-ct / 2, cw / 2, top]) rotate([90, 0, 0])
         linear_extrude(cw) polygon([[0, 0], [-switch_hook, 0], [-switch_hook, switch_hook_t],
                                     [0, switch_hook_t + switch_hook * 2], [ct, switch_hook_t + switch_hook * 2], [ct, 0]]);
@@ -390,6 +404,7 @@ module switch_place() {
     translate([switch_dx, -(boost_l / 2 + pocket_clear) - pocket_wall - (switch_d / 2 + switch_clear)])
       rotate([0, 0, 180]) children();
 }
+module cove_2d(r) { difference() { square([r, r]); translate([r, r]) circle(r = r, $fn = 32); } }
 module switch_slot(h) { translate([-switch_slot_l / 2, -switch_slot_w / 2, 0]) cube([switch_slot_l, switch_slot_w, h]); }
 module bosses_2d() { for (a = boss_angles) at_angle(boss_r, a) circle(d = boss_d); }
 module cavity_2d() {
@@ -491,7 +506,7 @@ module chassis_abs() {
       translate([0, 0, col_start - 0.01]) {
         intersection() {
           union() {
-            translate([lolin_x, lolin_y + lolin_tray_cut / 2]) pocket_rect(lolin_w, lolin_l - lolin_tray_cut, open_bottom = true, open_back = true, clear = lolin_clear);
+            translate([lolin_x, lolin_y + lolin_tray_cut / 2]) pocket_rect(lolin_w + lolin_w_adj, lolin_l - lolin_tray_cut, open_bottom = true, open_back = true, clear = lolin_clear);
           }
           translate([0, 0, -1]) linear_extrude(pocket_h + 2) chassis_inside_2d();
         }
@@ -506,8 +521,8 @@ module chassis_abs() {
         }
       }
       // LOLIN32 stop tab, against the board's pogo-side end
-      translate([lolin_x - lolin_w / 2 - lolin_clear + lolin_tab_off,
-                 lolin_y - lolin_l / 2 - lolin_clear - lolin_tab_t, col_start - 0.01])
+      translate([lolin_x - (lolin_w + lolin_w_adj) / 2 - lolin_clear + lolin_tab_off,
+                 lolin_y - lolin_l / 2 - lolin_clear - lolin_tab_t + lolin_len_adj, col_start - 0.01])
         cube([lolin_tab_w, lolin_tab_t, lolin_tab_h + 0.01]);
       // motor U-clips (open at the top; the motor snaps in)
       translate([motor_x, motor_y, col_start]) rotate([0, 0, motor_angle]) motor_clip();
