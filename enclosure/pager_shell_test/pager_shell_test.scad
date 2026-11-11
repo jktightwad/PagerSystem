@@ -205,7 +205,7 @@ switch_pad_w   = 1.5;   // [0.5:0.1:5] riser pads under each end
 switch_clip_t  = 1.2;   // [0.6:0.1:4] clip arm thickness (flex direction)
 // gap between each riser pad and its clip (0 = pad fused to the arm, which
 // shortens the flexing length and concentrates the bend at the pad top)
-switch_pad_gap = 0.6;   // [0:0.1:1.4]
+switch_pad_gap = 0.4;   // [0:0.1:1.4]
 switch_clip_w  = 5;     // [1:0.5:10] clip width (across the switch)
 switch_hook    = 0.6;   // [0.2:0.05:2] hook overhang onto the switch top
 switch_hook_t  = 0.6;   // [0:0.05:3] flat lip thickness at the hook tip (was 0: a knife edge)
@@ -348,6 +348,8 @@ lolin_x  = bat_cx + bat_l / 2 + pocket_clear + pocket_wall + lolin_clear + lolin
 lolin_xmax = max(abs(lolin_x - lolin_w / 2 - lolin_clear), abs(lolin_x + lolin_w / 2 + lolin_clear));
 lolin_y  = sqrt(pow(inside_r - lolin_gap, 2) - pow(lolin_xmax, 2)) - lolin_clear - lolin_l / 2;
 buzzer_r = inside_r - buzzer_gap - pocket_clear - buzzer_d / 2;
+// riser pad height: slider length minus the plate thickness, so the slider
+// tip ends switch_tip_below under the plate (into the base slot)
 switch_pad_h = switch_slider_l - chassis_t - switch_tip_below;
 // motor clip, plate top at z = 0, motor axis along y
 module motor_clip(clear = motor_clear) {
@@ -615,3 +617,6 @@ assert(ring_bottom + ring_h <= face_back + brim_bot || crown_inner_min >= ring_o
        "LED ring is inside the crown hollow but the crown is too narrow for it (reduce crown_wall or lower the ring)");
 assert(base_t >= protrude + 0.3, "base_t must be at least protrude + 0.3 (stacking recess depth)");
 assert(screw_head_h < base_t - 0.3, "counterbore too deep for the base: less than 0.3 mm left under the screw head");
+echo(str("Switch: riser pads ", switch_pad_h, " mm (slider ", switch_slider_l, " - plate ", chassis_t,
+         " - tip below plate ", switch_tip_below, "); clip hook at ", switch_pad_h + switch_h + switch_clear, " mm above the plate"));
+assert(switch_pad_h > 0, "switch riser pads would be <= 0 mm: slider shorter than plate + switch_tip_below");
