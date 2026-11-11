@@ -1,4 +1,4 @@
-# Pager shell test (v14)
+# Pager shell test (v15)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,14 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v15 changes
+- Switch clips broke at the base. The riser pads were fused to the inside
+  of each clip arm, so the arm only bent above the pad top (~4.5 mm of arm
+  instead of ~6.3). Pads now stop 0.6 mm short of the arms (`switch_pad_gap`).
+- Clip arms 2.4 mm thick (`switch_clip_t`, was 1.2).
+- `clip_test` has three switch mounts with 1.2 / 1.6 / 2.4 mm arms
+  (`test_switch_clip_ts`), labelled with the thickness.
 
 ## v14 changes
 - Switch hooks about twice as strong: flat 0.6 mm lip at the tip
