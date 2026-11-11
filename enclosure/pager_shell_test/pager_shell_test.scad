@@ -202,7 +202,7 @@ switch_tip_below = 0.6; // [0:0.1:5]
 switch_slot_l  = 5.75;  // [1:0.01:20] slot along the travel
 switch_slot_w  = 2.2;   // [0.5:0.05:6] slot width (MEASURE the slider)
 switch_pad_w   = 1.5;   // [0.5:0.1:5] riser pads under each end
-switch_clip_t  = 2.4;   // [0.6:0.1:4] clip arm thickness (flex direction)
+switch_clip_t  = 1.2;   // [0.6:0.1:4] clip arm thickness (flex direction)
 // gap between each riser pad and its clip (0 = pad fused to the arm, which
 // shortens the flexing length and concentrates the bend at the pad top)
 switch_pad_gap = 0.6;   // [0:0.1:1.4]

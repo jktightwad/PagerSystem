@@ -11,7 +11,7 @@ uses the last F6 render).
 - Switch clips broke at the base. The riser pads were fused to the inside
   of each clip arm, so the arm only bent above the pad top (~4.5 mm of arm
   instead of ~6.3). Pads now stop 0.6 mm short of the arms (`switch_pad_gap`).
-- Clip arms 2.4 mm thick (`switch_clip_t`, was 1.2).
+- Clip arms back to 1.2 mm (`switch_clip_t`): 1.2 tested fine once the pads were separated.
 - `clip_test` has three switch mounts with 1.2 / 1.6 / 2.4 mm arms
   (`test_switch_clip_ts`), labelled with the thickness.
 
