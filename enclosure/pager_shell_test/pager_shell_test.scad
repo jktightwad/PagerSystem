@@ -573,6 +573,7 @@ module base_upright() {
     at_angle(pogo_r, pogo_angle) mirror([0, 0, 1]) pogo_cut();                      // spring pins
     for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -1]) cylinder(d = mag_hole_base, h = base_t + 2);
     if (switch_base_slot) switch_place() translate([0, 0, -1]) switch_slot(base_t + 2);
+    at_angle(buzzer_r, buzzer_a) translate([0, 0, -1]) cylinder(d = sound_hole_d, h = base_t + 2, $fn = 24);   // buzzer sound hole
     for (a = boss_angles) at_angle(boss_r, a) {
       translate([0, 0, -1]) cylinder(d = screw_clear, h = base_t + 2, $fn = 24);
       translate([0, 0, -0.01]) cylinder(d = screw_head_d, h = screw_head_h, $fn = 32);
