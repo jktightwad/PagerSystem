@@ -1,4 +1,4 @@
-# Pager shell test (v16)
+# Pager shell test (v17)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,12 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v17 changes
+- Hat brim top lowered 0.3 mm in the model (`brim_sag_comp`): the brim top
+  prints over supports and sagged, so the crown stood 2.8 mm above the brim
+  instead of 3.1 (protruding ~1.08 instead of 1.5). Set to 0 if your support
+  settings don't sag.
 
 ## v16 changes
 - Switch clip arms 1.6 mm with a 1 mm cove at the base outside

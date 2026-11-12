@@ -58,6 +58,11 @@ brim_t       = 2.0; // [0.6:0.1:6]
 brim_sink    = 1.0; // [0:0.1:3]
 // brim smaller than the ball's inside (diameter)
 brim_gap_d   = 0.5; // [0:0.01:2]
+// print compensation: the brim's top face prints over supports (hat face
+// down) and sags towards the crown. The model's brim top is lowered by this
+// much so the printed crown stands the full protrude above the ball face.
+// Measured: brim top to crown top printed 2.8 for 3.1 designed.
+brim_sag_comp = 0.3; // [0:0.05:1]
 column_fillet = 3;
 // minimum plastic under a magnet / the pogo flange; where the brim is too
 // thin, a cap / tongue is added underneath to reach this
@@ -418,7 +423,7 @@ module tongue_2d() { at_angle(pogo_r, pogo_angle) stadium_2d(flange_pocket_l + 4
 module hat_upright() {
   difference() {
     union() {
-      translate([0, 0, brim_bot]) linear_extrude(brim_t) brim_2d();
+      translate([0, 0, brim_bot]) linear_extrude(brim_t - brim_sag_comp) brim_2d();
       translate([0, 0, brim_bot]) linear_extrude(hat_h - brim_bot - crown_chamfer) egg_2d(-crown_clear_d / 2);
       if (crown_chamfer > 0) hull() {
         translate([0, 0, hat_h - crown_chamfer]) linear_extrude(0.01) egg_2d(-crown_clear_d / 2);
