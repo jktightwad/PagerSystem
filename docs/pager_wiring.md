@@ -39,7 +39,7 @@ is on.
 | WS2812 ring DI (data in) | GPIO 26 | 330 Ω series resistor, close to the ring. DO not connected |
 | Active buzzer | GPIO 25 | 1 kΩ to NPN base |
 | Vibration motor (3 V coreless) | GPIO 27 | NPN (330 Ω) or logic-level MOSFET, see below |
-| Touch module OUT (acknowledge) | GPIO 33 | Module VCC to 3V3, GND to GND, OUT to GPIO 33. Sketch assumes OUT goes HIGH when touched (`TOUCH_ACTIVE_HIGH 1`); set 0 for a plain button to GND. RTC pin, can wake from deep sleep |
+| Touch module OUT (acknowledge) | GPIO 4 | Module VCC to 3V3, GND to GND, OUT to GPIO 4. Sketch assumes OUT goes HIGH when touched (`TOUCH_ACTIVE_HIGH 1`); set 0 for a plain button to GND. RTC pin, can wake from deep sleep |
 | Dock sense | GPIO 34 | 100 kΩ / 100 kΩ divider from the pogo 5 V (before the diode) |
 | Battery voltage | GPIO 35 | 100 kΩ / 100 kΩ divider from battery + |
 | Onboard LED | GPIO 22 | On the board |
