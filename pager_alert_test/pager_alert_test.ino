@@ -24,7 +24,11 @@
 #define PIN_RING      26   // WS2812 DIN, via 330 ohm resistor
 #define PIN_BEEPER    25   // NPN base (1k) -> piezo
 #define PIN_VIBE      27   // NPN base (330R-1k) or logic-level MOSFET gate (100R) -> motor
-#define PIN_BUTTON    33   // to GND; RTC pin so it can wake from deep sleep later
+#define PIN_BUTTON    33   // touch module OUT (or a button to GND); RTC pin, can wake from deep sleep
+// 1 = touch module that drives its output HIGH when touched (TTP223-style
+// modules do by default). 0 = plain button to GND (internal pull-up).
+#define TOUCH_ACTIVE_HIGH 1
+#define PRESSED_LEVEL  (TOUCH_ACTIVE_HIGH ? HIGH : LOW)
 #define PIN_DOCK_ADC  34   // 100k/100k divider from the dock 5 V tap (ADC1)
 #define PIN_BATT_ADC  35   // 100k/100k divider from battery + (ADC1)
 #define PIN_BOARD_LED 22   // onboard LED (believed active LOW)
@@ -98,7 +102,7 @@ bool onDock() { return readVolts(PIN_DOCK_ADC) > 4.0f; }
 
 // Debounced press detection (true once per press)
 bool buttonPressed() {
-  static bool last = HIGH;
+  static bool last = !PRESSED_LEVEL;
   static uint32_t changedAt = 0;
   static bool reported = false;
   bool now = digitalRead(PIN_BUTTON);
@@ -107,7 +111,7 @@ bool buttonPressed() {
     changedAt = millis();
     reported = false;
   }
-  if (now == LOW && !reported && millis() - changedAt > 30) {
+  if (now == PRESSED_LEVEL && !reported && millis() - changedAt > 30) {
     reported = true;
     return true;
   }
@@ -307,7 +311,7 @@ void printStatus() {
   Serial.printf("Battery %.2f V | Dock input %.2f V (%s) | Button %s\n",
                 readVolts(PIN_BATT_ADC), readVolts(PIN_DOCK_ADC),
                 onDock() ? "ON DOCK" : "off dock",
-                digitalRead(PIN_BUTTON) == LOW ? "pressed" : "released");
+                digitalRead(PIN_BUTTON) == PRESSED_LEVEL ? "pressed" : "released");
 }
 
 // Play the plain DC beep (an active buzzer's own tone) as a loudness reference
@@ -347,7 +351,7 @@ void setup() {
   Serial.begin(115200);
   pinMode(PIN_BEEPER, OUTPUT);
   ledcAttach(PIN_VIBE, 20000, 8);  // 20 kHz, 8-bit duty
-  pinMode(PIN_BUTTON, INPUT_PULLUP);
+  pinMode(PIN_BUTTON, TOUCH_ACTIVE_HIGH ? INPUT_PULLDOWN : INPUT_PULLUP);
   pinMode(PIN_BOARD_LED, OUTPUT);
   digitalWrite(PIN_BOARD_LED, HIGH);
   analogSetAttenuation(ADC_11db);  // ~0-3.1 V input range
