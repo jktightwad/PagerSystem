@@ -24,7 +24,7 @@
 #define PIN_RING      26   // WS2812 DIN, via 330 ohm resistor
 #define PIN_BEEPER    25   // NPN base (1k) -> piezo
 #define PIN_VIBE      27   // NPN base (330R-1k) or logic-level MOSFET gate (100R) -> motor
-#define PIN_BUTTON     4   // touch module OUT (or a button to GND); RTC pin, can wake from deep sleep
+#define PIN_BUTTON    13   // touch module OUT (or a button to GND); RTC pin, can wake from deep sleep
 // 1 = touch module that drives its output HIGH when touched (TTP223-style
 // modules do by default). 0 = plain button to GND (internal pull-up).
 #define TOUCH_ACTIVE_HIGH 1
