@@ -1,4 +1,4 @@
-# Pager shell test (v18)
+# Pager shell test (v19)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,12 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v19 changes
+- Hat stands 1.7 mm above the ball face (`protrude`, was 1.5) with the ball
+  unchanged: `internal_h` 3.2 (was 3) keeps the ball 20.8 mm. The LED ring
+  and its posts move up 0.2 mm with the face, so the LED-to-face distance is
+  the same. 1.7 is the most the 2 mm stacking recess allows.
 
 ## v18 changes
 - Buzzer moved beside the LOLIN32's back (12 o'clock) end, on the side away

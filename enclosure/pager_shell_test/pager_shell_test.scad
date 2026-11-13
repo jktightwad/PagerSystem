@@ -45,7 +45,7 @@ ball_od      = 104;
 // ball face thickness, INCLUDING the brim pocket on its back
 ball_face_t  = 2.6; // [1.5:0.1:6]
 edge_r       = 5.0;
-protrude     = 1.5;    // crown face above the ball face
+protrude     = 1.7;    // crown face above the ball face
 crown_wall   = 1.6;
 // white face the light shines through
 
@@ -102,7 +102,7 @@ number_back  = 1.6;     // black number continues this far behind the lit face (
 
 /* [Body, screws and base] */
 // FREE height for electronics under the LED ring, on top of the minimum. The ball height is calculated from this.
-internal_h   = 3; // [0:0.1:60]
+internal_h   = 3.2; // [0:0.1:60]
 ball_wall    = 2.4;
 boss_d       = 7;
 // Shell screws: M2 x 8 mm self-tapping, head recessed fully in the base
