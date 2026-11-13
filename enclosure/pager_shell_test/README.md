@@ -1,4 +1,4 @@
-# Pager shell test (v17)
+# Pager shell test (v18)
 
 Pool-ball pager shell. Source: `pager_shell_test.scad` (OpenSCAD; open the
 Customizer for grouped settings and dropdowns). To export one part: choose
@@ -6,6 +6,13 @@ Customizer for grouped settings and dropdowns). To export one part: choose
 uses the last F6 render).
 
 ![Preview](preview.png)
+
+## v18 changes
+- Buzzer moved beside the LOLIN32's back (12 o'clock) end, on the side away
+  from the battery, sharing the LOLIN32's wall (~31 deg); its sound hole
+  through the plate and the base moved with it.
+- Battery top/bottom walls cut to 9 mm from the wall shared with the
+  LOLIN32 (`bat_wall_keep`), leaving room for other battery shapes.
 
 ## v17 changes
 - Hat brim top lowered 0.3 mm in the model (`brim_sag_comp`): the brim top

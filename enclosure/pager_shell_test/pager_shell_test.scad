@@ -156,6 +156,9 @@ ring_posts     = [[-1, 1], [1, -1]];
 // bat_y moves it along the wall (+ = towards 12 o'clock). Its inner wall is
 // shared with the LOLIN32, which is placed from it automatically.
 bat_w = 35; bat_l = 30; bat_gap = 0; bat_y = 4;
+// battery top/bottom walls: keep only this much, measured from the wall shared
+// with the LOLIN32 (room for a longer/narrower battery near the chassis wall)
+bat_wall_keep = 9;      // [0:0.5:40]
 // LOLIN32 Lite: snug tray (lolin_clear per side); top end against the clamp
 // ring at 12 o'clock, held at the pogo end by a tab. USB/JST end open.
 lolin_w        = 25.7;
@@ -183,7 +186,11 @@ lolin_tab_t    = 2;     // [0.8:0.1:5]
 boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 205;
 // buzzer 9.2 on the wall between the 7:30 screw column and the battery;
 // one sound hole through the plate
-buzzer_d = 9.2; buzzer_gap = 0; buzzer_a = 241;
+buzzer_d = 9.2; buzzer_gap = 0;
+// buzzer angle (clockwise from 12); -1 = auto: on the wall beside the LOLIN32's
+// back (12 o'clock) end, on the side away from the battery, sharing the
+// LOLIN32's wall
+buzzer_a = -1;
 sound_hole_d   = 2.0;
 // touch module at ~4 o'clock, back against the wall
 touch_w = 24; touch_l = 24.3; touch_gap = 0; touch_a = 114;
@@ -361,6 +368,8 @@ lolin_x  = bat_cx + bat_l / 2 + pocket_clear + pocket_wall + lolin_clear + (loli
 lolin_xmax = max(abs(lolin_x - lolin_w / 2 - lolin_clear), abs(lolin_x + lolin_w / 2 + lolin_clear));
 lolin_y  = sqrt(pow(inside_r - lolin_gap, 2) - pow(lolin_xmax, 2)) - lolin_clear - lolin_l / 2;
 buzzer_r = inside_r - buzzer_gap - pocket_clear - buzzer_d / 2;
+lolin_right_wall = lolin_x + (lolin_w + lolin_w_adj) / 2 + lolin_clear + pocket_wall;
+buzzer_ang = buzzer_a >= 0 ? buzzer_a : asin((lolin_right_wall + pocket_clear + buzzer_d / 2) / buzzer_r);
 // riser pad height: slider length minus the plate thickness, so the slider
 // tip ends switch_tip_below under the plate (into the base slot)
 switch_pad_h = switch_slider_l - chassis_t - switch_tip_below;
@@ -517,8 +526,11 @@ module chassis_abs() {
         }
         intersection() {
           union() {
-            translate([bat_cx, bat_y]) rotate([0, 0, 90]) pocket_rect(bat_w, bat_l, open_back = true);
-            at_angle(buzzer_r, buzzer_a) pocket_round(buzzer_d);
+            intersection() {
+              translate([bat_cx, bat_y]) rotate([0, 0, 90]) pocket_rect(bat_w, bat_l, open_back = true);
+              translate([bat_cx + bat_l / 2 + pocket_clear - bat_wall_keep, -100, -1]) cube([200, 200, pocket_h + 2]);
+            }
+            at_angle(buzzer_r, buzzer_ang) pocket_round(buzzer_d);
             at_angle(wall_r(boost_w, boost_l, boost_gap), boost_a) pocket_rect(boost_w, boost_l, open_back = true);
             at_angle(wall_r(touch_w, touch_l, touch_gap), touch_a) pocket_rect(touch_w, touch_l, open_back = true);
           }
@@ -548,7 +560,7 @@ module chassis_abs() {
     for (sx = [-1, 1]) translate([lolin_x + sx * (lolin_w / 2 - lolin_pin_inset), lolin_y, col_start - lolin_chan_d])
       translate([-lolin_chan_w / 2, -lolin_l / 2 - 0.5, 0]) cube([lolin_chan_w, lolin_l + 1, lolin_chan_d + 0.01]);
     // buzzer sound hole
-    at_angle(buzzer_r, buzzer_a) translate([0, 0, base_t - 1]) cylinder(d = sound_hole_d, h = chassis_t + 2, $fn = 24);
+    at_angle(buzzer_r, buzzer_ang) translate([0, 0, base_t - 1]) cylinder(d = sound_hole_d, h = chassis_t + 2, $fn = 24);
     switch_place() translate([0, 0, base_t - 1]) switch_slot(chassis_t + 2);
     // base magnets stick up 0.75 mm into the plate
     for (a = mag_angles) at_angle(mag_r, a)
@@ -573,7 +585,7 @@ module base_upright() {
     at_angle(pogo_r, pogo_angle) mirror([0, 0, 1]) pogo_cut();                      // spring pins
     for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, -1]) cylinder(d = mag_hole_base, h = base_t + 2);
     if (switch_base_slot) switch_place() translate([0, 0, -1]) switch_slot(base_t + 2);
-    at_angle(buzzer_r, buzzer_a) translate([0, 0, -1]) cylinder(d = sound_hole_d, h = base_t + 2, $fn = 24);   // buzzer sound hole
+    at_angle(buzzer_r, buzzer_ang) translate([0, 0, -1]) cylinder(d = sound_hole_d, h = base_t + 2, $fn = 24);   // buzzer sound hole
     for (a = boss_angles) at_angle(boss_r, a) {
       translate([0, 0, -1]) cylinder(d = screw_clear, h = base_t + 2, $fn = 24);
       translate([0, 0, -0.01]) cylinder(d = screw_head_d, h = screw_head_h, $fn = 32);
