@@ -23,7 +23,7 @@ use <fonts/LiberationSans-Bold.ttf>
 use <fonts/DejaVuSerif-Bold.ttf>
 
 /* [Part to show / export] */
-part = "all"; // [all, ball, white, number, base, pogo_clamp]
+part = "all"; // [all, ball, white, number, base, pogo_clamp, pogo_test]
 
 /* [Ball] */
 ball_od      = 104;
@@ -443,7 +443,7 @@ module switch_place() {
 module switch_slot(h) { translate([-switch_slot_l / 2, -switch_slot_w / 2, 0]) cube([switch_slot_l, switch_slot_w, h]); }
 
 // ================= Base (upright = print orientation) ======================
-module base_part() {
+module base_part(parts = true) {
   difference() {
     intersection() {
     // everything stays inside the ball wall
@@ -465,7 +465,7 @@ module base_part() {
         pogo_forks(base_flange_back + clamp_t, base_t - 0.01, 1);
       }
       // component pockets
-      translate([0, 0, base_t - 0.01]) intersection() {
+      if (parts) translate([0, 0, base_t - 0.01]) intersection() {
         union() {
           translate([lolin_x, lolin_y + lolin_tray_cut / 2])
             pocket_rect(lolin_w + lolin_w_adj, lolin_l - lolin_tray_cut, open_bottom = true, open_back = true, clear = lolin_clear);
@@ -479,11 +479,11 @@ module base_part() {
         }
         translate([0, 0, -1]) linear_extrude(pocket_h + 2) base_inside_2d();
       }
-      translate([lolin_x - (lolin_w + lolin_w_adj) / 2 - lolin_clear + lolin_tab_off,
+      if (parts) translate([lolin_x - (lolin_w + lolin_w_adj) / 2 - lolin_clear + lolin_tab_off,
                  lolin_y - lolin_l / 2 - lolin_clear - lolin_tab_t + lolin_len_adj, base_t - 0.01])
         cube([lolin_tab_w, lolin_tab_t, lolin_tab_h + 0.01]);
-      translate([motor_x, motor_y, base_t]) rotate([0, 0, motor_angle]) motor_clip();
-      switch_place() translate([0, 0, base_t]) switch_mount();
+      if (parts) translate([motor_x, motor_y, base_t]) rotate([0, 0, motor_angle]) motor_clip();
+      if (parts) switch_place() translate([0, 0, base_t]) switch_mount();
     }
     }
     // pogo: oval through the bottom, flange pocket above it
@@ -520,11 +520,29 @@ module preview() {
   color("orange") translate([0, 0, e]) at_angle(pogo_r, pogo_angle) translate([0, 0, top_flange_back - clamp_t]) pogo_clamp();
 }
 
+// test print: the pogo corner of the ball (as printed, top down) and of the
+// base, cut out of the real parts, plus two clamps
+module pogo_test() {
+  cx = fork_x() + clamp_end / 2 + root_flare + 1; r0 = 36; r1 = ball_od / 2 + 1;
+  // ball piece: after flip() the pogo is at +y
+  translate([0, -pogo_r, 0]) intersection() {
+    flip() ball_shell();
+    translate([-cx, r0, -1]) cube([2 * cx, r1 - r0, top_t + face_body + flange_t + clamp_t + 6]);
+  }
+  // base piece
+  translate([0, pogo_r - 22, 0]) intersection() {
+    base_part(parts = false);
+    translate([-cx, -r1, -1]) cube([2 * cx, r1 - r0, 20]);
+  }
+  for (k = [0, 1]) translate([0, -38 - k * 10, 0]) pogo_clamp();
+}
+
 if (part == "ball") flip() ball_body();
 else if (part == "white") flip() white_body();
 else if (part == "number") flip() number_vol();
 else if (part == "base") base_part();
 else if (part == "pogo_clamp") pogo_clamp();
+else if (part == "pogo_test") pogo_test();
 else preview();
 
 echo(str("Rev 2: ball ", ball_h, " mm; LED tops to underside of the white ", led_gap,

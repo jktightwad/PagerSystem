@@ -15,6 +15,7 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 | `ball` + `white` + `number` | Top down, one object with 3 parts (AMS) | Load the three STLs together in Bambu Studio as one object; ball colour / white / black |
 | `base` | Bottom down | Carries every component (Rev 1 chassis mounts) |
 | `pogo_clamp` | Flat, x2 | One for the top connector, one for the bottom |
+| `pogo_test` | As exported | Test print: the pogo corner of the ball (top down) and of the base, cut from the real parts, plus two clamps |
 
 ## Top
 - Top 1.65 mm (`top_t`); 45 deg build-up in the inside corner (`corner_build`
@@ -60,3 +61,13 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
   bottom (`switch_tip_recess`).
 
 ![Base](base.png)
+
+## Pogo latch test print (`pogo_test`)
+
+![Pogo test](pogo_test.png)
+
+Back: the ball's pogo corner (printed top down, with a stub of the wall).
+Middle: the base's pogo corner (component mounts left out). Front: two
+clamps. Fit both connectors: flange in its pocket, clamp end under the latch
+bar, lever the clamp down over the post, push a 1.75 mm filament pin through.
+
