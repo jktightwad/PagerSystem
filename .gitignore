@@ -3,3 +3,4 @@
 base_firmware/include/secrets.h
 **/include/secrets.h
 enclosure/pager_shell_test/numbers/
+enclosure/pager_rev2/numbers/
