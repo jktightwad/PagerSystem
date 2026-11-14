@@ -109,7 +109,14 @@ pogo_wall     = 1.2;    // wall round the flange
 // flange pocket walls stop this short so the clamp presses the flange, not the walls
 pogo_press    = 0.2;    // [0:0.05:0.6]
 clamp_t       = 1.6;    // [0.8:0.1:4]
-clamp_w       = 7.0;    // [4:0.1:12] (radial); 1.25 mm rails beside the wire hole
+// clamp body half-widths from the connector centre line: towards the ball
+// wall (curved side, limited by the wall) and towards the centre
+clamp_out     = 3.5;    // [2:0.1:5]
+clamp_in      = 5.5;    // [2:0.1:8]
+tongue_w      = 5.0;    // [3:0.1:8] latch end of the clamp
+// latch window from the centre line: the curved side is 1 mm in
+latch_win_out = 2.8;    // [2:0.1:5]
+latch_win_in  = 3.8;    // [2:0.1:6]
 clamp_end     = 5.0;    // [3:0.5:10] clamp length past each flange end
 clamp_hole_add = 0.6;   // oval hole in the clamp: oval + this (back body + wires)
 // One clamp end hooks under a latch bar (insert, then lever the clamp down).
@@ -122,8 +129,9 @@ latch_clear   = 0.1;    // [0:0.05:0.5] room for the clamp end under the latch b
 fork_clear    = 0.3;    // clamp end to latch leg / fork to post
 post_t        = 3.5;    // [3.5:0.1:6] pin post, along the connector
 post_w        = 3.5;    // [3.5:0.1:6] pin post, across (= pin hole length)
-tine_w        = 2.0;    // [1:0.1:4] each fork tine beside the post
-pin_hole_d    = 1.8;    // 1.75 filament
+tine_w        = 2.0;    // [1:0.1:4] fork tine beside the post, centre side
+tine_w_out    = 1.0;    // [0.6:0.1:4] fork tine on the curved (wall) side
+pin_hole_d    = 1.95;   // 1.75 filament
 pin_floor     = 1.2;    // plastic beyond the pin hole
 // smoothing (strength): rounded clamp corners, fillets on its inside corners,
 // rounded post / leg edges and a 45 deg flare where they join the part
@@ -285,7 +293,15 @@ module number_vol() { translate([0, 0, ball_h - number_t]) linear_extrude(number
 module ball_shell() {
   difference() {
     union() {
-      difference() { ball_outer(); ball_cavity(); }
+      difference() {
+        ball_outer(); ball_cavity();
+        // room for the clamp in the corner build-up (not into the wall)
+        at_angle(pogo_r, pogo_angle) translate([0, 0, top_flange_back - clamp_t - 0.4])
+          linear_extrude(clamp_t + 0.41) intersection() {
+            offset(r = 0.4) pogo_clamp_outline_2d();
+            rotate([0, 0, pogo_angle]) translate([0, pogo_r]) circle(r = inner_r);   // = the ball's inside, in local coords
+          }
+      }
       // magnet bosses under the top
       for (a = mag_angles) at_angle(mag_r, a)
         translate([0, 0, ball_h - mag_skin - mag_h]) mag_boss(mag_hole_ball, mag_h + mag_skin - top_t + 0.01, -1);
@@ -324,7 +340,6 @@ module white_body() { difference() { white_vol(); number_vol(); } }
 // clamp_face = z of the clamp face away from the flange; z_root = where the
 // holders join the part; dir = -1 for the ball (they hang down), +1 for the base.
 function fork_x() = flange_pocket_l / 2 + 1 + clamp_end / 2;
-clamp_fork_w = post_w + 2 * fork_clear + 2 * tine_w;   // clamp width at the forked end
 // rounded rectangle centred on [cx, cy]
 module rrect_2d(w, l, r) { offset(r = r) square([max(0.01, w - 2 * r), max(0.01, l - 2 * r)], center = true); }
 // extrude a 2D profile from z_root to z_tip, flaring 45 deg (root_flare) at the root
@@ -345,10 +360,10 @@ module pogo_forks(clamp_face, z_root, dir) {
   tip_latch = clamp_face + dir * (latch_clear + latch_bar_t);
   // latch (+x)
   translate([fork_x(), 0, 0]) {
-    for (sy = [-1, 1]) flared(z_root, tip_latch)
-      translate([0, sy * (clamp_w / 2 + fork_clear + latch_leg_t / 2)]) rrect_2d(clamp_end, latch_leg_t, leg_round);
-    translate([-clamp_end / 2, -(clamp_w / 2 + fork_clear), min(clamp_face + dir * latch_clear, tip_latch)])
-      cube([clamp_end, clamp_w + 2 * fork_clear, latch_bar_t]);   // a short bridge in the print
+    for (yy = [-(latch_win_in + latch_leg_t / 2), latch_win_out + latch_leg_t / 2]) flared(z_root, tip_latch)
+      translate([0, yy]) rrect_2d(clamp_end, latch_leg_t, leg_round);
+    translate([-clamp_end / 2, -latch_win_in, min(clamp_face + dir * latch_clear, tip_latch)])
+      cube([clamp_end, latch_win_in + latch_win_out, latch_bar_t]);   // a short bridge in the print
   }
   // pin post (-x)
   translate([-fork_x(), 0, 0]) difference() {
@@ -357,28 +372,42 @@ module pogo_forks(clamp_face, z_root, dir) {
     translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, post_w + 2 * root_flare + 2);
   }
 }
+// clamp outline (local: +x latch / tongue end, -x forked end, +y towards the wall)
+clamp_L = flange_pocket_l + 2 + 2 * clamp_end;
+module pogo_clamp_outline_2d() {
+  L = clamp_L; x0 = L / 2 - clamp_end;
+  slot_r = post_w / 2 + fork_clear;
+  // body
+  translate([-x0, -clamp_in]) square([2 * x0, clamp_in + clamp_out]);
+  // tongue, tapering 45 deg from the body
+  tin = max(0, clamp_in - tongue_w / 2);
+  hull() {
+    translate([x0, -tongue_w / 2]) square([clamp_end, tongue_w]);
+    translate([x0 - tin - 0.01, -clamp_in]) square([0.01, clamp_in + clamp_out]);
+  }
+  // forked end (thinner tine on the wall side), tapering into the body
+  fy0 = -(slot_r + tine_w); fy1 = slot_r + tine_w_out;
+  ftap = max(abs(-clamp_in - fy0), abs(clamp_out - fy1));
+  hull() {
+    translate([-L / 2, fy0]) square([clamp_end, fy1 - fy0]);
+    translate([-x0 + ftap, -clamp_in]) square([0.01, clamp_in + clamp_out]);
+  }
+}
 module pogo_clamp_2d() {
-  L = flange_pocket_l + 2 + 2 * clamp_end;
+  L = clamp_L;
   slot_r = post_w / 2 + fork_clear;
   slot_cx = -fork_x() + fork_clear;                    // round end of the slot, just past the post centre
   difference() {
-  // fillet inside corners, then round outside corners (outline + slot only)
-  offset(r = -clamp_fillet) offset(delta = clamp_fillet)
-  offset(r = clamp_round) offset(delta = -clamp_round)
-  difference() {
-    union() {
-      square([L, clamp_w], center = true);
-      // wider forked end, tapering 45 deg into the body
-      hull() {
-        translate([-L / 2, -clamp_fork_w / 2]) square([clamp_end, clamp_fork_w]);
-        translate([-L / 2, -clamp_w / 2]) square([clamp_end + (clamp_fork_w - clamp_w) / 2, clamp_w]);
-      }
+    // fillet inside corners, then round outside corners (outline + slot only)
+    offset(r = -clamp_fillet) offset(delta = clamp_fillet)
+    offset(r = clamp_round) offset(delta = -clamp_round)
+    difference() {
+      pogo_clamp_outline_2d();
+      // slot with a round end round the post
+      translate([-L / 2 - 1, -slot_r]) square([slot_cx + L / 2 + 1, 2 * slot_r]);
+      translate([slot_cx, 0]) circle(r = slot_r, $fn = 48);
     }
-    // slot with a round end round the post
-    translate([-L / 2 - 1, -slot_r]) square([slot_cx + L / 2 + 1, 2 * slot_r]);
-    translate([slot_cx, 0]) circle(r = slot_r, $fn = 48);
-  }
-  stadium_2d(oval_hole_l + clamp_hole_add, oval_hole_w + clamp_hole_add);
+    stadium_2d(oval_hole_l + clamp_hole_add, oval_hole_w + clamp_hole_add);
   }
 }
 module pogo_clamp() { linear_extrude(clamp_t) pogo_clamp_2d(); }

@@ -37,15 +37,18 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 - Pogo connectors at 6 o'clock (r 44, as Rev 1), top and bottom, faces
   flush. Each flange sits in a walled pocket; the walls stop 0.2 mm short
   (`pogo_press`) so the clamp presses the flange.
-- Clamp: the 7 o'clock end hooks under a latch bar (insert, then lever the
-  clamp down). The 5 o'clock end is forked round a single 3.5 x 3.5 mm post;
-  a ~9 mm piece of 1.75 mm filament goes through the post's 1.8 mm hole
-  (teardrop, no support), pushed in from the centre, and lies across the
-  fork's tines.
-- Clamp 7 mm wide (1.25 mm rails beside the wire hole), outside corners
-  rounded 0.8 mm, inside corners (fork root, step to the wider end) filleted
-  1 mm, 45 deg taper into the forked end. Post and latch legs have rounded
-  edges and a 0.9 mm 45 deg flare at the root.
+- Clamp: the 7 o'clock end (5 mm tongue) hooks under a latch bar (insert,
+  then lever the clamp down); the latch window is 1 mm narrower on the wall
+  side. The 5 o'clock end is forked round a single 3.5 x 3.5 mm post (tine
+  2 mm on the centre side, 1 mm on the wall side); a ~9 mm piece of 1.75 mm
+  filament goes through the post's 1.95 mm hole (teardrop, no support),
+  pushed in from the centre, and lies across the tines.
+- Clamp body 9 mm wide: 2 mm added on the centre side (the wall side is
+  limited by the ball wall at the clamp's corners). Rounded corners, filleted
+  inside corners, 45 deg tapers into both ends. The ball's corner build-up is
+  cut back round the clamp (0.4 mm) so it fits under the curve. Post and
+  latch legs have rounded edges and a 0.9 mm flare at the root. Both clamps
+  are the same part.
 
 ## Base
 - 1.65 mm plate, built up to 3.65 mm under each column for the M2 x 8 screw
