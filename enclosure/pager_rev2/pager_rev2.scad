@@ -114,7 +114,11 @@ clamp_t       = 1.6;    // [0.8:0.1:4]
 clamp_out     = 4.5;    // [2:0.1:5]
 clamp_in      = 4.5;    // [2:0.1:8]
 tongue_w      = 5.0;    // [3:0.1:8] latch end of the clamp
-clamp_short   = 1.5;    // [0:0.1:4] taken off the tongue end of the clamp
+clamp_short   = 0;      // [0:0.1:4] taken off the tongue end of the clamp
+// tongue: straight tongue_w for tongue_len from the tip, then a curved taper
+// out to the full body width at taper_len from the tip
+tongue_len    = 4.5;    // [1:0.1:8]
+taper_len     = 8.0;    // [2:0.1:12]
 // latch window from the centre line: the curved side is 1 mm in
 latch_win_out = 2.8;    // [2:0.1:5]
 latch_win_in  = 3.8;    // [2:0.1:6]
@@ -136,7 +140,7 @@ pin_hole_d    = 1.95;   // 1.75 filament
 pin_floor     = 1.2;    // plastic beyond the pin hole
 // smoothing (strength): rounded clamp corners, fillets on its inside corners,
 // rounded post / leg edges and a 45 deg flare where they join the part
-clamp_round   = 0.4;    // [0:0.1:2] outside corners of the clamp (under half the thinnest tine)
+clamp_round   = 0.8;    // [0:0.1:2] outside corners of the clamp
 clamp_fillet  = 1.0;    // [0:0.1:2] inside corners of the clamp (fork root, step)
 post_round    = 1.2;    // [0:0.1:1.7] vertical edges of the pin post
 leg_round     = 0.6;    // [0:0.1:0.8] vertical edges of the latch legs
@@ -299,7 +303,7 @@ module ball_shell() {
         // room for the clamp in the corner build-up (not into the wall)
         at_angle(pogo_r, pogo_angle) translate([0, 0, top_flange_back - clamp_t - 0.4])
           linear_extrude(clamp_t + 0.41) intersection() {
-            offset(r = 0.4) pogo_clamp_outline_2d();
+            offset(r = 0.4) square([clamp_L, 2 * max(clamp_in, clamp_out)], center = true);   // fixed: clamp tweaks don't change the ball
             rotate([0, 0, pogo_angle]) translate([0, pogo_r]) circle(r = inner_r);   // = the ball's inside, in local coords
           }
       }
@@ -378,14 +382,17 @@ clamp_L = flange_pocket_l + 2 + 2 * clamp_end;
 module pogo_clamp_outline_2d() {
   L = clamp_L; x0 = L / 2 - clamp_end;
   slot_r = post_w / 2 + fork_clear;
-  // body
-  translate([-x0, -clamp_in]) square([2 * x0, clamp_in + clamp_out]);
-  // tongue (clamp_short off its end), tapering 45 deg from the body
-  tin = max(0, clamp_in - tongue_w / 2);
-  hull() {
-    translate([x0, -tongue_w / 2]) square([clamp_end - clamp_short, tongue_w]);
-    translate([x0 - tin - 0.01, -clamp_in]) square([0.01, clamp_in + clamp_out]);
-  }
+  xe = L / 2 - clamp_short - tongue_len;                    // tongue_w from here to the tip
+  xs = L / 2 - clamp_short - taper_len;                     // full body width up to here
+  n = 24;
+  function hw(t, a, b) = b + (a - b) * (1 + cos(180 * t)) / 2;   // a at t = 0, b at t = 1
+  // body up to the start of the curve
+  translate([-x0, -clamp_in]) square([x0 + xs, clamp_in + clamp_out]);
+  // S-curve taper, then the straight tongue to the end
+  polygon(concat(
+    [for (k = [0 : n]) [xs + (xe - xs) * k / n,  hw(k / n, clamp_out, tongue_w / 2)]],
+    [[L / 2 - clamp_short, tongue_w / 2], [L / 2 - clamp_short, -tongue_w / 2]],
+    [for (k = [n : -1 : 0]) [xs + (xe - xs) * k / n, -hw(k / n, clamp_in, tongue_w / 2)]]));
   // forked end (thinner tine on the wall side), tapering into the body
   fy0 = -(slot_r + tine_w); fy1 = slot_r + tine_w_out;
   ftap = max(abs(-clamp_in - fy0), abs(clamp_out - fy1));
