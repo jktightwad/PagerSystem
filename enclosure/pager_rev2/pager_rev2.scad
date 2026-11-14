@@ -23,7 +23,7 @@ use <fonts/LiberationSans-Bold.ttf>
 use <fonts/DejaVuSerif-Bold.ttf>
 
 /* [Part to show / export] */
-part = "all"; // [all, ball, white, number, base, pogo_clamp, pogo_test]
+part = "all"; // [all, ball, white, number, touch_mark, base, pogo_clamp, pogo_test]
 
 /* [Ball] */
 ball_od      = 104;
@@ -44,6 +44,22 @@ white_t      = 0.45;    // [0.2:0.05:1.65] white thickness = lit face
 // light pocket under the white: white_d minus this rim on each side
 pocket_rim   = 1.0;     // [0:0.1:5]
 number_t     = 1.2;     // [0.4:0.05:1.65] black number depth from the top
+
+/* [Touch sensor] */
+// touch module 14.6 x 11 under the top at 12 o'clock (opposite the pogo),
+// long side along the edge; its 11 mm touch area is 1 mm in from one end
+tsens_l       = 14.6;   // [5:0.1:30]
+tsens_w       = 11.0;   // [5:0.1:20]
+tsens_area_d  = 11.0;   // [3:0.1:20]
+tsens_area_in = 1.0;    // [0:0.1:5] touch area's edge from the sensor's end
+tsens_clear   = 0.2;    // [0:0.05:1] round the sensor in its pocket
+tsens_wall_h  = 2.0;    // [0.5:0.1:6] locating walls (3 sides; wire end open)
+tsens_angle   = 0;      // [0:1:359]
+// circle printed on the top over the touch area (its own part: touch_mark)
+mark_od       = 9.6;    // [4:0.1:14]
+mark_w        = 0.8;    // [0.4:0.1:3] line width
+mark_t        = 0.45;   // [0.2:0.05:1.65] depth from the top
+mark_gap      = 1.0;    // [0:0.1:5] between the white circle and the mark
 
 /* [Number] */
 number_text  = "2";
@@ -114,10 +130,13 @@ clamp_t       = 1.6;    // [0.8:0.1:4]
 clamp_out     = 4.5;    // [2:0.1:5]
 clamp_in      = 4.5;    // [2:0.1:8]
 tongue_w      = 5.0;    // [3:0.1:8] latch end of the clamp
+// taken off the tongue's wall side so the ball's curve doesn't push the clamp
+// (and the connector) off centre
+tongue_trim_out = 0.5;  // [0:0.1:2]
 clamp_short   = 0;      // [0:0.1:4] taken off the tongue end of the clamp
 // tongue: straight tongue_w for tongue_len from the tip, then a curved taper
 // out to the full body width at taper_len from the tip
-tongue_len    = 4.5;    // [1:0.1:8]
+tongue_len    = 3.5;    // [1:0.1:8]
 taper_len     = 8.0;    // [2:0.1:12]
 // latch window from the centre line: the curved side is 1 mm in
 latch_win_out = 2.8;    // [2:0.1:5]
@@ -300,6 +319,9 @@ module ball_shell() {
     union() {
       difference() {
         ball_outer(); ball_cavity();
+        // touch sensor seat under the top (cuts the corner build-up where needed)
+        at_angle(mark_r, tsens_angle) translate([tsens_dx, 0, top_under - tsens_wall_h - 2])
+          linear_extrude(tsens_wall_h + 2 + 0.001) square([tsens_l + 2 * tsens_clear, tsens_w + 2 * tsens_clear], center = true);
         // room for the clamp in the corner build-up (not into the wall)
         at_angle(pogo_r, pogo_angle) translate([0, 0, top_flange_back - clamp_t - 0.4])
           linear_extrude(clamp_t + 0.41) intersection() {
@@ -307,6 +329,13 @@ module ball_shell() {
             rotate([0, 0, pogo_angle]) translate([0, pogo_r]) circle(r = inner_r);   // = the ball's inside, in local coords
           }
       }
+      // touch sensor locating walls (open at the end away from the touch area, for the wires)
+      at_angle(mark_r, tsens_angle) translate([tsens_dx, 0, top_under - tsens_wall_h])
+        linear_extrude(tsens_wall_h + 0.01) difference() {
+          square([tsens_l + 2 * tsens_clear + 2 * pocket_wall, tsens_w + 2 * tsens_clear + 2 * pocket_wall], center = true);
+          square([tsens_l + 2 * tsens_clear, tsens_w + 2 * tsens_clear], center = true);
+          translate([tsens_l / 2, 0]) square([4 * pocket_wall, tsens_w + 2 * tsens_clear], center = true);
+        }
       // magnet bosses under the top
       for (a = mag_angles) at_angle(mag_r, a)
         translate([0, 0, ball_h - mag_skin - mag_h]) mag_boss(mag_hole_ball, mag_h + mag_skin - top_t + 0.01, -1);
@@ -334,7 +363,14 @@ module ball_shell() {
       translate([0, 0, col_start - 1]) cylinder(d = screw_pilot, h = top_under - col_start, $fn = 24);
   }
 }
-module ball_body() { difference() { ball_shell(); white_vol(); number_vol(); } }
+// touch area / mark centre, and the sensor's centre along the edge
+mark_r  = white_d / 2 + mark_gap + mark_od / 2;
+tsens_dx = tsens_l / 2 - tsens_area_in - tsens_area_d / 2;
+module mark_vol() {
+  at_angle(mark_r, tsens_angle) translate([0, 0, ball_h - mark_t])
+    linear_extrude(mark_t + 0.01) difference() { circle(d = mark_od, $fn = 64); circle(d = mark_od - 2 * mark_w, $fn = 64); }
+}
+module ball_body() { difference() { ball_shell(); white_vol(); number_vol(); mark_vol(); } }
 module white_body() { difference() { white_vol(); number_vol(); } }
 
 // ================= Pogo clamp holders ======================================
@@ -390,8 +426,8 @@ module pogo_clamp_outline_2d() {
   translate([-x0, -clamp_in]) square([x0 + xs, clamp_in + clamp_out]);
   // S-curve taper, then the straight tongue to the end
   polygon(concat(
-    [for (k = [0 : n]) [xs + (xe - xs) * k / n,  hw(k / n, clamp_out, tongue_w / 2)]],
-    [[L / 2 - clamp_short, tongue_w / 2], [L / 2 - clamp_short, -tongue_w / 2]],
+    [for (k = [0 : n]) [xs + (xe - xs) * k / n,  hw(k / n, clamp_out, tongue_w / 2 - tongue_trim_out)]],
+    [[L / 2 - clamp_short, tongue_w / 2 - tongue_trim_out], [L / 2 - clamp_short, -tongue_w / 2]],
     [for (k = [n : -1 : 0]) [xs + (xe - xs) * k / n, -hw(k / n, clamp_in, tongue_w / 2)]]));
   // forked end (thinner tine on the wall side), tapering into the body
   fy0 = -(slot_r + tine_w); fy1 = slot_r + tine_w_out;
@@ -552,6 +588,7 @@ module preview() {
   color("royalblue") translate([0, 0, e]) ball_body();
   color("white") translate([0, 0, e]) white_body();
   color("black") translate([0, 0, e]) number_vol();
+  color("black") translate([0, 0, e]) mark_vol();
   color("gray") base_part();
   color("orange") at_angle(pogo_r, pogo_angle) translate([0, 0, base_flange_back]) pogo_clamp();
   color("orange") translate([0, 0, e]) at_angle(pogo_r, pogo_angle) translate([0, 0, top_flange_back - clamp_t]) pogo_clamp();
@@ -580,6 +617,7 @@ else if (part == "number") flip() number_vol();
 else if (part == "base") base_part();
 else if (part == "pogo_clamp") pogo_clamp();
 else if (part == "pogo_test") pogo_test();
+else if (part == "touch_mark") flip() mark_vol();
 else preview();
 
 echo(str("Rev 2: ball ", ball_h, " mm; LED tops to underside of the white ", led_gap,
@@ -590,3 +628,5 @@ assert(number_t <= top_t, "number_t deeper than the top");
 assert(screw_head_h < col_start - 0.3, "screw head recess leaves under 0.3 mm");
 assert(switch_pad_h > 0, "switch riser pads <= 0");
 assert(top_flange_back - clamp_t - pin_hole_d - pin_floor > col_start, "top pogo forks reach the base");
+echo(str("Touch sensor: centre ", mark_r, " mm from the middle; outer edge ", mark_r + tsens_w / 2 + tsens_clear + pocket_wall,
+         " mm (ball inside ", inner_r, "); light pocket edge ", pocket_d / 2, " mm, sensor inner edge ", mark_r - tsens_w / 2 - tsens_clear - pocket_wall));

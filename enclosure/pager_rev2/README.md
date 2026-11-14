@@ -13,6 +13,7 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 | Part | Print | Notes |
 |---|---|---|
 | `ball` + `white` + `number` | Top down, one object with 3 parts (AMS) | Load the three STLs together in Bambu Studio as one object; ball colour / white / black |
+| `touch_mark` | With the ball (4th part) | Ring on the top over the touch sensor, for its own colour |
 | `base` | Bottom down | Carries every component (Rev 1 chassis mounts) |
 | `pogo_clamp` | Flat, x2 | One for the top connector, one for the bottom |
 | `pogo_test` | As exported | Test print: the pogo corner of the ball (top down) and of the base, cut from the real parts, plus two clamps |
@@ -37,7 +38,8 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 - Pogo connectors at 6 o'clock (r 44, as Rev 1), top and bottom, faces
   flush. Each flange sits in a walled pocket; the walls stop 0.2 mm short
   (`pogo_press`) so the clamp presses the flange.
-- Clamp: the 7 o'clock end (tongue 5 mm wide for 4.5 mm from the tip, curved
+- Clamp: the 7 o'clock end (tongue 5 mm wide for 3.5 mm from the tip, 0.5 mm
+  trimmed off its wall side so the ball's curve doesn't push it off centre; curved
   taper out to the 9 mm body at 8 mm from the tip) hooks under a latch bar (insert,
   then lever the clamp down); the latch window is 1 mm narrower on the wall
   side. The 5 o'clock end is forked round a single 3.5 x 3.5 mm post (tine
@@ -51,6 +53,14 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
   clamp shape changes no longer change the ball, so it fits under the curve. Post and
   latch legs have rounded edges and a 0.9 mm flare at the root. Both clamps
   are the same part.
+
+## Touch sensor
+- 14.6 x 11 mm module under the top at 12 o'clock (opposite the pogo), long
+  side along the edge, held by 2 mm walls on three sides (wire end open) and
+  set into the corner build-up. Its 11 mm touch area (1 mm in from one end)
+  is under the `touch_mark` ring (9.6 mm, 0.8 mm line, 0.45 mm deep), 1 mm
+  outside the white circle. It senses through the 1.65 mm top.
+- The base still has the old 24 x 24.3 touch module pocket at 4 o'clock.
 
 ## Base
 - 1.65 mm plate, built up to 3.65 mm under each column for the M2 x 8 screw
