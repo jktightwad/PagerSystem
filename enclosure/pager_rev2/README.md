@@ -29,10 +29,9 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 
 ## Stacking, magnets, pogo
 - Nothing sticks out of the top or the bottom. Magnets (6 x 2.75) go in from
-  the inside with 0.45 mm in front (0.9 mm between stacked magnets), at
-  150 and 330 deg. **Fit opposite poles at the two positions** (one N out, one
-  S out, same on top and bottom so they attract), so a pager turned 180 deg
-  repels instead of latching.
+  the inside with 0.45 mm in front (0.9 mm between stacked magnets), at 60 and
+  300 deg: with the pogo connector at 180 deg they form the alignment
+  triangle. The battery sits over the 300 deg magnet boss on the base.
 - Pogo connectors at 6 o'clock, top and bottom, faces flush. Each flange sits
   in a walled pocket; the walls stop 0.2 mm short (`pogo_press`) so the clamp
   presses the flange. The clamp's ends sit between two forks; a ~10 mm piece of
@@ -45,7 +44,8 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
   buzzer, touch, motor clip, switch), now placed against the ball wall
   instead of the old clamp ring, so they sit ~2 mm further out.
   Boost moved to 210.5 deg (clear of the pogo forks and the 7:30 column);
-  touch at 111 deg (clear of the 4:30 column).
+  touch at 111 deg (clear of the 4:30 column); motor moved to (29, 13) to
+  clear the 60 deg magnet.
 - LED ring posts 9.7 mm (free height under the ring).
 - Switch riser pads from slider length - base: slider tip 0.5 mm up from the
   bottom (`switch_tip_recess`).

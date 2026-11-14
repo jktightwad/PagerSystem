@@ -89,9 +89,9 @@ mag_hole_ball = 6.05;   // press fit
 mag_hole_base = 6.0;
 mag_wall     = 1.2;
 mag_r        = 43;
-// Two magnets, opposite each other. Fit them with OPPOSITE poles facing out
-// (one N, one S) so a pager turned 180 deg repels instead of latching.
-mag_angles   = [150, 330];
+// Two magnets; with the pogo connector (180 deg) they form the triangle that
+// aligns the stack. The battery may sit over the 300 deg one.
+mag_angles   = [60, 300];
 
 /* [Pogo connector] */
 oval_hole_l   = 13.15;
@@ -142,8 +142,8 @@ sound_hole_d   = 2.0;
 touch_w = 24; touch_l = 24.3; touch_gap = 0; touch_a = 111;
 motor_d        = 7.0;
 motor_l        = 26;
-motor_x        = 32;
-motor_y        = 16;
+motor_x        = 29;   // clear of the 60 deg magnet
+motor_y        = 13;
 motor_angle    = 45;
 clip_w         = 8;
 clip_wall      = 1.6;
