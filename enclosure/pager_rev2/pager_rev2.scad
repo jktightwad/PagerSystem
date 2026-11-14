@@ -111,8 +111,8 @@ pogo_press    = 0.2;    // [0:0.05:0.6]
 clamp_t       = 1.6;    // [0.8:0.1:4]
 // clamp body half-widths from the connector centre line: towards the ball
 // wall (curved side, limited by the wall) and towards the centre
-clamp_out     = 3.5;    // [2:0.1:5]
-clamp_in      = 5.5;    // [2:0.1:8]
+clamp_out     = 4.5;    // [2:0.1:5]
+clamp_in      = 4.5;    // [2:0.1:8]
 tongue_w      = 5.0;    // [3:0.1:8] latch end of the clamp
 // latch window from the centre line: the curved side is 1 mm in
 latch_win_out = 2.8;    // [2:0.1:5]

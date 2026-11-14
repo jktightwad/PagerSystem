@@ -43,8 +43,8 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
   2 mm on the centre side, 1 mm on the wall side); a ~9 mm piece of 1.75 mm
   filament goes through the post's 1.95 mm hole (teardrop, no support),
   pushed in from the centre, and lies across the tines.
-- Clamp body 9 mm wide: 2 mm added on the centre side (the wall side is
-  limited by the ball wall at the clamp's corners). Rounded corners, filleted
+- Clamp body 9 mm wide, 1 mm added on each side (rails 2.25 mm beside the
+  wire hole; its rounded corners come within ~0.1 mm of the ball wall). Rounded corners, filleted
   inside corners, 45 deg tapers into both ends. The ball's corner build-up is
   cut back round the clamp (0.4 mm) so it fits under the curve. Post and
   latch legs have rounded edges and a 0.9 mm flare at the root. Both clamps
