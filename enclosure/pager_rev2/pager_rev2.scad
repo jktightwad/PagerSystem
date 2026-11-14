@@ -114,6 +114,7 @@ clamp_t       = 1.6;    // [0.8:0.1:4]
 clamp_out     = 4.5;    // [2:0.1:5]
 clamp_in      = 4.5;    // [2:0.1:8]
 tongue_w      = 5.0;    // [3:0.1:8] latch end of the clamp
+clamp_short   = 1.5;    // [0:0.1:4] taken off the tongue end of the clamp
 // latch window from the centre line: the curved side is 1 mm in
 latch_win_out = 2.8;    // [2:0.1:5]
 latch_win_in  = 3.8;    // [2:0.1:6]
@@ -135,7 +136,7 @@ pin_hole_d    = 1.95;   // 1.75 filament
 pin_floor     = 1.2;    // plastic beyond the pin hole
 // smoothing (strength): rounded clamp corners, fillets on its inside corners,
 // rounded post / leg edges and a 45 deg flare where they join the part
-clamp_round   = 0.8;    // [0:0.1:2] outside corners of the clamp
+clamp_round   = 0.4;    // [0:0.1:2] outside corners of the clamp (under half the thinnest tine)
 clamp_fillet  = 1.0;    // [0:0.1:2] inside corners of the clamp (fork root, step)
 post_round    = 1.2;    // [0:0.1:1.7] vertical edges of the pin post
 leg_round     = 0.6;    // [0:0.1:0.8] vertical edges of the latch legs
@@ -379,10 +380,10 @@ module pogo_clamp_outline_2d() {
   slot_r = post_w / 2 + fork_clear;
   // body
   translate([-x0, -clamp_in]) square([2 * x0, clamp_in + clamp_out]);
-  // tongue, tapering 45 deg from the body
+  // tongue (clamp_short off its end), tapering 45 deg from the body
   tin = max(0, clamp_in - tongue_w / 2);
   hull() {
-    translate([x0, -tongue_w / 2]) square([clamp_end, tongue_w]);
+    translate([x0, -tongue_w / 2]) square([clamp_end - clamp_short, tongue_w]);
     translate([x0 - tin - 0.01, -clamp_in]) square([0.01, clamp_in + clamp_out]);
   }
   // forked end (thinner tine on the wall side), tapering into the body
