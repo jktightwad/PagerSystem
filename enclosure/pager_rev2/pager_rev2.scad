@@ -88,6 +88,8 @@ mag_skin     = 0.45;    // plastic in front of each magnet
 mag_hole_ball = 6.05;   // press fit
 mag_hole_base = 6.0;
 mag_wall     = 1.2;
+// magnet bosses flare out to the root like a hill (45 deg) so they don't shear off
+mag_flare    = true;
 mag_r        = 43;
 // Two magnets; with the pogo connector (180 deg) they form the triangle that
 // aligns the stack. The battery may sit over the 300 deg one.
@@ -101,16 +103,21 @@ flange_t      = 0.9;
 flange_pocket_l = 19.2;
 flange_pocket_w = 3.9;
 base_pogo_extra = 0.2;  // spring-pin connector flange room
-pogo_r        = 44;
+pogo_r        = 42.5;  // in from 44 so the 3.5 mm fork legs fit inside the wall
 pogo_angle    = 180;
 pogo_wall     = 1.2;    // wall round the flange
 // flange pocket walls stop this short so the clamp presses the flange, not the walls
 pogo_press    = 0.2;    // [0:0.05:0.6]
 clamp_t       = 1.6;    // [0.8:0.1:4]
 clamp_w       = 6.0;    // [4:0.1:12] (radial)
-clamp_end     = 5.0;    // [3:0.5:10] clamp length past each flange end
+clamp_end     = 4.0;    // [3:0.5:10] clamp length past each flange end
 clamp_hole_add = 0.6;   // oval hole in the clamp: oval + this (back body + wires)
-fork_leg_t    = 1.6;
+fork_leg_t    = 3.5;    // [1.6:0.1:6] fork / latch leg thickness
+// one clamp end hooks under a latch bar (insert, then lever the clamp down);
+// only the other end takes a filament pin. The latch is on the boost side
+// (7 o'clock), the pin on the 5 o'clock side where it can be pushed in from
+// the centre.
+latch_bar_t   = 1.6;    // [0.8:0.1:4]
 fork_clear    = 0.3;    // clamp end to fork leg
 pin_hole_d    = 1.9;    // 1.75 filament
 pin_floor     = 1.2;    // plastic under the pin hole
@@ -135,7 +142,7 @@ lolin_tab_off  = 9.5;
 lolin_tab_w    = 4;
 lolin_tab_h    = 4;
 lolin_tab_t    = 2;
-boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 210.5;   // clear of the pogo forks (210) and the 7:30 column (212)
+boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 211.3;   // clear of the pogo latch (211) and the 7:30 column (212)
 buzzer_d = 9.2; buzzer_gap = 0;
 buzzer_a = -1;          // -1 = auto: beside the LOLIN32's 12 o'clock end, away from the battery
 sound_hole_d   = 2.0;
@@ -227,6 +234,12 @@ module number_2d() {
     circle(d = white_d - 0.8);
   }
 }
+// magnet boss: h tall, root at z = 0 (dir = +1, rises) or at z = h (dir = -1, hangs)
+module mag_boss(hole, h, dir) {
+  d_top = hole + 2 * mag_wall; d_root = d_top + (mag_flare ? 2 * h : 0);
+  if (dir > 0) cylinder(d1 = d_root, d2 = d_top, h = h);
+  else cylinder(d1 = d_top, d2 = d_root, h = h);
+}
 module bosses_2d() { for (a = boss_angles) at_angle(boss_r, a) circle(d = boss_d); }
 boss_r = ball_od / 2 - ball_wall - boss_d / 2 + 0.5;
 module cavity_2d(grow = 0) {
@@ -264,7 +277,7 @@ module ball_shell() {
       difference() { ball_outer(); ball_cavity(); }
       // magnet bosses under the top
       for (a = mag_angles) at_angle(mag_r, a)
-        translate([0, 0, ball_h - mag_skin - mag_h]) cylinder(d = mag_hole_ball + 2 * mag_wall, h = mag_h + mag_skin - top_t + 0.01);
+        translate([0, 0, ball_h - mag_skin - mag_h]) mag_boss(mag_hole_ball, mag_h + mag_skin - top_t + 0.01, -1);
       // pogo: flange walls + ledge, and the clamp forks
       at_angle(pogo_r, pogo_angle) {
         translate([0, 0, top_flange_back + pogo_press])
@@ -292,21 +305,29 @@ module ball_shell() {
 module ball_body() { difference() { ball_shell(); white_vol(); number_vol(); } }
 module white_body() { difference() { white_vol(); number_vol(); } }
 
-// ================= Pogo clamp forks ========================================
-// Two forks (one past each flange end). The clamp's ends sit between each
-// fork's legs; a filament pin through the legs holds the clamp against the
-// flange. clamp_face = z of the clamp face away from the flange; z_root = where
-// the forks join the part; dir = -1 for the ball (forks hang down), +1 base.
+// ================= Pogo clamp holders ======================================
+// Past each flange end, two legs either side of the clamp. At the local +x end
+// (world 7 o'clock side) a bar joins the legs (a latch: hook the clamp end under it, then lever the
+// clamp down); at the other end a 1.75 mm filament pin goes through the legs.
+// clamp_face = z of the clamp face away from the flange; z_root = where the
+// legs join the part; dir = -1 for the ball (legs hang down), +1 for the base.
 function fork_x() = flange_pocket_l / 2 + 1 + clamp_end / 2;
 module pogo_forks(clamp_face, z_root, dir) {
   pin_z  = clamp_face + dir * (pin_hole_d / 2);          // pin touches the clamp face
-  tip_z  = pin_z + dir * (pin_hole_d / 2 + pin_floor);
-  z0 = min(tip_z, z_root); z1 = max(tip_z, z_root);
-  for (sx = [-1, 1]) translate([sx * fork_x(), 0, 0]) difference() {
-    for (sy = [-1, 1]) translate([-clamp_end / 2, sy * (clamp_w / 2 + fork_clear + fork_leg_t / 2) - fork_leg_t / 2, z0])
-      cube([clamp_end, fork_leg_t, z1 - z0 + (dir < 0 ? 0.01 : 0)]);
-    // teardrop points up in the print (ball prints top down: up = -z)
-    translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, clamp_w + 4 * fork_leg_t + 4);
+  tip_pin   = pin_z + dir * (pin_hole_d / 2 + pin_floor);
+  tip_latch = clamp_face + dir * latch_bar_t;
+  for (sx = [-1, 1]) translate([sx * fork_x(), 0, 0]) {
+    tip = sx > 0 ? tip_latch : tip_pin;
+    z0 = min(tip, z_root); z1 = max(tip, z_root);
+    difference() {
+      for (sy = [-1, 1]) translate([-clamp_end / 2, sy * (clamp_w / 2 + fork_clear + fork_leg_t / 2) - fork_leg_t / 2, z0])
+        cube([clamp_end, fork_leg_t, z1 - z0 + (dir < 0 ? 0.01 : 0)]);
+      // teardrop points up in the print (ball prints top down: up = -z)
+      if (sx < 0) translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, clamp_w + 4 * fork_leg_t + 4);
+    }
+    // latch bar across the legs (a short bridge in the print)
+    if (sx > 0) translate([-clamp_end / 2, -(clamp_w / 2 + fork_clear), min(clamp_face, tip_latch)])
+      cube([clamp_end, clamp_w + 2 * fork_clear, latch_bar_t]);
   }
 }
 module pogo_clamp() {
@@ -391,7 +412,7 @@ module base_part() {
         cylinder(d = ring_post_d, h = ring_bottom - base_t + 0.01, $fn = 32);
       // magnet bosses
       for (a = mag_angles) at_angle(mag_r, a)
-        cylinder(d = mag_hole_base + 2 * mag_wall, h = mag_skin + mag_h);
+        translate([0, 0, base_t - 0.01]) mag_boss(mag_hole_base, mag_skin + mag_h - base_t + 0.01, 1);
       // pogo: flange walls + ledge, and the clamp forks
       at_angle(pogo_r, pogo_angle) {
         linear_extrude(base_flange_back - pogo_press)
