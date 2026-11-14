@@ -33,13 +33,14 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
   300 deg: with the pogo connector at 180 deg they form the alignment
   triangle. The battery sits over the 300 deg magnet boss on the base. Magnet
   bosses flare out 45 deg to the root (hill shape) against shearing.
-- Pogo connectors at 6 o'clock (r 42.5), top and bottom, faces flush. Each
-  flange sits in a walled pocket; the walls stop 0.2 mm short (`pogo_press`)
-  so the clamp presses the flange. One clamp end hooks under a latch bar on
-  the 7 o'clock side (insert it, then lever the clamp down); the 5 o'clock
-  end is held by a ~14 mm piece of 1.75 mm filament pushed in from the centre
-  through 3.5 mm legs (teardrop holes, no support). Moved in from r 44 so the
-  3.5 mm legs fit inside the wall.
+- Pogo connectors at 6 o'clock (r 44, as Rev 1), top and bottom, faces
+  flush. Each flange sits in a walled pocket; the walls stop 0.2 mm short
+  (`pogo_press`) so the clamp presses the flange.
+- Clamp: the 7 o'clock end hooks under a latch bar (insert, then lever the
+  clamp down). The 5 o'clock end is forked round a single 3.5 x 3.5 mm post;
+  a ~9 mm piece of 1.75 mm filament goes through the post's 1.8 mm hole
+  (teardrop, no support), pushed in from the centre, and lies across the
+  fork's tines.
 
 ## Base
 - 1.65 mm plate, built up to 3.65 mm under each column for the M2 x 8 screw
@@ -47,8 +48,7 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 - Component mounts as Rev 1 (LOLIN32 tray and tab, battery stubs, boost,
   buzzer, touch, motor clip, switch), now placed against the ball wall
   instead of the old clamp ring, so they sit ~2 mm further out.
-  Boost moved to 211.3 deg (clear of the pogo latch and the 7:30 column; ~0.5 mm
-  each side);
+  Boost moved to 210.5 deg (clear of the pogo latch and the 7:30 column);
   touch at 111 deg (clear of the 4:30 column); motor moved to (29, 13) to
   clear the 60 deg magnet.
 - LED ring posts 9.7 mm (free height under the ring).

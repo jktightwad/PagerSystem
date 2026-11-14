@@ -103,25 +103,28 @@ flange_t      = 0.9;
 flange_pocket_l = 19.2;
 flange_pocket_w = 3.9;
 base_pogo_extra = 0.2;  // spring-pin connector flange room
-pogo_r        = 42.5;  // in from 44 so the 3.5 mm fork legs fit inside the wall
+pogo_r        = 44;
 pogo_angle    = 180;
 pogo_wall     = 1.2;    // wall round the flange
 // flange pocket walls stop this short so the clamp presses the flange, not the walls
 pogo_press    = 0.2;    // [0:0.05:0.6]
 clamp_t       = 1.6;    // [0.8:0.1:4]
 clamp_w       = 6.0;    // [4:0.1:12] (radial)
-clamp_end     = 4.0;    // [3:0.5:10] clamp length past each flange end
+clamp_end     = 5.0;    // [3:0.5:10] clamp length past each flange end
 clamp_hole_add = 0.6;   // oval hole in the clamp: oval + this (back body + wires)
-fork_leg_t    = 3.5;    // [1.6:0.1:6] fork / latch leg thickness
-// one clamp end hooks under a latch bar (insert, then lever the clamp down);
-// only the other end takes a filament pin. The latch is on the boost side
-// (7 o'clock), the pin on the 5 o'clock side where it can be pushed in from
-// the centre.
+// One clamp end hooks under a latch bar (insert, then lever the clamp down).
+// The other end is forked round a single post; a 1.75 mm filament pin through
+// the post, across the fork's tines, holds it. Latch on the 7 o'clock side,
+// post on the 5 o'clock side (pin pushed in from the centre).
+latch_leg_t   = 1.6;    // [1:0.1:4]
 latch_bar_t   = 1.6;    // [0.8:0.1:4]
 latch_clear   = 0.1;    // [0:0.05:0.5] room for the clamp end under the latch bar
-fork_clear    = 0.3;    // clamp end to fork leg
-pin_hole_d    = 1.9;    // 1.75 filament
-pin_floor     = 1.2;    // plastic under the pin hole
+fork_clear    = 0.3;    // clamp end to latch leg / fork to post
+post_t        = 3.5;    // [3.5:0.1:6] pin post, along the connector
+post_w        = 3.5;    // [3.5:0.1:6] pin post, across (= pin hole length)
+tine_w        = 2.0;    // [1:0.1:4] each fork tine beside the post
+pin_hole_d    = 1.8;    // 1.75 filament
+pin_floor     = 1.2;    // plastic beyond the pin hole
 
 /* [Component mounts] */
 pocket_wall    = 1.2;
@@ -143,7 +146,7 @@ lolin_tab_off  = 9.5;
 lolin_tab_w    = 4;
 lolin_tab_h    = 4;
 lolin_tab_t    = 2;
-boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 211.3;   // clear of the pogo latch (211) and the 7:30 column (212)
+boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 210.5;
 buzzer_d = 9.2; buzzer_gap = 0;
 buzzer_a = -1;          // -1 = auto: beside the LOLIN32's 12 o'clock end, away from the battery
 sound_hole_d   = 2.0;
@@ -307,35 +310,46 @@ module ball_body() { difference() { ball_shell(); white_vol(); number_vol(); } }
 module white_body() { difference() { white_vol(); number_vol(); } }
 
 // ================= Pogo clamp holders ======================================
-// Past each flange end, two legs either side of the clamp. At the local +x end
-// (world 7 o'clock side) a bar joins the legs (a latch: hook the clamp end under it, then lever the
-// clamp down); at the other end a 1.75 mm filament pin goes through the legs.
+// Local +x end (world 7 o'clock side): latch = two thin legs and a bar; hook
+// the clamp end under the bar, then lever the clamp down. Local -x end: one
+// post with a pin hole; the clamp's forked end goes round the post and the
+// filament pin through the post lies across the tines.
 // clamp_face = z of the clamp face away from the flange; z_root = where the
-// legs join the part; dir = -1 for the ball (legs hang down), +1 for the base.
+// holders join the part; dir = -1 for the ball (they hang down), +1 for the base.
 function fork_x() = flange_pocket_l / 2 + 1 + clamp_end / 2;
+clamp_fork_w = post_w + 2 * fork_clear + 2 * tine_w;   // clamp width at the forked end
 module pogo_forks(clamp_face, z_root, dir) {
   pin_z  = clamp_face + dir * (pin_hole_d / 2);          // pin touches the clamp face
   tip_pin   = pin_z + dir * (pin_hole_d / 2 + pin_floor);
   tip_latch = clamp_face + dir * (latch_clear + latch_bar_t);
-  for (sx = [-1, 1]) translate([sx * fork_x(), 0, 0]) {
-    tip = sx > 0 ? tip_latch : tip_pin;
-    z0 = min(tip, z_root); z1 = max(tip, z_root);
+  // latch (+x)
+  translate([fork_x(), 0, 0]) {
+    z0 = min(tip_latch, z_root); z1 = max(tip_latch, z_root);
+    for (sy = [-1, 1]) translate([-clamp_end / 2, sy * (clamp_w / 2 + fork_clear + latch_leg_t / 2) - latch_leg_t / 2, z0])
+      cube([clamp_end, latch_leg_t, z1 - z0 + (dir < 0 ? 0.01 : 0)]);
+    translate([-clamp_end / 2, -(clamp_w / 2 + fork_clear), min(clamp_face + dir * latch_clear, tip_latch)])
+      cube([clamp_end, clamp_w + 2 * fork_clear, latch_bar_t]);   // a short bridge in the print
+  }
+  // pin post (-x)
+  translate([-fork_x(), 0, 0]) {
+    z0 = min(tip_pin, z_root); z1 = max(tip_pin, z_root);
     difference() {
-      for (sy = [-1, 1]) translate([-clamp_end / 2, sy * (clamp_w / 2 + fork_clear + fork_leg_t / 2) - fork_leg_t / 2, z0])
-        cube([clamp_end, fork_leg_t, z1 - z0 + (dir < 0 ? 0.01 : 0)]);
+      translate([-post_t / 2, -post_w / 2, z0]) cube([post_t, post_w, z1 - z0 + (dir < 0 ? 0.01 : 0)]);
       // teardrop points up in the print (ball prints top down: up = -z)
-      if (sx < 0) translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, clamp_w + 4 * fork_leg_t + 4);
+      translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, post_w + 2);
     }
-    // latch bar across the legs (a short bridge in the print)
-    if (sx > 0) translate([-clamp_end / 2, -(clamp_w / 2 + fork_clear), min(clamp_face + dir * latch_clear, tip_latch)])
-      cube([clamp_end, clamp_w + 2 * fork_clear, latch_bar_t]);
   }
 }
 module pogo_clamp() {
   L = flange_pocket_l + 2 + 2 * clamp_end;
+  slot_l = clamp_end / 2 + post_t / 2 + fork_clear;   // from the forked end to past the post
   difference() {
-    translate([-L / 2, -clamp_w / 2, 0]) cube([L, clamp_w, clamp_t]);
+    union() {
+      translate([-L / 2, -clamp_w / 2, 0]) cube([L, clamp_w, clamp_t]);
+      translate([-L / 2, -clamp_fork_w / 2, 0]) cube([clamp_end, clamp_fork_w, clamp_t]);   // wider forked end
+    }
     translate([0, 0, -1]) linear_extrude(clamp_t + 2) stadium_2d(oval_hole_l + clamp_hole_add, oval_hole_w + clamp_hole_add);
+    translate([-L / 2 - 1, -(post_w / 2 + fork_clear), -1]) cube([slot_l + 1, post_w + 2 * fork_clear, clamp_t + 2]);
   }
 }
 
