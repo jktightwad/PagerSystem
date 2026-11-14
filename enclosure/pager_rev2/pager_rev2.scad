@@ -109,7 +109,7 @@ pogo_wall     = 1.2;    // wall round the flange
 // flange pocket walls stop this short so the clamp presses the flange, not the walls
 pogo_press    = 0.2;    // [0:0.05:0.6]
 clamp_t       = 1.6;    // [0.8:0.1:4]
-clamp_w       = 6.0;    // [4:0.1:12] (radial)
+clamp_w       = 7.0;    // [4:0.1:12] (radial); 1.25 mm rails beside the wire hole
 clamp_end     = 5.0;    // [3:0.5:10] clamp length past each flange end
 clamp_hole_add = 0.6;   // oval hole in the clamp: oval + this (back body + wires)
 // One clamp end hooks under a latch bar (insert, then lever the clamp down).
@@ -125,6 +125,13 @@ post_w        = 3.5;    // [3.5:0.1:6] pin post, across (= pin hole length)
 tine_w        = 2.0;    // [1:0.1:4] each fork tine beside the post
 pin_hole_d    = 1.8;    // 1.75 filament
 pin_floor     = 1.2;    // plastic beyond the pin hole
+// smoothing (strength): rounded clamp corners, fillets on its inside corners,
+// rounded post / leg edges and a 45 deg flare where they join the part
+clamp_round   = 0.8;    // [0:0.1:2] outside corners of the clamp
+clamp_fillet  = 1.0;    // [0:0.1:2] inside corners of the clamp (fork root, step)
+post_round    = 1.2;    // [0:0.1:1.7] vertical edges of the pin post
+leg_round     = 0.6;    // [0:0.1:0.8] vertical edges of the latch legs
+root_flare    = 0.9;    // [0:0.1:1.1] 45 deg flare at the post / leg roots
 
 /* [Component mounts] */
 pocket_wall    = 1.2;
@@ -318,40 +325,63 @@ module white_body() { difference() { white_vol(); number_vol(); } }
 // holders join the part; dir = -1 for the ball (they hang down), +1 for the base.
 function fork_x() = flange_pocket_l / 2 + 1 + clamp_end / 2;
 clamp_fork_w = post_w + 2 * fork_clear + 2 * tine_w;   // clamp width at the forked end
+// rounded rectangle centred on [cx, cy]
+module rrect_2d(w, l, r) { offset(r = r) square([max(0.01, w - 2 * r), max(0.01, l - 2 * r)], center = true); }
+// extrude a 2D profile from z_root to z_tip, flaring 45 deg (root_flare) at the root
+module flared(z_root, z_tip) {
+  dir = z_tip > z_root ? 1 : -1;
+  h = abs(z_tip - z_root); f = min(root_flare, h);
+  steps = max(1, round(f / 0.15));
+  translate([0, 0, min(z_root, z_tip) - (dir < 0 ? 0 : 0.01)]) linear_extrude(h + 0.01) children();
+  for (k = [0 : steps - 1]) {
+    g = f * (1 - (k + 0.5) / steps);             // grow at this slice
+    z = z_root + dir * k * f / steps;
+    translate([0, 0, dir > 0 ? z - 0.01 : z - f / steps]) linear_extrude(f / steps + 0.01) offset(delta = g) children();
+  }
+}
 module pogo_forks(clamp_face, z_root, dir) {
   pin_z  = clamp_face + dir * (pin_hole_d / 2);          // pin touches the clamp face
   tip_pin   = pin_z + dir * (pin_hole_d / 2 + pin_floor);
   tip_latch = clamp_face + dir * (latch_clear + latch_bar_t);
   // latch (+x)
   translate([fork_x(), 0, 0]) {
-    z0 = min(tip_latch, z_root); z1 = max(tip_latch, z_root);
-    for (sy = [-1, 1]) translate([-clamp_end / 2, sy * (clamp_w / 2 + fork_clear + latch_leg_t / 2) - latch_leg_t / 2, z0])
-      cube([clamp_end, latch_leg_t, z1 - z0 + (dir < 0 ? 0.01 : 0)]);
+    for (sy = [-1, 1]) flared(z_root, tip_latch)
+      translate([0, sy * (clamp_w / 2 + fork_clear + latch_leg_t / 2)]) rrect_2d(clamp_end, latch_leg_t, leg_round);
     translate([-clamp_end / 2, -(clamp_w / 2 + fork_clear), min(clamp_face + dir * latch_clear, tip_latch)])
       cube([clamp_end, clamp_w + 2 * fork_clear, latch_bar_t]);   // a short bridge in the print
   }
   // pin post (-x)
-  translate([-fork_x(), 0, 0]) {
-    z0 = min(tip_pin, z_root); z1 = max(tip_pin, z_root);
-    difference() {
-      translate([-post_t / 2, -post_w / 2, z0]) cube([post_t, post_w, z1 - z0 + (dir < 0 ? 0.01 : 0)]);
-      // teardrop points up in the print (ball prints top down: up = -z)
-      translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, post_w + 2);
-    }
+  translate([-fork_x(), 0, 0]) difference() {
+    flared(z_root, tip_pin) rrect_2d(post_t, post_w, post_round);
+    // teardrop points up in the print (ball prints top down: up = -z)
+    translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, post_w + 2 * root_flare + 2);
   }
 }
-module pogo_clamp() {
+module pogo_clamp_2d() {
   L = flange_pocket_l + 2 + 2 * clamp_end;
-  slot_l = clamp_end / 2 + post_t / 2 + fork_clear;   // from the forked end to past the post
+  slot_r = post_w / 2 + fork_clear;
+  slot_cx = -fork_x() + fork_clear;                    // round end of the slot, just past the post centre
+  difference() {
+  // fillet inside corners, then round outside corners (outline + slot only)
+  offset(r = -clamp_fillet) offset(delta = clamp_fillet)
+  offset(r = clamp_round) offset(delta = -clamp_round)
   difference() {
     union() {
-      translate([-L / 2, -clamp_w / 2, 0]) cube([L, clamp_w, clamp_t]);
-      translate([-L / 2, -clamp_fork_w / 2, 0]) cube([clamp_end, clamp_fork_w, clamp_t]);   // wider forked end
+      square([L, clamp_w], center = true);
+      // wider forked end, tapering 45 deg into the body
+      hull() {
+        translate([-L / 2, -clamp_fork_w / 2]) square([clamp_end, clamp_fork_w]);
+        translate([-L / 2, -clamp_w / 2]) square([clamp_end + (clamp_fork_w - clamp_w) / 2, clamp_w]);
+      }
     }
-    translate([0, 0, -1]) linear_extrude(clamp_t + 2) stadium_2d(oval_hole_l + clamp_hole_add, oval_hole_w + clamp_hole_add);
-    translate([-L / 2 - 1, -(post_w / 2 + fork_clear), -1]) cube([slot_l + 1, post_w + 2 * fork_clear, clamp_t + 2]);
+    // slot with a round end round the post
+    translate([-L / 2 - 1, -slot_r]) square([slot_cx + L / 2 + 1, 2 * slot_r]);
+    translate([slot_cx, 0]) circle(r = slot_r, $fn = 48);
+  }
+  stadium_2d(oval_hole_l + clamp_hole_add, oval_hole_w + clamp_hole_add);
   }
 }
+module pogo_clamp() { linear_extrude(clamp_t) pogo_clamp_2d(); }
 
 // ================= Component mounts (base top at z = base_t) ===============
 function wall_r(w, l, gap) = sqrt(pow(inside_r - gap, 2) - pow(w / 2 + pocket_clear, 2)) - l / 2 - pocket_clear;

@@ -41,6 +41,10 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
   a ~9 mm piece of 1.75 mm filament goes through the post's 1.8 mm hole
   (teardrop, no support), pushed in from the centre, and lies across the
   fork's tines.
+- Clamp 7 mm wide (1.25 mm rails beside the wire hole), outside corners
+  rounded 0.8 mm, inside corners (fork root, step to the wider end) filleted
+  1 mm, 45 deg taper into the forked end. Post and latch legs have rounded
+  edges and a 0.9 mm 45 deg flare at the root.
 
 ## Base
 - 1.65 mm plate, built up to 3.65 mm under each column for the M2 x 8 screw
