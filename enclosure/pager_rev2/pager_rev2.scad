@@ -118,6 +118,7 @@ fork_leg_t    = 3.5;    // [1.6:0.1:6] fork / latch leg thickness
 // (7 o'clock), the pin on the 5 o'clock side where it can be pushed in from
 // the centre.
 latch_bar_t   = 1.6;    // [0.8:0.1:4]
+latch_clear   = 0.1;    // [0:0.05:0.5] room for the clamp end under the latch bar
 fork_clear    = 0.3;    // clamp end to fork leg
 pin_hole_d    = 1.9;    // 1.75 filament
 pin_floor     = 1.2;    // plastic under the pin hole
@@ -315,7 +316,7 @@ function fork_x() = flange_pocket_l / 2 + 1 + clamp_end / 2;
 module pogo_forks(clamp_face, z_root, dir) {
   pin_z  = clamp_face + dir * (pin_hole_d / 2);          // pin touches the clamp face
   tip_pin   = pin_z + dir * (pin_hole_d / 2 + pin_floor);
-  tip_latch = clamp_face + dir * latch_bar_t;
+  tip_latch = clamp_face + dir * (latch_clear + latch_bar_t);
   for (sx = [-1, 1]) translate([sx * fork_x(), 0, 0]) {
     tip = sx > 0 ? tip_latch : tip_pin;
     z0 = min(tip, z_root); z1 = max(tip, z_root);
@@ -326,7 +327,7 @@ module pogo_forks(clamp_face, z_root, dir) {
       if (sx < 0) translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, clamp_w + 4 * fork_leg_t + 4);
     }
     // latch bar across the legs (a short bridge in the print)
-    if (sx > 0) translate([-clamp_end / 2, -(clamp_w / 2 + fork_clear), min(clamp_face, tip_latch)])
+    if (sx > 0) translate([-clamp_end / 2, -(clamp_w / 2 + fork_clear), min(clamp_face + dir * latch_clear, tip_latch)])
       cube([clamp_end, clamp_w + 2 * fork_clear, latch_bar_t]);
   }
 }
