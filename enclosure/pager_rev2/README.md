@@ -3,8 +3,9 @@
 Rev 1 (`../pager_shell_test/`) is kept unchanged. **Not yet printed.**
 
 Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
-`export_all` (parts for the number in `number_text`), `export_numbers`
-(ball / white / number for 1-15 into `numbers/`).
+`export_all` (every part, number from `number_text`), `export_numbers`
+(white + number for 1-15 into `numbers/`; the ball and touch_mark are the
+same for every number).
 
 ![Assembly](preview.png)
 
@@ -12,7 +13,7 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 
 | Part | Print | Notes |
 |---|---|---|
-| `ball` + `white` + `number` | Top down, one object with 3 parts (AMS) | Load the three STLs together in Bambu Studio as one object; ball colour / white / black |
+| `ball` + `white` + `number` | Top down, one object with 3 parts (AMS) | Load them (and `touch_mark`) together in Bambu Studio as one object; ball colour / white / black. `ball` is the same for every number; `white_N` / `number_N` come from `export_numbers` |
 | `touch_mark` | With the ball (4th part) | Ring on the top over the touch sensor, for its own colour |
 | `base` | Bottom down | Carries every component (Rev 1 chassis mounts) |
 | `pogo_clamp` | Flat, x2 | One for the top connector, one for the bottom |

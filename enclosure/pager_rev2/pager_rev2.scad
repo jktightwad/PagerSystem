@@ -290,7 +290,7 @@ module number_2d() {
       text(number_text, size = number_h, font = number_font, halign = "center", valign = "center");
       if (ul) translate([0, -glyph_h / 2 - gap - t / 2 - sag]) underline_2d();
     }
-    circle(d = white_d - 0.8);
+    circle(d = pocket_d - 0.8);   // number stays inside the light pocket, so the ball part is the same for every number
   }
 }
 // magnet boss: h tall, root at z = 0 (dir = +1, rises) or at z = h (dir = -1, hangs)
@@ -397,7 +397,7 @@ module mark_vol() {
   at_angle(mark_r, tsens_angle) translate([0, 0, ball_h - mark_t])
     linear_extrude(mark_t + 0.01) difference() { circle(d = mark_od, $fn = 64); circle(d = mark_od - 2 * mark_w, $fn = 64); }
 }
-module ball_body() { difference() { ball_shell(); white_vol(); number_vol(); mark_vol(); } }
+module ball_body() { difference() { ball_shell(); white_vol(); mark_vol(); } }   // same for every number
 module white_body() { difference() { white_vol(); number_vol(); mark_vol(); } }
 
 // ================= Pogo clamp holders ======================================
