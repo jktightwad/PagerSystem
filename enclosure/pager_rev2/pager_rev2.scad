@@ -56,10 +56,24 @@ tsens_clear   = 0.2;    // [0:0.05:1] round the sensor in its pocket
 tsens_wall_h  = 2.0;    // [0.5:0.1:6] locating walls (3 sides; wire end open)
 tsens_angle   = 0;      // [0:1:359]
 // circle printed on the top over the touch area (its own part: touch_mark)
-mark_od       = 9.6;    // [4:0.1:14]
+// ring fills the flat between the white circle and the start of the rounded
+// edge; full top thickness so the ball colour doesn't show through
+mark_od       = 11.0;   // [4:0.1:14] (11 = white circle to edge curve)
 mark_w        = 0.8;    // [0.4:0.1:3] line width
-mark_t        = 0.45;   // [0.2:0.05:1.65] depth from the top
-mark_gap      = 1.0;    // [0:0.1:5] between the white circle and the mark
+mark_t        = 1.65;   // [0.2:0.05:1.65] depth from the top (= top_t)
+mark_gap      = -0.1;   // [-0.5:0.05:5] between the white circle and the mark (slight overlap: just touching makes a non-manifold edge)
+
+/* [Base support] */
+// the base's screw build-ups stand this much proud and key into pockets in
+// the column ends (stops the base rotating)
+key_h         = 1.0;    // [0:0.1:3]
+key_clear     = 0.15;   // [0:0.05:0.5] round the key in the column pocket
+// tapered ledges on the ball wall that the base's top edge bears against
+ledge_d       = 6;      // [2:0.5:10] how far in from the wall
+ledge_w       = 8;      // [3:0.5:20] along the wall
+ledge_angles  = [82, 150, 240, 330];   // wall spots clear of the base parts (checked)
+// the top's pogo post and latch reach down to the base's ones (this gap left)
+pogo_support_gap = 0.2; // [0:0.05:1]
 
 /* [Number] */
 number_text  = "2";
@@ -189,6 +203,7 @@ boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 210.5;
 buzzer_d = 9.2; buzzer_gap = 0;
 buzzer_a = -1;          // -1 = auto: beside the LOLIN32's 12 o'clock end, away from the battery
 sound_hole_d   = 2.0;
+// old touch module pocket, now a spot for the GND / 3.3 V / 5 V rails
 touch_w = 24; touch_l = 24.3; touch_gap = 0; touch_a = 111;
 motor_d        = 7.0;
 motor_l        = 26;
@@ -336,6 +351,7 @@ module ball_shell() {
           square([tsens_l + 2 * tsens_clear, tsens_w + 2 * tsens_clear], center = true);
           translate([tsens_l / 2, 0]) square([4 * pocket_wall, tsens_w + 2 * tsens_clear], center = true);
         }
+      ledges();
       // magnet bosses under the top
       for (a = mag_angles) at_angle(mag_r, a)
         translate([0, 0, ball_h - mag_skin - mag_h]) mag_boss(mag_hole_ball, mag_h + mag_skin - top_t + 0.01, -1);
@@ -344,7 +360,9 @@ module ball_shell() {
         translate([0, 0, top_flange_back + pogo_press])
           linear_extrude(top_under - top_flange_back - pogo_press + 0.01)
             stadium_2d(flange_pocket_l + 2 * pogo_wall, flange_pocket_w + 2 * pogo_wall);
-        pogo_forks(top_flange_back - clamp_t, top_under, -1);
+        pogo_forks(top_flange_back - clamp_t, top_under, -1,
+                   post_to  = base_clamp_face + pin_hole_d + pin_floor + pogo_support_gap,
+                   latch_to = base_clamp_face + latch_clear + latch_bar_t + pogo_support_gap);
       }
     }
     // light pocket under the white
@@ -358,10 +376,18 @@ module ball_shell() {
       translate([0, 0, top_flange_back - 3]) linear_extrude(ball_h - face_body - top_flange_back + 3)
         stadium_2d(flange_pocket_l, flange_pocket_w);
     }
+    // pockets in the column ends for the base's keys
+    for (a = boss_angles) at_angle(boss_r, a) translate([0, 0, col_start - 0.01]) cylinder(d = boss_d + 2 * key_clear, h = key_h + key_clear + 0.01);
     // column screw pilots
     for (a = boss_angles) at_angle(boss_r, a)
       translate([0, 0, col_start - 1]) cylinder(d = screw_pilot, h = top_under - col_start, $fn = 24);
   }
+}
+base_clamp_face = base_flange_back + clamp_t;          // base clamp's top face
+// tapered ledge on the wall: flat underside at the base's top, 45 deg above
+module ledges() {
+  for (a = ledge_angles) rotate([0, 0, -a]) translate([-ledge_w / 2, 0, 0]) rotate([90, 0, 90])
+    linear_extrude(ledge_w) polygon([[inner_r - ledge_d, base_t], [inner_r + 0.5, base_t], [inner_r + 0.5, base_t + ledge_d + 0.5]]);
 }
 // touch area / mark centre, and the sensor's centre along the edge
 mark_r  = white_d / 2 + mark_gap + mark_od / 2;
@@ -371,7 +397,7 @@ module mark_vol() {
     linear_extrude(mark_t + 0.01) difference() { circle(d = mark_od, $fn = 64); circle(d = mark_od - 2 * mark_w, $fn = 64); }
 }
 module ball_body() { difference() { ball_shell(); white_vol(); number_vol(); mark_vol(); } }
-module white_body() { difference() { white_vol(); number_vol(); } }
+module white_body() { difference() { white_vol(); number_vol(); mark_vol(); } }
 
 // ================= Pogo clamp holders ======================================
 // Local +x end (world 7 o'clock side): latch = two thin legs and a bar; hook
@@ -395,20 +421,20 @@ module flared(z_root, z_tip) {
     translate([0, 0, dir > 0 ? z - 0.01 : z - f / steps]) linear_extrude(f / steps + 0.01) offset(delta = g) children();
   }
 }
-module pogo_forks(clamp_face, z_root, dir) {
+module pogo_forks(clamp_face, z_root, dir, post_to = undef, latch_to = undef) {
   pin_z  = clamp_face + dir * (pin_hole_d / 2);          // pin touches the clamp face
   tip_pin   = pin_z + dir * (pin_hole_d / 2 + pin_floor);
   tip_latch = clamp_face + dir * (latch_clear + latch_bar_t);
   // latch (+x)
   translate([fork_x(), 0, 0]) {
-    for (yy = [-(latch_win_in + latch_leg_t / 2), latch_win_out + latch_leg_t / 2]) flared(z_root, tip_latch)
+    for (yy = [-(latch_win_in + latch_leg_t / 2), latch_win_out + latch_leg_t / 2]) flared(z_root, latch_to == undef ? tip_latch : latch_to)
       translate([0, yy]) rrect_2d(clamp_end, latch_leg_t, leg_round);
     translate([-clamp_end / 2, -latch_win_in, min(clamp_face + dir * latch_clear, tip_latch)])
       cube([clamp_end, latch_win_in + latch_win_out, latch_bar_t]);   // a short bridge in the print
   }
   // pin post (-x)
   translate([-fork_x(), 0, 0]) difference() {
-    flared(z_root, tip_pin) rrect_2d(post_t, post_w, post_round);
+    flared(z_root, post_to == undef ? tip_pin : post_to) rrect_2d(post_t, post_w, post_round);
     // teardrop points up in the print (ball prints top down: up = -z)
     translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, post_w + 2 * root_flare + 2);
   }
@@ -524,7 +550,7 @@ module base_part(parts = true) {
     union() {
       cylinder(d = ball_od - 2 * ball_wall - base_clear_d, h = base_t);
       // build-up under each column for the screw head
-      for (a = boss_angles) at_angle(boss_r, a) cylinder(d = boss_d, h = col_start);
+      for (a = boss_angles) at_angle(boss_r, a) cylinder(d = boss_d, h = col_start + key_h);   // + key into the column
       // LED ring posts
       for (p = ring_posts) translate([p[0] * ring_hole_cx / 2, p[1] * ring_hole_cy / 2, base_t - 0.01])
         cylinder(d = ring_post_d, h = ring_bottom - base_t + 0.01, $fn = 32);

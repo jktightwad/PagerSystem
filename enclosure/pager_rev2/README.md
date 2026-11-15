@@ -58,9 +58,23 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 - 14.6 x 11 mm module under the top at 12 o'clock (opposite the pogo), long
   side along the edge, held by 2 mm walls on three sides (wire end open) and
   set into the corner build-up. Its 11 mm touch area (1 mm in from one end)
-  is under the `touch_mark` ring (9.6 mm, 0.8 mm line, 0.45 mm deep), 1 mm
-  outside the white circle. It senses through the 1.65 mm top.
-- The base still has the old 24 x 24.3 touch module pocket at 4 o'clock.
+  is under the `touch_mark` ring: 11 mm across (fills the flat between the
+  white circle and the rounded edge, overlapping the white by 0.1 mm), 0.8 mm
+  line (`mark_w`), full top thickness (1.65 mm) so no ball colour shows
+  through. The ball-colour disc inside the ring is held by the ring when the
+  parts print together. It senses through the 1.65 mm top.
+- The base's old 24 x 24.3 touch pocket at 4 o'clock stays as a spot for the
+  GND / 3.3 V / 5 V rails.
+
+## Base support
+- The base's screw build-ups stand 1 mm proud and key into pockets in the
+  column ends (0.15 mm clearance), so the base can't rotate.
+- Tapered ledges on the ball wall (6 mm in, 8 mm wide, 45 deg above) that
+  the base's edge bears against, at 82, 150, 240 and 330 deg: the wall spots
+  clear of the base parts (0 deg is the LOLIN32, 270 the battery, 90 the
+  rails pocket).
+- At 6 o'clock the top's pogo post and latch reach down to 0.2 mm above the
+  base's post and latch.
 
 ## Base
 - 1.65 mm plate, built up to 3.65 mm under each column for the M2 x 8 screw
