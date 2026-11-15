@@ -69,10 +69,10 @@ Source: `pager_rev2.scad` (OpenSCAD, Customizer groups). Scripts:
 ## Base support
 - The base's screw build-ups stand 1 mm proud and key into pockets in the
   column ends (0.15 mm clearance), so the base can't rotate.
-- Tapered ledges on the ball wall (6 mm in, 8 mm wide, 45 deg above) that
-  the base's edge bears against, at 82, 150, 240 and 330 deg: the wall spots
-  clear of the base parts (0 deg is the LOLIN32, 270 the battery, 90 the
-  rails pocket).
+- A 2 mm ledge runs all round the ball wall at the column ends (45 deg above
+  it, prints without support), and the base has a matching 2 mm rim round its
+  edge up to the same height, so the base is supported all round. Parts that
+  sat against the wall now sit against the rim (2 mm further in).
 - At 6 o'clock the top's pogo post and latch reach down to 0.2 mm above the
   base's post and latch.
 

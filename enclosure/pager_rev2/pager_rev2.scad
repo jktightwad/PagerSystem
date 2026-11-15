@@ -68,10 +68,11 @@ mark_gap      = -0.1;   // [-0.5:0.05:5] between the white circle and the mark (
 // the column ends (stops the base rotating)
 key_h         = 1.0;    // [0:0.1:3]
 key_clear     = 0.15;   // [0:0.05:0.5] round the key in the column pocket
-// tapered ledges on the ball wall that the base's top edge bears against
-ledge_d       = 6;      // [2:0.5:10] how far in from the wall
-ledge_w       = 8;      // [3:0.5:20] along the wall
-ledge_angles  = [82, 150, 240, 330];   // wall spots clear of the base parts (checked)
+// support ring: a ledge all round the ball wall at the column ends
+// (col_start), and a matching rim round the base's edge up to it, so the base
+// is supported all round, not only at the screws. Parts placed "against the
+// wall" now sit against the base's rim.
+rim_w         = 2.0;    // [1:0.1:5] ledge / rim width
 // the top's pogo post and latch reach down to the base's ones (this gap left)
 pogo_support_gap = 0.2; // [0:0.05:1]
 
@@ -246,7 +247,7 @@ pocket_d    = white_d - 2 * pocket_rim;
 col_start   = base_t + screw_boss_h;        // columns start here
 ring_bottom = white_under - led_gap - ring_h;
 inner_r     = (ball_od - 2 * ball_wall) / 2;
-inside_r    = inner_r - wall_gap;           // parts placed against the wall touch here
+inside_r    = inner_r - base_clear_d / 2 - rim_w - wall_gap;   // parts placed against the wall (the base rim) touch here
 // pogo z levels
 top_flange_back  = ball_h - face_body - flange_t;              // clamp's top face (ball)
 base_flange_back = face_body + flange_t + base_pogo_extra;     // clamp's bottom face (base)
@@ -305,7 +306,7 @@ module cavity_2d(grow = 0) {
     difference() { circle(d = ball_od - 2 * ball_wall); bosses_2d(); }
 }
 // where base components may go: inside the ball wall and the columns
-module base_inside_2d() { cavity_2d(-wall_gap); }
+module base_inside_2d() { cavity_2d(-(base_clear_d / 2 + rim_w + wall_gap)); }
 
 // ================= Ball (upright; colour body / white / number) ============
 module ball_outer() {
@@ -351,7 +352,7 @@ module ball_shell() {
           square([tsens_l + 2 * tsens_clear, tsens_w + 2 * tsens_clear], center = true);
           translate([tsens_l / 2, 0]) square([4 * pocket_wall, tsens_w + 2 * tsens_clear], center = true);
         }
-      ledges();
+      support_ledge();
       // magnet bosses under the top
       for (a = mag_angles) at_angle(mag_r, a)
         translate([0, 0, ball_h - mag_skin - mag_h]) mag_boss(mag_hole_ball, mag_h + mag_skin - top_t + 0.01, -1);
@@ -384,10 +385,10 @@ module ball_shell() {
   }
 }
 base_clamp_face = base_flange_back + clamp_t;          // base clamp's top face
-// tapered ledge on the wall: flat underside at the base's top, 45 deg above
-module ledges() {
-  for (a = ledge_angles) rotate([0, 0, -a]) translate([-ledge_w / 2, 0, 0]) rotate([90, 0, 90])
-    linear_extrude(ledge_w) polygon([[inner_r - ledge_d, base_t], [inner_r + 0.5, base_t], [inner_r + 0.5, base_t + ledge_d + 0.5]]);
+// ledge all round the wall: flat underside at the column ends, 45 deg above
+module support_ledge() {
+  rotate_extrude($fn = 128)
+    polygon([[inner_r - rim_w, col_start], [inner_r + 0.5, col_start], [inner_r + 0.5, col_start + rim_w + 0.5]]);
 }
 // touch area / mark centre, and the sensor's centre along the edge
 mark_r  = white_d / 2 + mark_gap + mark_od / 2;
@@ -549,6 +550,11 @@ module base_part(parts = true) {
     cylinder(d = ball_od - 2 * ball_wall - base_clear_d, h = ball_h);
     union() {
       cylinder(d = ball_od - 2 * ball_wall - base_clear_d, h = base_t);
+      // rim round the edge up to the ball's support ledge
+      difference() {
+        cylinder(d = ball_od - 2 * ball_wall - base_clear_d, h = col_start);
+        translate([0, 0, -1]) cylinder(r = inner_r - base_clear_d / 2 - rim_w, h = col_start + 2);
+      }
       // build-up under each column for the screw head
       for (a = boss_angles) at_angle(boss_r, a) cylinder(d = boss_d, h = col_start + key_h);   // + key into the column
       // LED ring posts
