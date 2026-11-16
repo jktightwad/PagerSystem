@@ -186,9 +186,10 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   measure with the in-line meter once a pager runs on battery.
 - Later, if runtime is too short: "service mode" (Wi-Fi only on the dock,
   for a few minutes after power-up, or on demand) and ESP-NOW power saving.
-- To check on the office network: some networks block devices from talking
-  to each other (client isolation), which would stop the Wi-Fi fallback and
-  the pager page / OTA from a PC.
+- Office network: devices can reach each other (no client isolation). The
+  desktop notifier lights are reached by IP from a PC there for OTA and admin
+  actions, so the pager page, OTA and the Wi-Fi fallback to the base should
+  work the same way.
 
 ## Pager enclosure and stacking (proposed)
 - Looks like a pool ball: **coloured outer border** (ball colour), **white
