@@ -10,6 +10,8 @@
 //   ALERT   green spinning light + beeps + vibration: your turn
 //   ACKED   button pressed: green changes to blue, stays blue until docked
 // Serial: d = dock, u = lift, k = confirm, a = your turn, s or button = ack.
+// Wi-Fi + OTA: copy include/secrets.example.h to include/secrets.h and fill it
+// in; after one USB upload, later uploads can go over the air (platformio.ini).
 //
 // Libraries: "Adafruit NeoPixel" (1.12 or newer for Arduino-ESP32 core 3.x).
 // Board: WEMOS LOLIN32 Lite, Arduino-ESP32 core 3.x. Serial 115200.
@@ -19,6 +21,21 @@
 // STATUS: written, not compiled or tested.
 
 #include <Adafruit_NeoPixel.h>
+
+// Wi-Fi + over-the-air updates, only if include/secrets.h exists
+// (copy include/secrets.example.h to include/secrets.h and fill it in)
+#if __has_include("secrets.h")
+#include "secrets.h"
+#define HAVE_WIFI 1
+#include <WiFi.h>
+#include <WiFiMulti.h>
+#include <ArduinoOTA.h>
+WiFiMulti wifiMulti;
+struct WifiCred { const char* ssid; const char* pass; };
+const WifiCred WIFI_LIST[] = WIFI_NETWORKS;
+#else
+#define HAVE_WIFI 0
+#endif
 
 // ---- Pins (all avoid ESP32 strapping pins 0, 2, 5, 12, 15) ----
 #define PIN_RING      26   // WS2812 DIN, via 330 ohm resistor
@@ -412,6 +429,61 @@ void fullTest() {
   allOff();
 }
 
+// ---------------- Wi-Fi / OTA ----------------
+#if HAVE_WIFI
+void wifiStart() {
+  WiFi.mode(WIFI_STA);
+  WiFi.setHostname(PAGER_HOSTNAME);
+  for (const WifiCred& c : WIFI_LIST) wifiMulti.addAP(c.ssid, c.pass);
+  Serial.println("Wi-Fi: connecting...");
+  if (wifiMulti.run(15000) == WL_CONNECTED)
+    Serial.printf("Wi-Fi: %s, IP %s, %d dBm. OTA name %s\n", WiFi.SSID().c_str(),
+                  WiFi.localIP().toString().c_str(), WiFi.RSSI(), PAGER_HOSTNAME);
+  else
+    Serial.println("Wi-Fi: not connected (will keep retrying)");
+
+  ArduinoOTA.setHostname(PAGER_HOSTNAME);
+  ArduinoOTA.setPassword(OTA_PASSWORD);
+  ArduinoOTA.onStart([]() {
+    allOff();
+    Serial.println("OTA: receiving update...");
+  });
+  ArduinoOTA.onProgress([](unsigned int done, unsigned int total) {
+    static int lastPct = -1;
+    int pct = done * 100 / total;
+    if (pct / 10 != lastPct / 10) { Serial.printf("OTA: %d%%\n", pct); lastPct = pct; }
+    ring.clear();                                    // progress on the ring
+    for (int i = 0; i < RING_LEDS * pct / 100; i++) ring.setPixelColor(i, ring.Color(0, 0, 255));
+    ring.show();
+  });
+  ArduinoOTA.onEnd([]() { Serial.println("OTA: done, rebooting"); });
+  ArduinoOTA.onError([](ota_error_t e) { Serial.printf("OTA: error %u\n", e); allOff(); });
+  ArduinoOTA.begin();
+}
+
+void wifiLoop() {
+  static uint32_t lastTry = 0;
+  if (WiFi.status() != WL_CONNECTED && millis() - lastTry > 30000) {
+    lastTry = millis();
+    if (wifiMulti.run(5000) == WL_CONNECTED)
+      Serial.printf("Wi-Fi: reconnected, IP %s\n", WiFi.localIP().toString().c_str());
+  }
+  ArduinoOTA.handle();
+}
+
+void printWifi() {
+  if (WiFi.status() == WL_CONNECTED)
+    Serial.printf("Wi-Fi: %s, IP %s, %d dBm, OTA name %s\n", WiFi.SSID().c_str(),
+                  WiFi.localIP().toString().c_str(), WiFi.RSSI(), PAGER_HOSTNAME);
+  else
+    Serial.println("Wi-Fi: not connected");
+}
+#else
+void wifiStart() { Serial.println("Wi-Fi/OTA off: no include/secrets.h"); }
+void wifiLoop() {}
+void printWifi() { Serial.println("Wi-Fi/OTA off: no include/secrets.h"); }
+#endif
+
 void printStatus() {
   Serial.printf("Battery %.2f V | Dock input %.2f V (%s) | Button %s\n",
                 readVolts(PIN_BATT_ADC), readVolts(PIN_DOCK_ADC),
@@ -472,11 +544,14 @@ void setup() {
   Serial.println("f = beeper frequency sweep, r = reference beep");
   Serial.println("Light test: l = next ball colour, + / - = brightness, w = white, g = faint glow, s = off");
   Serial.println("  c R G B = set the shown colour (e.g. c 255 100 0), p = print colour table");
+  Serial.println("i = Wi-Fi / OTA status");
   printStatus();
+  wifiStart();
   setState(onDock() ? DOCKED : LIFTED);
 }
 
 void loop() {
+  wifiLoop();
   if (Serial.available()) {
     char c = Serial.read();
     switch (c) {
@@ -491,6 +566,7 @@ void loop() {
       case 't': componentTest(); setState(onDock() ? DOCKED : LIFTED); break;
       case 'x': fullTest(); setState(onDock() ? DOCKED : LIFTED); break;
       case 'b': printStatus(); break;
+      case 'i': printWifi(); break;
       case 'f': beepSweep(); break;
       case 'r': beepReference(); break;
       case 'l': case '+': case '-': case 'w': case 'g': lightCommand(c); break;
