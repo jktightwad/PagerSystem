@@ -10,7 +10,7 @@ bottom pogo GND -+-------------------------------> top pogo GND, pigtail GND
 
 battery + --> power switch --> LOLIN32 JST (battery in)
 LOLIN32 3V3 --> LED ring 5V/VCC pin, buzzer (+), vibration motor (+)
-                buzzer and motor switched on their GND side by NPNs (GPIO 25, GPIO 27), diode across the motor
+                buzzer and motor switched on their GND side by NPNs (buzzer GPIO 27, motor GPIO 25), diode across the motor
 LED ring DI <-- 330R <-- GPIO 26          (3.3 V supply and 3.3 V data: no level shifter needed)
 touch module OUT --> GPIO 4
 ```
@@ -43,8 +43,8 @@ is on.
 | Function | LOLIN32 pin | Parts |
 |---|---|---|
 | WS2812 ring DI (data in) | GPIO 26 | 330 Ω series resistor, close to the ring. DO not connected |
-| Active buzzer | GPIO 25 | 1 kΩ to NPN base |
-| Vibration motor (3 V coreless) | GPIO 27 | NPN (330 Ω) or logic-level MOSFET, see below |
+| Active buzzer | GPIO 27 | 1 kΩ to NPN base |
+| Vibration motor (3 V coreless) | GPIO 25 | NPN (330 Ω) or logic-level MOSFET, see below |
 | Touch module OUT (acknowledge) | GPIO 4 | Module VCC to 3V3, GND to GND, OUT to GPIO 4. Sketch assumes OUT goes HIGH when touched (`TOUCH_ACTIVE_HIGH 1`); set 0 for a plain button to GND. RTC pin, can wake from deep sleep |
 | Dock sense | GPIO 34 | 100 kΩ / 100 kΩ divider from the pogo 5 V (before the diode) |
 | Battery voltage | GPIO 35 | 100 kΩ / 100 kΩ divider from battery + |
@@ -93,7 +93,7 @@ BAT+ rail ───────────────────────�
   brightness at 64/255. If standby time is poor, add a P-channel MOSFET to
   switch the ring's supply.
 
-## Beeper: active buzzer (GPIO 25)
+## Beeper: active buzzer (GPIO 27)
 
 ```
  LiPo + ──┬──────────────┐
@@ -103,7 +103,7 @@ BAT+ rail ───────────────────────�
       band to LiPo +)    │
           └──────────────┤
                          C
- GPIO 25 ── 1 kΩ ──────► B  2N2222 / PN2222A
+ GPIO 27 ── 1 kΩ ──────► B  2N2222 / PN2222A
                          E
                          │
                         GND
@@ -113,7 +113,7 @@ BAT+ rail ───────────────────────�
 - TO-92 2N2222A / PN2222A is usually E-B-C (flat face toward you, legs
   down). Check the datasheet for your exact part.
 
-## Vibration: 3 V coreless motor (GPIO 27)
+## Vibration: 3 V coreless motor (GPIO 25)
 
 Same type as the SkHCrusher/customer-pager parts list ("Vibration motor
 3.7V"): a small coreless vibration motor with its eccentric weight already
@@ -133,13 +133,13 @@ expected to be enough**; measure the running current at 3 V to confirm:
        LiPo +)            │
           └───────────────┤
                           D
- GPIO 27 ── 100 Ω ──┬───► G   IRLZ44N / IRLB8721  (G-D-S, check datasheet)
+ GPIO 25 ── 100 Ω ──┬───► G   IRLZ44N / IRLB8721  (G-D-S, check datasheet)
                     │     S
                   100 kΩ  │
                     │     │
                    GND   GND
 ```
-(2N2222 version: same, with GPIO 27 -> 330 Ω -> base, emitter to GND,
+(2N2222 version: same, with GPIO 25 -> 330 Ω -> base, emitter to GND,
 collector to motor (-), no 100 kΩ.)
 
 - **1N5819 Schottky across the motor is required** (band toward LiPo +).
