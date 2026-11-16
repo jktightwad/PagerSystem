@@ -15,7 +15,9 @@
 // Boot lights (as the desktop notifier): blue progress bar while scanning,
 // orange while joining, steady purple (middle 6) during the setup hotspot,
 // green flash when joined through it, then middle-6 purple blink while the
-// PoolPager-<ip> hotspot is up. Any page action or touch stops the blink.
+// PoolPager-<ip> hotspot is up. Wi-Fi runs in the background: the pager works
+// straight away, and any touch, page action, serial command or docking takes
+// the ring over from the boot lights. Docking / lifting always sets the mode.
 // Touch: 1 tap = light on (not while reserved; "your turn" = acknowledge),
 // 2 taps = next light mode, 3 taps within 3 s = everything off.
 // Light modes (as the notifier): solid, blink, party, knight rider, breathe,
@@ -339,8 +341,9 @@ void middle6(uint32_t color) {   // 6 LEDs in the middle of the ring
   ring.show();
 }
 const uint32_t BOOT_PURPLE = 0x8000FF;
-void stopDiscoveryBlink() {      // any page action / touch takes over the ring
-  if (discoveryBlink) { discoveryBlink = false; ringFill(0); }
+bool bootLights = true;          // ring shows the Wi-Fi progress until someone uses the pager
+void stopDiscoveryBlink() {      // any page action / touch / serial command / docking takes over the ring
+  if (bootLights || discoveryBlink) { bootLights = false; discoveryBlink = false; ringFill(0); }
 }
 
 // ======================= Touch gestures =======================
@@ -407,55 +410,44 @@ void rememberCurrentNetwork() {
   if (WiFi.status() == WL_CONNECTED) wifiStore.remember(WiFi.SSID(), WiFi.psk());
 }
 
-// Known networks in range strongest first, then unseen (maybe hidden) ones.
-// Ring: blue bar while scanning, orange while joining.
-bool tryKnownNetworks() {
-  std::vector<WifiCred> known = knownNetworks();
-  if (known.empty()) { Serial.println("[WiFi] No known networks"); return false; }
-  Serial.printf("[WiFi] Scanning for %u known network(s)...\n", (unsigned)known.size());
-  // blue progress bar while scanning (as the notifier)
+// Wi-Fi runs in the background (nothing here blocks), so the pager can be
+// used straight away. Known networks in range are tried strongest first, then
+// unseen (maybe hidden) ones; if none connects at power-up, the PoolPager-Setup
+// hotspot runs for 5 min; offline, it rescans once a minute.
+enum WifiPhase { WF_SCAN, WF_JOIN, WF_PORTAL, WF_ONLINE, WF_OFFLINE };
+WifiPhase wf = WF_SCAN;
+uint32_t wfAt = 0, wfJoinMs = 15000, greenFlashUntil = 0;
+std::vector<WifiCred> wfCands;
+std::vector<bool> wfSeen;
+size_t wfIdx = 0;
+bool portalTried = false, viaPortal = false, webStarted = false;
+void webStart();
+
+void startScan() {
   WiFi.scanDelete();
   WiFi.scanNetworks(true);
-  uint32_t s0 = millis();
-  int found;
-  while ((found = WiFi.scanComplete()) == WIFI_SCAN_RUNNING && millis() - s0 < 10000) {
-    drawBar(rgb(0, 0, 255), (millis() - s0) / 10000.0f);
-    delay(120);
-  }
-  struct Cand { size_t idx; int rssi; };
-  std::vector<Cand> c;
-  for (size_t k = 0; k < known.size(); k++) {
-    int best = -1000;
-    for (int i = 0; i < found; i++) if (WiFi.SSID(i) == known[k].ssid && WiFi.RSSI(i) > best) best = WiFi.RSSI(i);
-    c.push_back({k, best});
-  }
-  WiFi.scanDelete();
-  std::stable_sort(c.begin(), c.end(), [](const Cand& a, const Cand& b) { return a.rssi > b.rssi; });
-  for (const Cand& x : c) {
-    const WifiCred& n = known[x.idx];
-    bool seen = x.rssi != -1000;
-    Serial.printf("[WiFi] Trying \"%s\"%s...\n", n.ssid.c_str(), seen ? "" : " (not seen, may be hidden)");
-    WiFi.begin(n.ssid.c_str(), n.pass.c_str());
-    uint32_t s = millis(), ms = seen ? 15000u : 8000u;
-    while (WiFi.status() != WL_CONNECTED && millis() - s < ms) {   // orange bar while joining
-      drawBar(rgb(255, 128, 0), (millis() - s) / (float)ms);
-      delay(120);
-    }
-    if (WiFi.status() == WL_CONNECTED) { ringFill(0); return true; }
-    WiFi.disconnect();
-  }
-  ringFill(0);
-  return false;
+  wf = WF_SCAN; wfAt = millis();
 }
-
-bool runPortal() {
+void startPortal() {
+  portalTried = true;
   Serial.println("[WiFi] Opening hotspot PoolPager-Setup for 5 min: join it and pick the network");
-  middle6(BOOT_PURPLE);                          // steady purple while the setup hotspot is up
+  wm.setConfigPortalBlocking(false);
   wm.setConfigPortalTimeout(300);
-  bool ok = wm.startConfigPortal("PoolPager-Setup");
-  ringFill(0);
-  if (ok) { ringFill(rgb(0, 255, 0)); delay(120); ringFill(0); }   // green flash: joined
-  return ok;
+  wm.startConfigPortal("PoolPager-Setup");
+  wf = WF_PORTAL; wfAt = millis();
+}
+void joinNext() {
+  if (wfIdx >= wfCands.size()) {
+    WiFi.disconnect();
+    if (!portalTried) startPortal();
+    else { wf = WF_OFFLINE; wfAt = millis(); bootLights = false; Serial.println("[WiFi] Not connected (retrying every minute)"); }
+    return;
+  }
+  const WifiCred& n = wfCands[wfIdx];
+  Serial.printf("[WiFi] Trying \"%s\"%s...\n", n.ssid.c_str(), wfSeen[wfIdx] ? "" : " (not seen, may be hidden)");
+  WiFi.begin(n.ssid.c_str(), n.pass.c_str());
+  wfJoinMs = wfSeen[wfIdx] ? 15000 : 8000;
+  wf = WF_JOIN; wfAt = millis();
 }
 
 // Hotspot named after the IP for 60 s, so it can be read from a phone
@@ -463,50 +455,100 @@ void announceIp() {
   String ip = WiFi.localIP().toString();
   ip.replace(".", "-");
   String ap = "PoolPager-" + ip;
+  WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(ap.c_str());
   discoveryUntil = millis() + 60000;
-  discoveryBlink = true;
+  if (bootLights) discoveryBlink = true;
   Serial.printf("[WiFi] Hotspot \"%s\" for 60 s (shows the IP)\n", ap.c_str());
 }
+void goOnline(bool announce) {
+  wf = WF_ONLINE;
+  rememberCurrentNetwork();
+  Serial.printf("[WiFi] Connected: %s, IP %s, %d dBm\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
+  if (!webStarted) { webStart(); webStarted = true; }
+  if (viaPortal) { greenFlashUntil = millis() + 150; viaPortal = false; }
+  if (announce) announceIp();
+}
 
-void wifiConnect() {
+void wifiBegin() {
   WiFi.mode(WIFI_STA);
   WiFi.setHostname(pagerName.c_str());
-  bool forget = prefs.getBool("forget", false);
-  if (forget) {                                   // set by "Forget Wi-Fi"
+  if (prefs.getBool("forget", false)) {             // set by "Forget Wi-Fi" or a 5 s touch at power-up
     prefs.putBool("forget", false);
     wifiStore.clear();
     WiFi.disconnect(true, true);
+    startPortal();
+    return;
   }
-  bool ok = !forget && tryKnownNetworks();
-  if (!ok) ok = runPortal();
-  if (ok) {
-    rememberCurrentNetwork();
-    Serial.printf("[WiFi] Connected: %s, IP %s, %d dBm\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
-    WiFi.mode(WIFI_AP_STA);
-    announceIp();
-  } else {
-    Serial.println("[WiFi] Not connected (pager works without Wi-Fi; retrying every minute)");
-  }
+  if (knownNetworks().empty()) { startPortal(); return; }
+  Serial.println("[WiFi] Scanning...");
+  startScan();
 }
 
-// From loop(): reconnect / try other known networks once a minute if down
-void wifiService() {
-  static bool was = false;
-  static uint32_t lastTry = 0;
-  bool now = WiFi.status() == WL_CONNECTED;
-  if (now != was) {
-    was = now;
-    if (now) { rememberCurrentNetwork(); Serial.printf("[WiFi] Connected, IP %s\n", WiFi.localIP().toString().c_str()); }
-    else Serial.println("[WiFi] Disconnected");
+void wifiLoop() {
+  bool conn = WiFi.status() == WL_CONNECTED;
+  switch (wf) {
+    case WF_SCAN: {
+      int found = WiFi.scanComplete();
+      if (found == WIFI_SCAN_RUNNING && millis() - wfAt < 10000) break;
+      std::vector<WifiCred> known = knownNetworks();
+      std::vector<std::pair<int, size_t>> order;              // (rssi, index)
+      for (size_t k = 0; k < known.size(); k++) {
+        int best = -1000;
+        for (int i = 0; i < found; i++) if (WiFi.SSID(i) == known[k].ssid && WiFi.RSSI(i) > best) best = WiFi.RSSI(i);
+        order.push_back({best, k});
+      }
+      WiFi.scanDelete();
+      std::stable_sort(order.begin(), order.end(), [](const std::pair<int, size_t>& a, const std::pair<int, size_t>& b) { return a.first > b.first; });
+      wfCands.clear(); wfSeen.clear();
+      for (auto& o : order) { wfCands.push_back(known[o.second]); wfSeen.push_back(o.first != -1000); }
+      wfIdx = 0;
+      joinNext();
+      break;
+    }
+    case WF_JOIN:
+      if (conn) goOnline(true);
+      else if (millis() - wfAt > wfJoinMs) { WiFi.disconnect(); wfIdx++; joinNext(); }
+      break;
+    case WF_PORTAL:
+      if (wm.process() || conn) { viaPortal = true; goOnline(true); }
+      else if (millis() - wfAt > 300000) {
+        wm.stopConfigPortal();
+        wf = WF_OFFLINE; wfAt = millis(); bootLights = false;
+        Serial.println("[WiFi] Setup hotspot timed out (retrying known networks every minute)");
+      }
+      break;
+    case WF_ONLINE:
+      if (!conn) { wf = WF_OFFLINE; wfAt = millis(); Serial.println("[WiFi] Disconnected"); }
+      break;
+    case WF_OFFLINE:
+      if (conn) goOnline(false);                               // the Wi-Fi library reconnected by itself
+      else if (millis() - wfAt > 60000 && !knownNetworks().empty()) startScan();
+      break;
   }
-  if (!now && millis() - lastTry > 60000) { lastTry = millis(); tryKnownNetworks(); }
   if (discoveryUntil && millis() > discoveryUntil) {
     discoveryUntil = 0;
     WiFi.softAPdisconnect(true);
     WiFi.mode(WIFI_STA);
-    stopDiscoveryBlink();
+    if (discoveryBlink) ringFill(0);
+    discoveryBlink = false;
+    bootLights = false;                                       // boot sequence over
   }
+}
+
+// Boot lights, only while the pager is idle and nobody has used it yet
+bool drawBootLights() {
+  if (!bootLights || demoMode || !(state == DOCKED || state == LIFTED)) return false;
+  uint32_t now = millis();
+  if (now < greenFlashUntil) { ringFill(rgb(0, 255, 0)); return true; }
+  switch (wf) {
+    case WF_SCAN:   drawBar(rgb(0, 0, 255), (now - wfAt) / 10000.0f); return true;
+    case WF_JOIN:   drawBar(rgb(255, 128, 0), (now - wfAt) / (float)wfJoinMs); return true;
+    case WF_PORTAL: middle6(BOOT_PURPLE); return true;
+    default: break;
+  }
+  if (discoveryBlink) { if ((now / 400) % 2) middle6(BOOT_PURPLE); else ringFill(0); return true; }
+  return false;
 }
 
 // ======================= Web page =======================
@@ -673,17 +715,15 @@ void setup() {
     ringFill(0);
   }
 
-  wifiConnect();
-  webStart();
   setState(onDock() ? DOCKED : LIFTED);
+  wifiBegin();                      // runs in the background from loop()
   Serial.println("Serial: i = Wi-Fi status, a = alert, s = ack, t = self test, d = demo on/off");
 }
 
 void loop() {
-  server.handleClient();
-  ElegantOTA.loop();
-  ArduinoOTA.handle();
-  wifiService();
+  if (webStarted) server.handleClient();
+  if (webStarted) { ElegantOTA.loop(); ArduinoOTA.handle(); }
+  wifiLoop();
 
   if (Serial.available()) {
     char c = Serial.read();
@@ -707,10 +747,8 @@ void loop() {
   if (vibeUntil && millis() > vibeUntil) { vibeUntil = 0; vibe(false); }
 
   if (demoMode) runDemo();
-  // middle-6 purple blink while the PoolPager-<ip> hotspot is up, until a page action or a touch
-  if (discoveryBlink) {
-    if ((millis() / 400) % 2) middle6(BOOT_PURPLE); else ringFill(0);
-  } else {
+  // boot lights (Wi-Fi progress, PoolPager-<ip> blink) until the pager is used
+  if (!drawBootLights()) {
     switch (state) {
       case DOCKED:  runDocked();  break;
       case LIFTED:  runLifted();  break;
@@ -730,7 +768,11 @@ void loop() {
   if (dock != lastDock) {
     lastDock = dock;
     Serial.printf("Dock: %s\n", dock ? "placed" : "lifted");
-    if (!demoMode && state != TEST && state != LIGHT && state != LAMP) setState(dock ? DOCKED : LIFTED);
+    if (state != TEST) {             // docking / lifting always sets the mode (stops demo and light modes)
+      demoMode = false;
+      stopDiscoveryBlink();
+      setState(dock ? DOCKED : LIFTED);
+    }
   }
   delay(5);
 }

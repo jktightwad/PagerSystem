@@ -26,8 +26,14 @@ tested.** `pager_alert_test/` stays as the bench test sketch.
 Blue progress bar while scanning, orange while joining a network, steady
 purple (middle 6 LEDs) while the setup hotspot is up, a green flash when
 joined through it, then a middle-6 purple blink for up to 60 s while the
-PoolPager-<ip> hotspot shows the IP. Opening the page, any page action, a
-serial command or a touch stops the blink.
+PoolPager-<ip> hotspot shows the IP. Wi-Fi connects in the background, so the
+pager works straight away: a touch, a serial command, docking / lifting, or
+(once connected) opening the page or any page action takes the ring over from
+the boot lights. The page is available once Wi-Fi is connected (during the
+setup hotspot the hotspot's own page is used instead).
+
+Docking or lifting always switches to Docked / Lifted (stops demo and light
+modes); only the self test isn't interrupted.
 
 ## Touch pad
 - **1 tap:** light on in the last light mode (not while reserved: confirm /
