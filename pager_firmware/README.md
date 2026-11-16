@@ -41,6 +41,10 @@ modes); only the self test isn't interrupted.
 - **2 taps:** next light mode (solid, blink, party, knight rider, breathe,
   comet, rainbow, pulse).
 - **3 taps within 3 s:** everything off: lights, buzzer, motor, demo mode.
+- Timing (as the desktop notifier): taps chain while each press comes within
+  400 ms of the previous release; the gesture is acted on 400 ms after the
+  last release. 30 ms debounce. The serial monitor logs `[TOUCH] down / up`
+  and the tap count.
   (For now this also drops a reservation state; the real queue firmware will
   need to keep the reservation.)
 

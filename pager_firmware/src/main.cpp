@@ -101,15 +101,6 @@ int batteryPercent() {
   return constrain((int)((v - 3.3f) / (4.15f - 3.3f) * 100.0f), 0, 100);
 }
 
-// Debounced touch: true once per touch
-bool touchPressed() {
-  static bool last = false, reported = false;
-  static uint32_t changedAt = 0;
-  bool now = touched();
-  if (now != last) { last = now; changedAt = millis(); reported = false; }
-  if (now && !reported && millis() - changedAt > 30) { reported = true; return true; }
-  return false;
-}
 
 // ======================= States =======================
 enum State { DOCKED, LIFTED, CONFIRM, WAITING, ALERT, ACKED, TEST, LIGHT, LAMP };
@@ -346,37 +337,46 @@ void stopDiscoveryBlink() {      // any page action / touch / serial command / d
   if (bootLights || discoveryBlink) { bootLights = false; discoveryBlink = false; ringFill(0); }
 }
 
-// ======================= Touch gestures =======================
-// 1 tap: light on (not while reserved; while "your turn" it acknowledges)
-// 2 taps: next light mode (not while reserved)
-// 3 taps within 3 s: everything off (lights, buzzer, motor, demo)
-const uint32_t TAP_GAP_MS = 450;     // a tap this long after the last one ends the gesture
-uint32_t tapTimes[3] = {0, 0, 0};
-int tapsPending = 0;
-uint32_t lastTapAt = 0;
+// ======================= Touch gestures (timing as the desktop notifier) =======================
+// A tap is a press + release. Taps chain into one gesture while each new press
+// comes within TAP_GAP_MS of the previous RELEASE; the gesture is acted on once
+// the pad has been released for TAP_GAP_MS.
+//   1 tap: light on (not while reserved; during "your turn" the press acknowledges)
+//   2 taps: next light mode (not while reserved)
+//   3 or more taps, within 3 s: everything off (lights, buzzer, motor, demo)
+// Edges are debounced (TOUCH_DEBOUNCE_MS) and logged on the serial monitor.
+const uint32_t TOUCH_DEBOUNCE_MS = 30;
+const uint32_t TAP_GAP_MS = 400;
+bool tRaw = false, tStable = false;
+uint32_t tRawMs = 0, tUpMs = 0, gestureStartMs = 0;
+int tapCount = 0;
 
 void silenceAll() {
   demoMode = false; beepHold = false; beepUntil = vibeUntil = 0;
   stopDiscoveryBlink();
   startLamp(FX_OFF);
-  Serial.println("Touch x3: everything off");
-}
-void onTap() {
-  uint32_t now = millis();
-  tapTimes[0] = tapTimes[1]; tapTimes[1] = tapTimes[2]; tapTimes[2] = now;
-  if (tapTimes[0] && now - tapTimes[0] <= 3000) {           // third tap within 3 s
-    tapsPending = 0; tapTimes[0] = tapTimes[1] = tapTimes[2] = 0;
-    silenceAll();
-    return;
-  }
-  stopDiscoveryBlink();
-  if (state == ALERT) { demoMode = false; setState(ACKED); }  // acknowledge straight away
-  tapsPending++; lastTapAt = now;
+  Serial.println("[TOUCH] 3 taps: everything off");
 }
 void serviceTaps() {
-  if (touchPressed()) onTap();
-  if (tapsPending && millis() - lastTapAt > TAP_GAP_MS) {
-    int n = tapsPending; tapsPending = 0;
+  uint32_t now = millis();
+  bool raw = touched();
+  if (raw != tRaw) { tRaw = raw; tRawMs = now; }
+  if (raw != tStable && now - tRawMs >= TOUCH_DEBOUNCE_MS) {
+    tStable = raw;
+    Serial.printf("[TOUCH] %s\n", tStable ? "down" : "up");
+    if (tStable) {                                          // press
+      if (tapCount == 0) gestureStartMs = now;
+      stopDiscoveryBlink();
+      if (state == ALERT) { demoMode = false; setState(ACKED); }   // acknowledge straight away
+    } else {                                                // release completes a tap
+      tapCount++;
+      tUpMs = now;
+    }
+  }
+  if (!tStable && tapCount && now - tUpMs >= TAP_GAP_MS) {
+    int n = tapCount; tapCount = 0;
+    Serial.printf("[TOUCH] %d tap(s)\n", n);
+    if (n >= 3) { if (tUpMs - gestureStartMs <= 3000) silenceAll(); return; }
     if (reserved(state)) return;
     if (n == 1) {                                            // light on
       if (!(state == LAMP && fx != FX_OFF)) startLamp(fx == FX_OFF ? FX_SOLID : fx);
