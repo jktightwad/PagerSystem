@@ -191,6 +191,23 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   actions, so the pager page, OTA and the Wi-Fi fallback to the base should
   work the same way.
 
+## Pager electronics: custom carrier board (under evaluation)
+- Goal: replace hand wiring with one board that is also the parts tray, with
+  plug-in leads to everything in the printed parts (ring, motor, touch, top
+  and bottom pogo, battery).
+- Candidate controller: **ESP32-S3 SuperMini** (ESP32-S3 FH4R2, USB-C, chip
+  antenna, LiPo charger marked LTH7 = LTC4054-type, battery pads B+/B- on
+  the back). It would replace the LOLIN32 Lite and the USB-C pigtail.
+- Battery pads face the carrier when the SuperMini is soldered flat: plan
+  short wires from B+/B- through holes in the carrier to the battery
+  connector / switch. Leave the unexplained "BOOST" pad alone.
+- Proposed pins (left edge): dock sense GP1, battery sense GP2 (both ADC1),
+  touch GP4, ring GP5, buzzer GP6, motor GP7. Avoid GP0/3/45/46 (strapping),
+  GP11-16 (ADC2), GP19/20 (USB).
+- To check on real boards first: (1) 5 V into the 5V pin charges a battery on
+  B+/B-; (2) runs from the battery alone; (3) range vs the LOLIN32 with the
+  range test walker; (4) regulator part / rating; (5) what the BOOST pad does.
+
 ## Pager enclosure and stacking (proposed)
 - Looks like a pool ball: **coloured outer border** (ball colour), **white
   centre** (0.8 mm, light passes through) with the **black number**. The
