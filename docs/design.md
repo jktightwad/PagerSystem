@@ -173,6 +173,23 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
 - **Web "join from desk"** holds a queue position until the person binds a
   pager (time limit to be decided).
 
+## Pager Wi-Fi and web page (decided for now)
+- Every pager stays on Wi-Fi all the time (`pager_firmware/`): its own web
+  page for status, tests, demo mode and admin, and OTA updates.
+- Reason: Wi-Fi is also the planned **fallback link** to the base when
+  ESP-NOW range isn't enough (interference, too many walls). Pagers and the
+  base on the same office network also keeps them on the same Wi-Fi channel,
+  which ESP-NOW needs when Wi-Fi is in use.
+- Cost: an always-connected radio is expected to cut off-dock runtime
+  substantially (rough datasheet estimate ~20-40 mA average with modem sleep,
+  ~100-130 mA when the radio can't sleep, vs 500 mAh). Not measured yet:
+  measure with the in-line meter once a pager runs on battery.
+- Later, if runtime is too short: "service mode" (Wi-Fi only on the dock,
+  for a few minutes after power-up, or on demand) and ESP-NOW power saving.
+- To check on the office network: some networks block devices from talking
+  to each other (client isolation), which would stop the Wi-Fi fallback and
+  the pager page / OTA from a PC.
+
 ## Pager enclosure and stacking (proposed)
 - Looks like a pool ball: **coloured outer border** (ball colour), **white
   centre** (0.8 mm, light passes through) with the **black number**. The
