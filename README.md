@@ -24,6 +24,7 @@ From a terminal: `pio run -e esp32c3_supermini -t upload`, then
 | `docs/test_plan.md` | Test cases for pairing, queue, docking, radio, web, security, OTA, power |
 | `docs/pager_wiring.md` | Pager pin map, power and driver wiring; PN5180 wiring |
 | `range_test/` | ESP-NOW range test (base + walker) |
+| `pager_firmware/` | Pager firmware (POC): Wi-Fi setup hotspot, per-pager web page (status, tests, demo mode, admin), OTA |
 | `pager_alert_test/` | WS2812 ring, beeper, vibration, button, dock/battery readings |
 | `pn5180_csn_test/` | Read the HID iCLASS CSN with a PN5180 (no keys) |
 | `base_firmware/` | Base firmware (POC): Wi-Fi from `secrets.h`, status page; queue/badge/radio next |
