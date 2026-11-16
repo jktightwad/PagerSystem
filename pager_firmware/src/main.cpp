@@ -75,7 +75,9 @@ WifiStore wifiStore;
 String pagerName;
 
 // ======================= Outputs / inputs =======================
-void beeper(bool on) { digitalWrite(PIN_BEEPER, on ? HIGH : LOW); }
+// pinMode every time, as in pager_alert_test (where the beeper tested fine)
+void beeper(bool on) { pinMode(PIN_BEEPER, OUTPUT); digitalWrite(PIN_BEEPER, on ? HIGH : LOW); }
+bool beepHold = false;           // "Beeper on" test: stays on so it can be measured
 void vibe(bool on) { ledcWrite(PIN_VIBE, on ? VIBE_STRENGTH : 0); }
 void ringFill(uint32_t c) { ring.fill(c); ring.show(); }
 void allOff() { beeper(false); vibe(false); ringFill(0); }
@@ -331,6 +333,7 @@ void handleCmd() {
   String c = server.arg("c");
   String reply = "OK: " + c;
   if (c != "demo_on" && c != "demo_off" && c != "forgetwifi" && c != "reboot") demoMode = false;
+  if (c != "beep_hold") beepHold = false;
   if      (c == "dock")     setState(DOCKED);
   else if (c == "lift")     setState(LIFTED);
   else if (c == "confirm")  setState(CONFIRM);
@@ -350,6 +353,8 @@ void handleCmd() {
     ringFill(0);
   }
   else if (c == "beep")     { beeper(true); beepUntil = millis() + 300; }
+  else if (c == "beep_hold") { beepHold = !beepHold; beeper(beepHold); beepUntil = 0;
+                               reply = beepHold ? "Beeper ON (GPIO 27 high) until pressed again" : "Beeper off"; }
   else if (c == "vibe")     { vibe(true); vibeUntil = millis() + 1000; }
   else if (c == "identify") {
     setState(LIGHT);
@@ -469,6 +474,7 @@ void loop() {
   }
 
   if (beepUntil && millis() > beepUntil) { beepUntil = 0; beeper(false); }
+  if (beepHold) beeper(true);
   if (vibeUntil && millis() > vibeUntil) { vibeUntil = 0; vibe(false); }
 
   if (demoMode) runDemo();

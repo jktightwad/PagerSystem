@@ -46,7 +46,7 @@ button:hover,a.btn:hover{border-color:var(--acc)}button.on{background:var(--acc)
 <button onclick="cmd('red')">Ring red</button><button onclick="cmd('green')">Ring green</button>
 <button onclick="cmd('blue')">Ring blue</button><button onclick="cmd('white')">Ring white</button>
 <button onclick="cmd('chase')">LED chase</button><button onclick="cmd('off')">Ring off</button>
-<button onclick="cmd('beep')">Beep</button><button onclick="cmd('vibe')">Vibrate</button>
+<button onclick="cmd('beep')">Beep</button><button onclick="cmd('beep_hold')">Beeper on / off (for a meter)</button><button onclick="cmd('vibe')">Vibrate</button>
 <button onclick="cmd('identify')">Identify (flash + beep)</button>
 </div></div>
 
