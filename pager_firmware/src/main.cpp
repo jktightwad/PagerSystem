@@ -12,6 +12,14 @@
 //     PoolPager-192-168-1-87) so the IP can be read from a phone's Wi-Fi list
 //     (ring blinks purple); also printed on the serial monitor
 //   - hold the touch pad for 5 s while powering up to forget saved networks
+// Boot lights (as the desktop notifier): blue progress bar while scanning,
+// orange while joining, steady purple (middle 6) during the setup hotspot,
+// green flash when joined through it, then middle-6 purple blink while the
+// PoolPager-<ip> hotspot is up. Any page action or touch stops the blink.
+// Touch: 1 tap = light on (not while reserved; "your turn" = acknowledge),
+// 2 taps = next light mode, 3 taps within 3 s = everything off.
+// Light modes (as the notifier): solid, blink, party, knight rider, breathe,
+// comet, rainbow, pulse, off; colour, brightness and speed from the page.
 // Web page at http://<ip>/ : status, pager states, demo mode, tests, rename,
 // forget Wi-Fi, reboot, firmware update (/update). Password from secrets.h.
 // OTA: ArduinoOTA (PlatformIO env lolin32_lite_ota) or the /update page.
@@ -102,16 +110,20 @@ bool touchPressed() {
 }
 
 // ======================= States =======================
-enum State { DOCKED, LIFTED, CONFIRM, WAITING, ALERT, ACKED, TEST, LIGHT };
-const char* STATE_NAMES[] = {"Docked", "Lifted", "Confirm", "Waiting", "Your turn", "Acknowledged", "Self test", "Light test"};
+enum State { DOCKED, LIFTED, CONFIRM, WAITING, ALERT, ACKED, TEST, LIGHT, LAMP };
+const char* STATE_NAMES[] = {"Docked", "Lifted", "Confirm", "Waiting", "Your turn", "Acknowledged", "Self test", "Light test", "Light mode"};
+// "reservation mode": the pager is bound / in the queue / being paged
+bool reserved(State s) { return s == CONFIRM || s == WAITING || s == ALERT || s == ACKED; }
 State state = DOCKED;
 uint32_t stateSince = 0;
 bool demoMode = false;
-uint32_t discoveryUntil = 0;     // purple blink while the PoolPager-<ip> hotspot is up
+uint32_t discoveryUntil = 0;     // PoolPager-<ip> hotspot up until then
+bool discoveryBlink = false;     // middle-6 purple blink while it's up (stops on any page action)
 uint32_t beepUntil = 0, vibeUntil = 0;
 
 void setState(State s) {
   state = s; stateSince = millis();
+  ring.setBrightness(MAX_BRIGHTNESS);   // light modes use their own brightness
   allOff();
   Serial.printf("-> %s\n", STATE_NAMES[s]);
 }
@@ -191,6 +203,188 @@ void runDemo() {
   }
 }
 
+// ======================= Light modes (as the desktop notifier light) =======================
+enum Effect { FX_OFF, FX_SOLID, FX_BLINK, FX_PARTY, FX_KNIGHT, FX_BREATHE, FX_COMET, FX_RAINBOW, FX_PULSE };
+const char* FX_NAMES[] = {"Off", "Solid", "Blink", "Party", "Knight Rider", "Breathe", "Comet", "Rainbow", "Pulse"};
+const char* FX_KEYS[]  = {"off", "solid", "blink", "party", "knight_rider", "breathe", "comet", "rainbow", "pulse"};
+const int FX_COUNT = 9;
+Effect fx = FX_SOLID;            // last light mode (a single tap turns it on)
+uint32_t fxColor = 0xFF0000;     // 0xRRGGBB
+uint8_t fxBright = 64;           // 0-255 (on the 3.3 V regulator: keep it moderate)
+unsigned long fxDelay = 35;      // ms, from the speed slider (notifier: 200 * e^(-0.035 * speed))
+unsigned long fxLast = 0;
+int fxPos = 0, fxDir = 1;
+
+uint8_t cR() { return (fxColor >> 16) & 0xFF; }
+uint8_t cG() { return (fxColor >> 8) & 0xFF; }
+uint8_t cB() { return fxColor & 0xFF; }
+uint16_t fxHue() {               // hue of fxColor for ColorHSV (0-65535)
+  float r = cR() / 255.0f, g = cG() / 255.0f, b = cB() / 255.0f;
+  float mx = std::max(r, std::max(g, b)), mn = std::min(r, std::min(g, b)), d = mx - mn, h = 0;
+  if (d > 0) {
+    if (mx == r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (mx == g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h /= 6;
+  }
+  return (uint16_t)(h * 65535);
+}
+unsigned long fxDelayFor(Effect e) {
+  float k = 1;
+  switch (e) { case FX_BREATHE: k = 2; break; case FX_PARTY: case FX_COMET: k = 2.5; break;
+               case FX_KNIGHT: case FX_BLINK: k = 3; break; case FX_PULSE: k = 2; break; default: break; }
+  return constrain((unsigned long)(fxDelay * k), 2UL, 2000UL);
+}
+void fade(float f) {             // dim every LED (trails)
+  for (int i = 0; i < RING_LEDS; i++) {
+    uint32_t c = ring.getPixelColor(i);
+    ring.setPixelColor(i, rgb(((c >> 16) & 0xFF) * f, ((c >> 8) & 0xFF) * f, (c & 0xFF) * f));
+  }
+}
+void startLamp(Effect e) {
+  demoMode = false;
+  fx = e;
+  setState(LAMP);
+  ring.setBrightness(fxBright);
+  fxPos = 0; fxDir = 1; fxLast = 0;
+  Serial.printf("Light mode: %s\n", FX_NAMES[fx]);
+}
+void runLamp() {
+  ring.setBrightness(fxBright);
+  uint32_t col = rgb(cR(), cG(), cB());
+  unsigned long now = millis();
+  switch (fx) {
+    case FX_OFF:   ringFill(0); break;
+    case FX_SOLID: ringFill(col); break;
+    case FX_BLINK:
+      if (now - fxLast > fxDelayFor(FX_BLINK) * 4 + 100) { fxLast = now; ringFill(ring.getPixelColor(0) ? 0 : col); }
+      break;
+    case FX_PARTY:
+      if (now - fxLast > fxDelayFor(FX_PARTY)) {
+        fxLast = now;
+        for (int i = 0; i < RING_LEDS; i++) ring.setPixelColor(i, rgb(random(25), random(25), random(25)));
+        for (int i = 0; i < 3; i++) ring.setPixelColor(random(RING_LEDS), ring.ColorHSV(fxHue() + random(-10923, 10923)));
+        ring.show();
+      }
+      break;
+    case FX_KNIGHT:
+      if (now - fxLast > fxDelayFor(FX_KNIGHT)) {
+        fxLast = now;
+        fade(0.7);
+        for (int d = -2; d <= 2; d++) {
+          int i = fxPos + d; if (i < 0 || i >= RING_LEDS) continue;
+          int div = d == 0 ? 1 : (abs(d) == 1 ? 2 : 8);
+          ring.setPixelColor(i, rgb(cR() / div, cG() / div, cB() / div));
+        }
+        ring.show();
+        fxPos += fxDir;
+        if (fxPos < 0 || fxPos >= RING_LEDS) { fxDir = -fxDir; fxPos += fxDir; }
+      }
+      break;
+    case FX_BREATHE:
+      if (now - fxLast > std::max(3UL, fxDelayFor(FX_BREATHE) / 4)) {
+        static float phase = 0;
+        fxLast = now; phase += 0.03f;
+        float v = 0.2f + 0.8f * (0.5f * (1 + sin(phase)));
+        ringFill(rgb(cR() * v, cG() * v, cB() * v));
+      }
+      break;
+    case FX_COMET:
+      if (now - fxLast > fxDelayFor(FX_COMET)) {
+        fxLast = now;
+        fade(0.8);
+        ring.setPixelColor(fxPos, col);
+        ring.show();
+        fxPos = (fxPos + 1) % RING_LEDS;
+      }
+      break;
+    case FX_RAINBOW:
+      if (now - fxLast > std::max(2UL, fxDelay / 16)) {
+        static uint16_t base = 0;
+        fxLast = now;
+        base += 24 + (uint8_t)((220 - std::min(fxDelay, 200UL)) * 0.6f);
+        for (int i = 0; i < RING_LEDS; i++) ring.setPixelColor(i, ring.ColorHSV(base + i * 65536L / RING_LEDS));
+        ring.show();
+      }
+      break;
+    case FX_PULSE:       // two dots from opposite sides meeting in the middle and back
+      if (now - fxLast > fxDelayFor(FX_PULSE)) {
+        fxLast = now;
+        fade(0.7);
+        int l = fxPos, r = RING_LEDS - 1 - fxPos;
+        ring.setPixelColor(l, col); ring.setPixelColor(r, col);
+        ring.show();
+        if (fxDir > 0) { if (r - l <= 1) fxDir = -1; else fxPos++; }
+        else { if (fxPos > 0) fxPos--; else fxDir = 1; }
+      }
+      break;
+  }
+}
+
+// ======================= Boot / discovery lights (as the desktop notifier) =======================
+// progress bar: lit part in colour, next LED at quarter brightness
+void drawBar(uint32_t color, float frac) {
+  frac = constrain(frac, 0.0f, 1.0f);
+  int filled = (int)(frac * RING_LEDS);
+  ring.setBrightness(MAX_BRIGHTNESS);
+  ring.clear();
+  for (int i = 0; i < filled; i++) ring.setPixelColor(i, color);
+  if (filled < RING_LEDS) ring.setPixelColor(filled, rgb(((color >> 16) & 0xFF) / 4, ((color >> 8) & 0xFF) / 4, (color & 0xFF) / 4));
+  ring.show();
+}
+void middle6(uint32_t color) {   // 6 LEDs in the middle of the ring
+  ring.setBrightness(MAX_BRIGHTNESS);
+  ring.clear();
+  for (int i = RING_LEDS / 2 - 3; i <= RING_LEDS / 2 + 2; i++) ring.setPixelColor(i, color);
+  ring.show();
+}
+const uint32_t BOOT_PURPLE = 0x8000FF;
+void stopDiscoveryBlink() {      // any page action / touch takes over the ring
+  if (discoveryBlink) { discoveryBlink = false; ringFill(0); }
+}
+
+// ======================= Touch gestures =======================
+// 1 tap: light on (not while reserved; while "your turn" it acknowledges)
+// 2 taps: next light mode (not while reserved)
+// 3 taps within 3 s: everything off (lights, buzzer, motor, demo)
+const uint32_t TAP_GAP_MS = 450;     // a tap this long after the last one ends the gesture
+uint32_t tapTimes[3] = {0, 0, 0};
+int tapsPending = 0;
+uint32_t lastTapAt = 0;
+
+void silenceAll() {
+  demoMode = false; beepHold = false; beepUntil = vibeUntil = 0;
+  stopDiscoveryBlink();
+  startLamp(FX_OFF);
+  Serial.println("Touch x3: everything off");
+}
+void onTap() {
+  uint32_t now = millis();
+  tapTimes[0] = tapTimes[1]; tapTimes[1] = tapTimes[2]; tapTimes[2] = now;
+  if (tapTimes[0] && now - tapTimes[0] <= 3000) {           // third tap within 3 s
+    tapsPending = 0; tapTimes[0] = tapTimes[1] = tapTimes[2] = 0;
+    silenceAll();
+    return;
+  }
+  stopDiscoveryBlink();
+  if (state == ALERT) { demoMode = false; setState(ACKED); }  // acknowledge straight away
+  tapsPending++; lastTapAt = now;
+}
+void serviceTaps() {
+  if (touchPressed()) onTap();
+  if (tapsPending && millis() - lastTapAt > TAP_GAP_MS) {
+    int n = tapsPending; tapsPending = 0;
+    if (reserved(state)) return;
+    if (n == 1) {                                            // light on
+      if (!(state == LAMP && fx != FX_OFF)) startLamp(fx == FX_OFF ? FX_SOLID : fx);
+    } else {                                                 // next light mode
+      // lit: step Solid -> Blink -> ... -> Pulse -> Solid; dark: start at the last mode
+      Effect next = (state == LAMP && fx != FX_OFF) ? (Effect)(fx % (FX_COUNT - 1) + 1) : (fx == FX_OFF ? FX_SOLID : fx);
+      startLamp(next);
+    }
+  }
+}
+
 // ======================= Wi-Fi =======================
 #ifdef WIFI_NETWORKS
 struct BuiltinNet { const char* ssid; const char* pass; };
@@ -219,8 +413,15 @@ bool tryKnownNetworks() {
   std::vector<WifiCred> known = knownNetworks();
   if (known.empty()) { Serial.println("[WiFi] No known networks"); return false; }
   Serial.printf("[WiFi] Scanning for %u known network(s)...\n", (unsigned)known.size());
-  ringFill(rgb(0, 0, 40));
-  int found = WiFi.scanNetworks();
+  // blue progress bar while scanning (as the notifier)
+  WiFi.scanDelete();
+  WiFi.scanNetworks(true);
+  uint32_t s0 = millis();
+  int found;
+  while ((found = WiFi.scanComplete()) == WIFI_SCAN_RUNNING && millis() - s0 < 10000) {
+    drawBar(rgb(0, 0, 255), (millis() - s0) / 10000.0f);
+    delay(120);
+  }
   struct Cand { size_t idx; int rssi; };
   std::vector<Cand> c;
   for (size_t k = 0; k < known.size(); k++) {
@@ -234,10 +435,12 @@ bool tryKnownNetworks() {
     const WifiCred& n = known[x.idx];
     bool seen = x.rssi != -1000;
     Serial.printf("[WiFi] Trying \"%s\"%s...\n", n.ssid.c_str(), seen ? "" : " (not seen, may be hidden)");
-    ringFill(rgb(60, 25, 0));
     WiFi.begin(n.ssid.c_str(), n.pass.c_str());
-    uint32_t s = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - s < (seen ? 15000u : 8000u)) delay(100);
+    uint32_t s = millis(), ms = seen ? 15000u : 8000u;
+    while (WiFi.status() != WL_CONNECTED && millis() - s < ms) {   // orange bar while joining
+      drawBar(rgb(255, 128, 0), (millis() - s) / (float)ms);
+      delay(120);
+    }
     if (WiFi.status() == WL_CONNECTED) { ringFill(0); return true; }
     WiFi.disconnect();
   }
@@ -247,10 +450,11 @@ bool tryKnownNetworks() {
 
 bool runPortal() {
   Serial.println("[WiFi] Opening hotspot PoolPager-Setup for 5 min: join it and pick the network");
-  ringFill(rgb(40, 0, 80));
+  middle6(BOOT_PURPLE);                          // steady purple while the setup hotspot is up
   wm.setConfigPortalTimeout(300);
   bool ok = wm.startConfigPortal("PoolPager-Setup");
   ringFill(0);
+  if (ok) { ringFill(rgb(0, 255, 0)); delay(120); ringFill(0); }   // green flash: joined
   return ok;
 }
 
@@ -261,6 +465,7 @@ void announceIp() {
   String ap = "PoolPager-" + ip;
   WiFi.softAP(ap.c_str());
   discoveryUntil = millis() + 60000;
+  discoveryBlink = true;
   Serial.printf("[WiFi] Hotspot \"%s\" for 60 s (shows the IP)\n", ap.c_str());
 }
 
@@ -300,7 +505,7 @@ void wifiService() {
     discoveryUntil = 0;
     WiFi.softAPdisconnect(true);
     WiFi.mode(WIFI_STA);
-    allOff();
+    stopDiscoveryBlink();
   }
 }
 
@@ -324,7 +529,11 @@ void handleStatus() {
   j += "\"touch\":" + String(touched() ? "true" : "false") + ",";
   j += "\"wifi\":{\"connected\":" + String(conn ? "true" : "false");
   if (conn) j += ",\"ssid\":\"" + WiFi.SSID() + "\",\"ip\":\"" + WiFi.localIP().toString() + "\",\"rssi\":" + String(WiFi.RSSI()) + ",\"ch\":" + String(WiFi.channel());
-  j += "},\"base\":{\"available\":false}}";
+  char hex[8]; snprintf(hex, sizeof(hex), "%06lx", (unsigned long)fxColor);
+  j += "},\"light\":{\"fx\":\"" + String(FX_KEYS[fx]) + "\",\"on\":" + String(state == LAMP && fx != FX_OFF ? "true" : "false") +
+       ",\"color\":\"" + String(hex) + "\",\"bright\":" + String(fxBright * 100 / 255) +
+       ",\"speed\":" + String((int)round(-log(fxDelay / 200.0) / 0.035)) + "}";
+  j += ",\"base\":{\"available\":false}}";
   server.send(200, "application/json", j);
 }
 
@@ -332,6 +541,7 @@ void handleCmd() {
   if (!authed()) return;
   String c = server.arg("c");
   String reply = "OK: " + c;
+  stopDiscoveryBlink();
   if (c != "demo_on" && c != "demo_off" && c != "forgetwifi" && c != "reboot") demoMode = false;
   if (c != "beep_hold") beepHold = false;
   if      (c == "dock")     setState(DOCKED);
@@ -370,6 +580,22 @@ void handleCmd() {
   server.send(200, "text/plain", reply);
 }
 
+// light mode / colour / brightness / speed: /api/light?fx=party&color=ff8800&bright=25&speed=50
+void handleLight() {
+  if (!authed()) return;
+  stopDiscoveryBlink();
+  beepHold = false;
+  if (server.hasArg("color")) fxColor = strtoul(server.arg("color").c_str(), nullptr, 16) & 0xFFFFFF;
+  if (server.hasArg("bright")) fxBright = (uint8_t)(constrain((int)server.arg("bright").toInt(), 0, 100) * 255 / 100);
+  if (server.hasArg("speed")) fxDelay = (unsigned long)(200.0 * exp(-0.035 * constrain((int)server.arg("speed").toInt(), 0, 100)));
+  Effect e = fx;
+  if (server.hasArg("fx")) for (int i = 0; i < FX_COUNT; i++) if (server.arg("fx") == FX_KEYS[i]) e = (Effect)i;
+  if (server.hasArg("fx") || state != LAMP) startLamp(e);
+  else ring.setBrightness(fxBright);
+  prefs.putUInt("fxColor", fxColor); prefs.putUChar("fxBright", fxBright); prefs.putULong("fxDelay", fxDelay);
+  server.send(200, "text/plain", String("Light: ") + FX_NAMES[fx]);
+}
+
 void handleName() {
   if (!authed()) return;
   String n = server.arg("n");
@@ -386,7 +612,8 @@ void handleName() {
 }
 
 void webStart() {
-  server.on("/", []() { if (authed()) server.send_P(200, "text/html", PAGE_HTML); });
+  server.on("/", []() { if (authed()) { stopDiscoveryBlink(); server.send_P(200, "text/html", PAGE_HTML); } });
+  server.on("/api/light", HTTP_POST, handleLight);
   server.on("/api/status", handleStatus);
   server.on("/api/cmd", HTTP_POST, handleCmd);
   server.on("/api/name", HTTP_POST, handleName);
@@ -429,6 +656,9 @@ void setup() {
   char def[16];
   snprintf(def, sizeof(def), "pager-%06llx", (unsigned long long)(ESP.getEfuseMac() >> 24) & 0xFFFFFF);
   pagerName = prefs.getString("name", def);
+  fxColor = prefs.getUInt("fxColor", 0xFF0000);
+  fxBright = prefs.getUChar("fxBright", 64);
+  fxDelay = prefs.getULong("fxDelay", 35);
   Serial.printf("\nPool pager %s, firmware %s\n", pagerName.c_str(), FW_VERSION);
 
   if (!LittleFS.begin(true)) Serial.println("LittleFS: mount failed");
@@ -457,6 +687,7 @@ void loop() {
 
   if (Serial.available()) {
     char c = Serial.read();
+    if (c != 'i' && c != '\n' && c != '\r') stopDiscoveryBlink();
     if (c == 'i') {
       if (WiFi.status() == WL_CONNECTED)
         Serial.printf("%s: %s, IP %s, %d dBm, http://%s/ or http://%s.local/\n", pagerName.c_str(), WiFi.SSID().c_str(),
@@ -469,18 +700,16 @@ void loop() {
     if (c == 'd') { demoMode = !demoMode; if (!demoMode) setState(onDock() ? DOCKED : LIFTED); }
   }
 
-  if (touchPressed()) {
-    if (state == ALERT) { demoMode = false; setState(ACKED); }
-  }
+  serviceTaps();
 
   if (beepUntil && millis() > beepUntil) { beepUntil = 0; beeper(false); }
   if (beepHold) beeper(true);
   if (vibeUntil && millis() > vibeUntil) { vibeUntil = 0; vibe(false); }
 
   if (demoMode) runDemo();
-  // purple blink while the PoolPager-<ip> hotspot is up (idle states only)
-  if (discoveryUntil && (state == DOCKED || state == LIFTED)) {
-    ringFill((millis() / 500) % 2 ? rgb(40, 0, 80) : 0);
+  // middle-6 purple blink while the PoolPager-<ip> hotspot is up, until a page action or a touch
+  if (discoveryBlink) {
+    if ((millis() / 400) % 2) middle6(BOOT_PURPLE); else ringFill(0);
   } else {
     switch (state) {
       case DOCKED:  runDocked();  break;
@@ -491,6 +720,7 @@ void loop() {
       case ACKED:   runAcked();   break;
       case TEST:    runTest();    break;
       case LIGHT:   break;
+      case LAMP:    runLamp();    break;
     }
   }
 
@@ -500,7 +730,7 @@ void loop() {
   if (dock != lastDock) {
     lastDock = dock;
     Serial.printf("Dock: %s\n", dock ? "placed" : "lifted");
-    if (!demoMode && state != TEST && state != LIGHT) setState(dock ? DOCKED : LIFTED);
+    if (!demoMode && state != TEST && state != LIGHT && state != LAMP) setState(dock ? DOCKED : LIFTED);
   }
   delay(5);
 }

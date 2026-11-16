@@ -18,7 +18,8 @@ h1{font-size:20px;margin:4px 0 12px}h2{font-size:15px;margin:0 0 10px;color:var(
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 button,a.btn{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer;text-decoration:none}
 button:hover,a.btn:hover{border-color:var(--acc)}button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
-.red{color:var(--bad)}.green{color:var(--ok)}input{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.red{color:var(--bad)}.green{color:var(--ok)}.sw{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px;border:1px solid var(--line)}
+input{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
 #msg{min-height:20px;color:var(--muted);font-size:13px}
 </style></head><body><main>
 <h1 id="title">Pool pager</h1>
@@ -33,6 +34,18 @@ button:hover,a.btn:hover{border-color:var(--acc)}button.on{background:var(--acc)
 <div><div class="k">Base link</div><div class="v" id="base">-</div></div>
 <div><div class="k">Firmware / uptime</div><div class="v" id="fw">-</div></div>
 </div></div>
+
+<div class="card"><h2>Light modes</h2>
+<div class="btns" id="fxbtns"></div>
+<div class="btns" style="margin-top:10px;align-items:center">
+<label>Colour <input type="color" id="color" onchange="light({color:this.value.slice(1)})"></label>
+<label>Brightness <input type="range" id="bright" min="1" max="100" onchange="light({bright:this.value})"></label>
+<label>Speed <input type="range" id="speed" min="0" max="100" onchange="light({speed:this.value})"></label>
+</div>
+<div class="k" style="margin-top:6px">Brightness above ~25 % draws a lot from the 3.3 V regulator; keep it short.</div>
+<h2 style="margin-top:12px">Colour tests</h2>
+<div class="btns" id="presets"></div>
+</div>
 
 <div class="card"><h2>Pager states</h2><div class="btns">
 <button onclick="cmd('dock')">Docked</button><button onclick="cmd('lift')">Lifted (gauge)</button>
@@ -62,6 +75,20 @@ button:hover,a.btn:hover{border-color:var(--acc)}button.on{background:var(--acc)
 </main>
 <script>
 let demoOn=false;
+const FX=[['solid','Solid'],['blink','Blink'],['party','Party'],['knight_rider','Knight Rider'],['breathe','Breathe'],
+          ['comet','Comet'],['rainbow','Rainbow'],['pulse','Pulse'],['off','Off']];
+// colour tests: pool ball colours (as tuned in pager_alert_test) and basics
+const PRE=[['1 yellow','ff6e00'],['2 blue','0000ff'],['3 red','ff0000'],['4 purple','5000ff'],['5 orange','ff2300'],
+           ['6 green','00c800'],['7 maroon','82000f'],['8 white','ffffff'],['Green','00ff00'],['Cyan','00ffff'],['Magenta','ff00ff']];
+function build(){
+  $('fxbtns').innerHTML=FX.map(f=>'<button id="fx_'+f[0]+'" onclick="light({fx:\''+f[0]+'\'})">'+f[1]+'</button>').join('');
+  $('presets').innerHTML=PRE.map(p=>'<button onclick="light({fx:\'solid\',color:\''+p[1]+'\'})"><span class="sw" style="background:#'+p[1]+'"></span>'+p[0]+'</button>').join('');
+}
+async function light(o){
+  const q=Object.entries(o).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  try{const r=await fetch('/api/light?'+q,{method:'POST'});$('msg').textContent=await r.text();}catch(e){$('msg').textContent='No answer from the pager';}
+  poll();
+}
 const $=id=>document.getElementById(id);
 function bars(r){return r>=-55?'excellent':r>=-67?'good':r>=-75?'fair':'weak'}
 async function cmd(c){
@@ -86,8 +113,13 @@ async function poll(){
     $('wifi').textContent=s.wifi.connected?(s.wifi.ssid+' / '+s.wifi.ip):'not connected';
     $('rssi').textContent=s.wifi.connected?(s.wifi.rssi+' dBm ('+bars(s.wifi.rssi)+'), ch '+s.wifi.ch):'-';
     $('base').textContent=s.base.available?(s.base.rssi+' dBm'):'not available yet';
+    FX.forEach(f=>{const b=$('fx_'+f[0]); if(b) b.classList.toggle('on', s.state==='Light mode' && s.light.fx===f[0]);});
+    const a=document.activeElement;
+    if(a!==$('color')) $('color').value='#'+s.light.color;
+    if(a!==$('bright')) $('bright').value=s.light.bright;
+    if(a!==$('speed')) $('speed').value=s.light.speed;
     const u=s.uptime_s; $('fw').textContent=s.fw+' / '+Math.floor(u/3600)+'h '+Math.floor(u%3600/60)+'m';
   }catch(e){$('state').innerHTML='<span class="red">offline</span>';}
 }
-poll(); setInterval(poll,1000);
+build(); poll(); setInterval(poll,1000);
 </script></body></html>)HTML";

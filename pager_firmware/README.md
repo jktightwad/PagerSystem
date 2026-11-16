@@ -22,14 +22,34 @@ tested.** `pager_alert_test/` stays as the bench test sketch.
   blinks purple. Serial monitor: type `i`.
 - Hold the touch pad for 5 s while powering up to forget saved networks.
 
+## Boot lights (as the desktop notifier light)
+Blue progress bar while scanning, orange while joining a network, steady
+purple (middle 6 LEDs) while the setup hotspot is up, a green flash when
+joined through it, then a middle-6 purple blink for up to 60 s while the
+PoolPager-<ip> hotspot shows the IP. Opening the page, any page action, a
+serial command or a touch stops the blink.
+
+## Touch pad
+- **1 tap:** light on in the last light mode (not while reserved: confirm /
+  waiting / your turn / acknowledged). During "your turn" a tap acknowledges.
+- **2 taps:** next light mode (solid, blink, party, knight rider, breathe,
+  comet, rainbow, pulse).
+- **3 taps within 3 s:** everything off: lights, buzzer, motor, demo mode.
+  (For now this also drops a reservation state; the real queue firmware will
+  need to keep the reservation.)
+
 ## The pager's page: `http://<ip>/` (or `http://<name>.local/`)
 - Status, refreshed every second: state, battery, dock, touch pad, Wi-Fi
   network / IP / signal, base link (not available until the base talks
   ESP-NOW), firmware, uptime.
 - Pager states: docked, lifted, confirm, waiting, your turn, acknowledge,
   and **demo mode** (cycles through them).
-- Tests: self test (all outputs), ring colours, LED chase, beep, vibrate,
-  identify.
+- Light modes as the notifier: solid, blink, party, knight rider, breathe,
+  comet, rainbow, pulse, off, with colour picker, brightness and speed
+  (saved on the pager).
+- Colour tests: pool ball colours 1-8 and a few basics (shown solid).
+- Tests: self test (all outputs), ring colours, LED chase, beep, beeper
+  on/off (for a meter), vibrate, identify.
 - Admin: rename (used as the network name after a reboot), firmware update
   (`/update`, upload a `.bin`), forget Wi-Fi, reboot.
 - Login: `ADMIN_USER` / `ADMIN_PASSWORD` from `secrets.h`.
