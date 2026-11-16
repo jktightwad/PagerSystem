@@ -74,8 +74,8 @@ same for every number).
   it, prints without support), and the base has a matching 2 mm rim round its
   edge up to the same height, so the base is supported all round. Parts that
   sat against the wall now sit against the rim (2 mm further in).
-- At 6 o'clock the top's pogo post and latch reach down to 0.2 mm above the
-  base's post and latch.
+- The ledge and the rim are cut away round the pogo holders (clamp length
+  + 1 mm each end) so the base clamp sits free.
 
 ## Base
 - 1.65 mm plate, built up to 3.65 mm under each column for the M2 x 8 screw
@@ -83,7 +83,8 @@ same for every number).
 - Component mounts as Rev 1 (LOLIN32 tray and tab, battery stubs, boost,
   buzzer, touch, motor clip, switch), now placed against the ball wall
   instead of the old clamp ring, so they sit ~2 mm further out.
-  Boost moved to 210.5 deg (clear of the pogo latch and the 7:30 column);
+  No 5 V boost (ring and buzzer on 3.3 V): the power switch keeps its place
+  at ~7 o'clock with its own back wall;
   touch at 111 deg (clear of the 4:30 column); motor moved to (29, 13) to
   clear the 60 deg magnet.
 - LED ring posts 9.7 mm (free height under the ring).

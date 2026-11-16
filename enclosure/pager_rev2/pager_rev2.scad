@@ -73,8 +73,8 @@ key_clear     = 0.15;   // [0:0.05:0.5] round the key in the column pocket
 // is supported all round, not only at the screws. Parts placed "against the
 // wall" now sit against the base's rim.
 rim_w         = 2.0;    // [1:0.1:5] ledge / rim width
-// the top's pogo post and latch reach down to the base's ones (this gap left)
-pogo_support_gap = 0.2; // [0:0.05:1]
+// the ledge and rim are cut away round the pogo holders (this much clearance)
+pogo_notch_clear = 1.0; // [0:0.1:3]
 
 /* [Number] */
 number_text  = "2";
@@ -200,6 +200,8 @@ lolin_tab_off  = 9.5;
 lolin_tab_w    = 4;
 lolin_tab_h    = 4;
 lolin_tab_t    = 2;
+// no 5 V boost any more (ring and buzzer on 3.3 V). These only place the
+// power switch, where the boost pocket's front wall used to be.
 boost_w = 10.5; boost_l = 11; boost_gap = 0; boost_a = 210.5;
 buzzer_d = 9.2; buzzer_gap = 0;
 buzzer_a = -1;          // -1 = auto: beside the LOLIN32's 12 o'clock end, away from the battery
@@ -361,9 +363,7 @@ module ball_shell() {
         translate([0, 0, top_flange_back + pogo_press])
           linear_extrude(top_under - top_flange_back - pogo_press + 0.01)
             stadium_2d(flange_pocket_l + 2 * pogo_wall, flange_pocket_w + 2 * pogo_wall);
-        pogo_forks(top_flange_back - clamp_t, top_under, -1,
-                   post_to  = base_clamp_face + pin_hole_d + pin_floor + pogo_support_gap,
-                   latch_to = base_clamp_face + latch_clear + latch_bar_t + pogo_support_gap);
+        pogo_forks(top_flange_back - clamp_t, top_under, -1);
       }
     }
     // light pocket under the white
@@ -387,8 +387,16 @@ module ball_shell() {
 base_clamp_face = base_flange_back + clamp_t;          // base clamp's top face
 // ledge all round the wall: flat underside at the column ends, 45 deg above
 module support_ledge() {
-  rotate_extrude($fn = 128)
-    polygon([[inner_r - rim_w, col_start], [inner_r + 0.5, col_start], [inner_r + 0.5, col_start + rim_w + 0.5]]);
+  difference() {
+    rotate_extrude($fn = 128)
+      polygon([[inner_r - rim_w, col_start], [inner_r + 0.5, col_start], [inner_r + 0.5, col_start + rim_w + 0.5]]);
+    pogo_notch();
+  }
+}
+// clearance round the base's pogo holders and clamp, cut out of the ledge / rim
+module pogo_notch() {
+  at_angle(pogo_r, pogo_angle) translate([0, 0, -1])
+    linear_extrude(ball_h) square([clamp_L + 2 * (root_flare + pogo_notch_clear), 30], center = true);
 }
 // touch area / mark centre, and the sensor's centre along the edge
 mark_r  = white_d / 2 + mark_gap + mark_od / 2;
@@ -519,6 +527,8 @@ module switch_mount(ct = switch_clip_t) {
   sw = switch_w + switch_extra_w + 2 * switch_clear; sd = switch_d + 2 * switch_clear;
   top = switch_pad_h + switch_h + switch_clear;
   cw = min(switch_clip_w, sd - switch_wall_gap);
+  // back wall (was the boost pocket's front wall)
+  translate([-sw / 2 - ct - 2, -sd / 2 - pocket_wall, -0.01]) cube([sw + 2 * ct + 4, pocket_wall, pocket_h + 0.01]);
   for (sx = [-1, 1]) {
     translate([sx > 0 ? sw / 2 - switch_pad_w : -sw / 2 + switch_pad_gap, -switch_d / 2, -0.01])
       cube([switch_pad_w - switch_pad_gap, switch_d, switch_pad_h + 0.01]);
@@ -554,6 +564,7 @@ module base_part(parts = true) {
       difference() {
         cylinder(d = ball_od - 2 * ball_wall - base_clear_d, h = col_start);
         translate([0, 0, -1]) cylinder(r = inner_r - base_clear_d / 2 - rim_w, h = col_start + 2);
+        pogo_notch();
       }
       // build-up under each column for the screw head
       for (a = boss_angles) at_angle(boss_r, a) cylinder(d = boss_d, h = col_start + key_h);   // + key into the column
@@ -579,7 +590,6 @@ module base_part(parts = true) {
             translate([bat_cx + bat_l / 2 + pocket_clear - bat_wall_keep, -100, -1]) cube([200, 200, pocket_h + 2]);
           }
           at_angle(buzzer_r, buzzer_ang) pocket_round(buzzer_d);
-          at_angle(wall_r(boost_w, boost_l, boost_gap), boost_a) pocket_rect(boost_w, boost_l, open_back = true);
           at_angle(wall_r(touch_w, touch_l, touch_gap), touch_a) pocket_rect(touch_w, touch_l, open_back = true);
         }
         translate([0, 0, -1]) linear_extrude(pocket_h + 2) base_inside_2d();

@@ -1,6 +1,6 @@
 # Pager wiring (draft)
 
-## Power plan (current)
+## Power plan (current: no 5 V boost)
 ```
 bottom pogo 5V --+------------------------------> top pogo 5V   (pass-through to the next pager up)
                  +- 100k -+- 100k - GND
@@ -8,20 +8,26 @@ bottom pogo 5V --+------------------------------> top pogo 5V   (pass-through to
                  +- 1N5819 --> USB-C plug pigtail VBUS --> LOLIN32 USB-C  (onboard charger -> battery)
 bottom pogo GND -+-------------------------------> top pogo GND, pigtail GND
 
-battery + --> P-MOSFET (gate from a GPIO) --> boost board Vin --> 5 V: LED ring + buzzer
-LOLIN32 3V3 --> vibration motor (+), switched on its GND side by an NPN (GPIO 27), diode across the motor
-LED ring DI <-- 330R <-- (74AHCT125 level shifter, if 3.3 V data proves unreliable at 5 V) <-- GPIO 26
+battery + --> power switch --> LOLIN32 JST (battery in)
+LOLIN32 3V3 --> LED ring 5V/VCC pin, buzzer (+), vibration motor (+)
+                buzzer and motor switched on their GND side by NPNs (GPIO 25, GPIO 27), diode across the motor
+LED ring DI <-- 330R <-- GPIO 26          (3.3 V supply and 3.3 V data: no level shifter needed)
+touch module OUT --> GPIO 13
 ```
+- No boost board and no P-MOSFET: the LED ring and the buzzer run from the
+  LOLIN32's 3.3 V regulator, like the motor.
+- **Regulator load:** the ESP32, ring, buzzer and motor all share the 3V3
+  regulator (believed to be an ME6211, ~500 mA; not confirmed on this
+  board). Keep the ring brightness capped (`MAX_BRIGHTNESS`), and avoid
+  driving the motor, buzzer and a bright ring at the same moment if the
+  ESP32 resets. A 470 uF capacitor across 3V3 / GND near the ring helps.
+- **Ring at 3.3 V:** red is fine; blue, green and white can look dimmer at
+  high brightness than they would at 5 V. Check the colours you use.
+- **Buzzer:** the TDB05 is a 5 V part; at 3.3 V it will be quieter. Check it
+  is loud enough; if not, a 3 V buzzer is the fix.
 - Top and bottom pogo connectors are both at 6 o'clock, directly above each
   other, so the pass-through is two short wires.
-- The boost board (3-pin Vin / GND / Vo) has no enable pin; the P-MOSFET
-  switches its input so the boost and the ring's idle current are off when
-  dark. Set the ring data pin LOW before switching off.
-- The buzzer (TDB05, 5 V part) runs from the boost 5 V: the firmware turns
-  the boost on for beeps as well as light.
-- These small boosts are usually rated ~0.5 A out: keep the ring brightness
-  capped (pure red / green / blue at moderate brightness is well inside it).
-- Layout: `enclosure/layout/`.
+- The base's old touch pocket at 4 o'clock holds the GND / 3.3 V / 5 V rails.
 
 The sections below are the earlier stripboard notes; pin numbers still apply.
 
