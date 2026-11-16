@@ -80,7 +80,7 @@ same for every number).
 ## Base
 - 1.65 mm plate, built up to 3.65 mm under each column for the M2 x 8 screw
   heads.
-- Component mounts as Rev 1 (LOLIN32 tray and tab, battery stubs, boost,
+- Component mounts as Rev 1 (LOLIN32 tray and tab, battery stubs,
   buzzer, touch, motor clip, switch), now placed against the ball wall
   instead of the old clamp ring, so they sit ~2 mm further out.
   No 5 V boost (ring and buzzer on 3.3 V): the power switch keeps its place
