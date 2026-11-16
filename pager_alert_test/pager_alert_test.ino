@@ -24,7 +24,7 @@
 #define PIN_RING      26   // WS2812 DIN, via 330 ohm resistor
 #define PIN_BEEPER    25   // NPN base (1k) -> piezo
 #define PIN_VIBE      27   // NPN base (330R-1k) or logic-level MOSFET gate (100R) -> motor
-#define PIN_BUTTON    13   // touch module OUT (or a button to GND); RTC pin, can wake from deep sleep
+#define PIN_BUTTON     4   // touch module OUT (or a button to GND); RTC pin, can wake from deep sleep
 // 1 = touch module that drives its output HIGH when touched (TTP223-style
 // modules do by default). 0 = plain button to GND (internal pull-up).
 #define TOUCH_ACTIVE_HIGH 1
@@ -307,6 +307,111 @@ void componentTest() {
   Serial.println("Component test done");
 }
 
+// ---------------- Full guided test ('x') ----------------
+// Steps through every function. Visible / audible checks wait for y (works)
+// or n (doesn't); Enter or no answer in 30 s counts as skipped. Inputs (touch,
+// dock) are detected automatically. A summary is printed at the end.
+
+const char* RESULT_TEXT[] = {"skipped", "PASS", "FAIL"};
+
+// 0 = skipped, 1 = pass, 2 = fail
+int askYesNo(const char* question) {
+  while (Serial.available()) Serial.read();          // drop anything typed earlier
+  Serial.printf("  %s  [y = yes, n = no, Enter = skip]\n", question);
+  uint32_t t0 = millis();
+  while (millis() - t0 < 30000) {
+    if (Serial.available()) {
+      char c = Serial.read();
+      if (c == 'y' || c == 'Y') return 1;
+      if (c == 'n' || c == 'N') return 2;
+      if (c == '\n' || c == '\r') return 0;
+    }
+    delay(5);
+  }
+  Serial.println("  (no answer: skipped)");
+  return 0;
+}
+
+// waits up to ms for the input pin / dock to reach the wanted state
+bool waitFor(bool (*check)(), uint32_t ms) {
+  uint32_t t0 = millis();
+  while (millis() - t0 < ms) {
+    if (check()) return true;
+    delay(10);
+  }
+  return false;
+}
+bool touchDown() { return digitalRead(PIN_BUTTON) == PRESSED_LEVEL; }
+bool touchUp()   { return digitalRead(PIN_BUTTON) != PRESSED_LEVEL; }
+bool docked()    { return onDock(); }
+bool undocked()  { return !onDock(); }
+
+void fullTest() {
+  allOff();
+  int r[10];
+  const char* name[10] = {"Onboard LED", "Battery voltage", "Ring red/green/blue/white",
+                          "Ring every LED in order", "Beeper", "Vibration motor",
+                          "Touch pressed", "Touch released", "Dock: placed", "Dock: lifted"};
+  Serial.println("\n=== Full function test ===");
+
+  Serial.println("1. Onboard LED blinks 3 times (LED on GPIO 22)");
+  for (int i = 0; i < 3; i++) { digitalWrite(PIN_BOARD_LED, LOW); delay(250); digitalWrite(PIN_BOARD_LED, HIGH); delay(250); }
+  r[0] = askYesNo("Did the onboard LED blink?");
+
+  float vb = readVolts(PIN_BATT_ADC), vd = readVolts(PIN_DOCK_ADC);
+  Serial.printf("2. Battery %.2f V, dock input %.2f V\n", vb, vd);
+  r[1] = (vb > 3.0f && vb < 4.35f) ? 1 : 2;
+  if (r[1] == 2) Serial.println("  Battery reading outside 3.0-4.35 V: check the battery divider (GPIO 35) and that a battery is fitted");
+
+  Serial.println("3. Ring: red, green, blue, white (1 s each)");
+  uint32_t colors[] = {ring.Color(255, 0, 0), ring.Color(0, 255, 0), ring.Color(0, 0, 255), ring.Color(255, 255, 255)};
+  for (uint32_t col : colors) { ringFill(col); delay(1000); }
+  ringFill(0);
+  r[2] = askYesNo("Did all 16 LEDs show red, green, blue and white?");
+
+  Serial.println("4. Ring: one LED at a time, round the ring twice");
+  for (int k = 0; k < 2 * RING_LEDS; k++) {
+    ring.clear(); ring.setPixelColor(k % RING_LEDS, ring.Color(0, 0, 255)); ring.show(); delay(120);
+  }
+  ringFill(0);
+  r[3] = askYesNo("Did each LED light in turn with none missing?");
+
+  Serial.println("5. Beeper: 3 beeps");
+  for (int i = 0; i < 3; i++) { beeper(true); delay(200); beeper(false); delay(250); }
+  r[4] = askYesNo("Did you hear 3 beeps (loud enough)?");
+
+  Serial.println("6. Vibration: 1.5 s");
+  vibe(true); delay(1500); vibe(false);
+  r[5] = askYesNo("Did the motor run?");
+
+  Serial.println("7. Touch the touch pad now (10 s)...");
+  r[6] = waitFor(touchDown, 10000) ? 1 : 2;
+  Serial.println(r[6] == 1 ? "  Touch seen" : "  No touch seen: check GPIO 4 wiring and TOUCH_ACTIVE_HIGH");
+  if (r[6] == 1) { Serial.println("  ...now let go (5 s)"); r[7] = waitFor(touchUp, 5000) ? 1 : 2; }
+  else r[7] = 0;
+
+  Serial.printf("8. Dock sense: the pager is %s. ", onDock() ? "ON the dock" : "off the dock");
+  bool startDocked = onDock();
+  Serial.printf("%s it within 15 s (or wait to skip)...\n", startDocked ? "Lift" : "Put it on the dock / connect 5 V to the pogo");
+  bool changed = waitFor(startDocked ? undocked : docked, 15000);
+  if (!changed) { r[8] = 0; r[9] = 0; Serial.println("  No change: skipped"); }
+  else {
+    Serial.printf("  Seen: %s (dock input %.2f V)\n", onDock() ? "on dock" : "off dock", readVolts(PIN_DOCK_ADC));
+    Serial.printf("  Now %s it again within 15 s...\n", onDock() ? "lift" : "put it back on");
+    bool back = waitFor(startDocked ? docked : undocked, 15000);
+    if (startDocked) { r[9] = 1; r[8] = back ? 1 : 0; } else { r[8] = 1; r[9] = back ? 1 : 0; }
+  }
+
+  Serial.println("\n=== Summary ===");
+  int fails = 0;
+  for (int i = 0; i < 10; i++) {
+    Serial.printf("  %-28s %s\n", name[i], RESULT_TEXT[r[i]]);
+    if (r[i] == 2) fails++;
+  }
+  Serial.printf("%d failed. Battery %.2f V\n\n", fails, readVolts(PIN_BATT_ADC));
+  allOff();
+}
+
 void printStatus() {
   Serial.printf("Battery %.2f V | Dock input %.2f V (%s) | Button %s\n",
                 readVolts(PIN_BATT_ADC), readVolts(PIN_DOCK_ADC),
@@ -362,7 +467,8 @@ void setup() {
 
   Serial.println("\nPager alert test");
   Serial.println("States: d = dock, u = lift, k = confirm, a = your turn, s = ack (or press the button)");
-  Serial.println("t = component test, b = battery/dock/button status,");
+  Serial.println("x = FULL guided test of every function (answer y / n), t = quick component test,");
+  Serial.println("b = battery/dock/button status,");
   Serial.println("f = beeper frequency sweep, r = reference beep");
   Serial.println("Light test: l = next ball colour, + / - = brightness, w = white, g = faint glow, s = off");
   Serial.println("  c R G B = set the shown colour (e.g. c 255 100 0), p = print colour table");
@@ -383,6 +489,7 @@ void loop() {
         else if (state == LIGHT) setState(onDock() ? DOCKED : LIFTED);
         break;
       case 't': componentTest(); setState(onDock() ? DOCKED : LIFTED); break;
+      case 'x': fullTest(); setState(onDock() ? DOCKED : LIFTED); break;
       case 'b': printStatus(); break;
       case 'f': beepSweep(); break;
       case 'r': beepReference(); break;

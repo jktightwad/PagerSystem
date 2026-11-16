@@ -12,7 +12,7 @@ battery + --> power switch --> LOLIN32 JST (battery in)
 LOLIN32 3V3 --> LED ring 5V/VCC pin, buzzer (+), vibration motor (+)
                 buzzer and motor switched on their GND side by NPNs (GPIO 25, GPIO 27), diode across the motor
 LED ring DI <-- 330R <-- GPIO 26          (3.3 V supply and 3.3 V data: no level shifter needed)
-touch module OUT --> GPIO 13
+touch module OUT --> GPIO 4
 ```
 - No boost board and no P-MOSFET: the LED ring and the buzzer run from the
   LOLIN32's 3.3 V regulator, like the motor.
@@ -45,7 +45,7 @@ is on.
 | WS2812 ring DI (data in) | GPIO 26 | 330 Ω series resistor, close to the ring. DO not connected |
 | Active buzzer | GPIO 25 | 1 kΩ to NPN base |
 | Vibration motor (3 V coreless) | GPIO 27 | NPN (330 Ω) or logic-level MOSFET, see below |
-| Touch module OUT (acknowledge) | GPIO 13 | Module VCC to 3V3, GND to GND, OUT to GPIO 13. Sketch assumes OUT goes HIGH when touched (`TOUCH_ACTIVE_HIGH 1`); set 0 for a plain button to GND. RTC pin, can wake from deep sleep |
+| Touch module OUT (acknowledge) | GPIO 4 | Module VCC to 3V3, GND to GND, OUT to GPIO 4. Sketch assumes OUT goes HIGH when touched (`TOUCH_ACTIVE_HIGH 1`); set 0 for a plain button to GND. RTC pin, can wake from deep sleep |
 | Dock sense | GPIO 34 | 100 kΩ / 100 kΩ divider from the pogo 5 V (before the diode) |
 | Battery voltage | GPIO 35 | 100 kΩ / 100 kΩ divider from battery + |
 | Onboard LED | GPIO 22 | On the board |
