@@ -88,7 +88,7 @@ same for every number).
   touch at 111 deg (clear of the 4:30 column); motor moved to (29, 13) to
   clear the 60 deg magnet.
 - LED ring posts 9.7 mm (free height under the ring).
-- Switch riser pads from slider length - base: slider tip 0.5 mm up from the
+- Switch riser pads from slider length - base: slider tip sticks out 0.5 mm below the
   bottom (`switch_tip_recess`).
 
 ![Base](base.png)

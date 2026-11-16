@@ -226,8 +226,8 @@ switch_h       = 4.5;
 switch_clear   = 0;
 switch_extra_w = 0.2;
 switch_slider_l = 4.35;
-// slider tip this far up from the bottom of the base (0 = flush)
-switch_tip_recess = 0.5; // [0:0.1:3]
+// slider tip this far up from the bottom of the base (0 = flush, negative = sticks out)
+switch_tip_recess = -0.5; // [-2:0.1:3] negative = slider sticks out below the bottom by that much
 switch_slot_l  = 5.75;
 switch_slot_w  = 2.2;
 switch_pad_w   = 1.5;
@@ -664,7 +664,7 @@ else preview();
 
 echo(str("Rev 2: ball ", ball_h, " mm; LED tops to underside of the white ", led_gap,
          " mm; LED posts ", ring_bottom - base_t, " mm tall; free height under the LED ring ", ring_bottom - base_t, " mm"));
-echo(str("Switch riser pads ", switch_pad_h, " mm (slider tip ", switch_tip_recess, " mm up from the bottom)"));
+echo(str("Switch riser pads ", switch_pad_h, " mm (slider tip ", -switch_tip_recess, " mm below the bottom)"));
 assert(white_t < number_t, "number_t must be deeper than white_t");
 assert(number_t <= top_t, "number_t deeper than the top");
 assert(screw_head_h < col_start - 0.3, "screw head recess leaves under 0.3 mm");
