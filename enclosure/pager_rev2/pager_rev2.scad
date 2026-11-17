@@ -157,7 +157,7 @@ tower_slot_h  = 5.0;    // [2:0.5:10] and height
 // optional bead / groove via snap_bead)
 tower_socket_h = 1.6;   // [0.8:0.1:3] collar height
 tower_socket_t = 0.9;   // [0.6:0.1:2] collar wall
-tower_fit      = 0.05;  // [0:0.05:0.4] clearance tower to collar, per side (0.1 was sloppy)
+tower_fit      = 0;     // [-0.1:0.05:0.4] clearance tower to collar, per side (0.1 and 0.05 printed loose; slicer hole compensation opens it)
 snap_bead      = 0;     // [0:0.05:0.5] bead depth, 0 = plain snug socket (a 0.25 bead was too small to print)
 // groove depth beyond the bead (0 = bead seats in the groove with no play; 0.1 was loose)
 snap_clear     = 0;     // [0:0.05:0.3]

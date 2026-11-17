@@ -47,8 +47,9 @@ same for every number).
   the base build-ups are 0.10 taller (ball key pockets 0.10 deeper).
   No crush bumps (`tower_rib_h` removed: the test only fitted without them).
 - Each tower end sits in a collar (1.6 mm tall, 0.9 mm wall) on the base
-  pad and on the ball pad: a plain snug fit, 0.05 mm clearance per side
-  (`tower_fit`). The snap bead tried before was too small to print
+  pad and on the ball pad: a plain snug fit, modelled with 0 clearance
+  (`tower_fit`; 0.1 and 0.05 printed loose because the slicer's hole
+  compensation opens the collar up). The snap bead tried before was too small to print
   (`snap_bead` = 0 now; the option is still there).
   Wire the two connectors together inside
   the tower (5 V and GND pass straight up the stack); a 2-wire lead to the
