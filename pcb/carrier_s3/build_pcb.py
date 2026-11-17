@@ -31,14 +31,15 @@ SPARE_HOLE_D = 0.9
 BOARD_W = 24.0                   # = SuperMini length: plain rectangle
 BAND_W = SM_L                    # antenna end flush with the right edge
 SM_X0 = 0.0                      # USB end flush with the left edge
-SM_YC = 11.6                     # SuperMini centre line (room for the top spare holes)
+MH_C = 2.1                       # corner mounting holes: centre this far from both edges
+SM_YC = 15.35                    # SuperMini centre line (corner holes, then the top spare holes)
 ROW_TOP_Y = SM_YC - SM_W / 2 + ROW_INSET
 ROW_BOT_Y = SM_YC + SM_W / 2 - ROW_INSET
 SPARE_DY = SM_PAD[1] / 2 + 0.9   # spare hole distance from the pad row
 NOTCH_Y = ROW_BOT_Y + SPARE_DY + 1.0   # parts area starts below the bottom spare holes
 ANT_X = SM_L - ANT_LEN           # antenna zone starts here
 ANT_CLEAR_Y = NOTCH_Y + 2.5      # no copper right of ANT_X - 2 down to here
-BOARD_L = 52.4
+BOARD_L = 60.4
 R = 1.5                          # corner radius
 
 def mm(v): return pcbnew.FromMM(v)
@@ -163,9 +164,11 @@ rule_area([(0.3, inner_top + 2), (BAND_W, inner_top + 2), (BAND_W, inner_bot - 2
 # antenna: nothing on either layer under its end (between the rows) or just below the band
 rule_area([(ANT_X, inner_top), (BAND_W + 0.5, inner_top), (BAND_W + 0.5, inner_bot), (ANT_X, inner_bot)],
           [pcbnew.F_Cu, pcbnew.B_Cu])
+top_hole_y = ROW_TOP_Y - SPARE_DY                    # top spare holes
+rule_area([(ANT_X - 2, -0.5), (W + 0.5, -0.5), (W + 0.5, top_hole_y - 1.0), (ANT_X - 2, top_hole_y - 1.0)],
+          [pcbnew.F_Cu, pcbnew.B_Cu])                    # strip above the antenna end
 rule_area([(ANT_X - 2, NOTCH_Y - 0.3), (W + 0.5, NOTCH_Y - 0.3), (W + 0.5, ANT_CLEAR_Y), (ANT_X - 2, ANT_CLEAR_Y)],
           [pcbnew.F_Cu, pcbnew.B_Cu])
-silk_text("ANT", ANT_X + ANT_LEN / 2 - 1.5, NOTCH_Y + 1.0, 0.8)
 
 # B+/B- pass-through: slot under the SuperMini's battery pads (USB end, centre)
 slot = new_fp("H1"); slot.SetValue("B+/B- wires"); slot.SetPosition(pt(0, 0))
@@ -260,14 +263,14 @@ for ref, (lf, x, y, rot) in small.items():
 
 # mounting holes for M2 self-tapping screws; copper kept 2 mm from the centre (screw head)
 MH_KEEP = 2.0
-mh_pos = [(1.8, y0 + 2.65), (W - 2.1, y0 + 2.65), (11.8, ROW2 + 0.3)]
+mh_pos = [(MH_C, MH_C), (W - MH_C, MH_C), (MH_C, L - MH_C), (W - MH_C, L - MH_C)]   # 4 corners
 for i, (x, y) in enumerate(mh_pos):
     mfp = add_fp(lib_fp("MountingHole", "MountingHole_2.2mm_M2"), f"MH{i+1}", "M2", x, y)
     mfp.Reference().SetVisible(False); mfp.Value().SetVisible(False)
     rule_area([(x + MH_KEEP * math.cos(2 * math.pi * k / 16), y + MH_KEEP * math.sin(2 * math.pi * k / 16))
                for k in range(16)], [pcbnew.F_Cu, pcbnew.B_Cu])
 
-silk_text("PAGER S3", 20.0, NOTCH_Y + 1.0, 0.8, pcbnew.B_SilkS, True)
+silk_text("POOL PAGER S3", 12.0, y0 + 12.6, 0.8, pcbnew.B_SilkS, True)
 
 board.Save(OUT)
 json.dump({"outline": OUTLINE, "corner_r": R}, open("board_geom.json", "w"))

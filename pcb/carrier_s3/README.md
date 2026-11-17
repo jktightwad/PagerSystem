@@ -1,6 +1,6 @@
 # Pager carrier board (ESP32-S3 SuperMini) — draft
 
-**Status: laid out and routed (24 x 52.4 mm rectangle, 2 layers), DRC clean. Not ordered,
+**Status: laid out and routed (24 x 60.4 mm rectangle, 2 layers), DRC clean. Not ordered,
 not tested. SuperMini row spacing and B+/B− pad position are still unmeasured.**
 
 ![Schematic](schematic.png)
@@ -47,7 +47,10 @@ Open `carrier_s3.kicad_pcb` in KiCad 7+ to inspect or edit by hand.
 - Buzzer (9 mm, 5 mm pin spacing) on the board, hand-soldered. Power switch:
   two wire holes (the switch stays in its mount in the base). Buzzer and motor
   are on GP12 / GP13 (away from the antenna end).
-- 3 × M2 holes (2.2 mm) with copper kept 2 mm from centre for the screw head.
+- 4 × M2 holes (2.2 mm) in the corners, 2.1 mm from both edges, copper kept
+  2 mm from centre for the screw head. Strips above the SuperMini and below
+  the connectors make room for them. The top-right one is near the antenna
+  end (about 4 mm); no copper round it.
 - Not fitted (pads kept, the hand-wired prototype works without them):
   C1/C2 (100 nF divider filters, 0603) and C3 (47 uF ring bulk cap, 1206,
   e.g. C96123: hand-solder it if the ring flickers or resets the board at
