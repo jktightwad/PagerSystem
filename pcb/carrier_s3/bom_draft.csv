@@ -8,8 +8,8 @@ Qty,Refs,Value,Footprint,LCSC (verify),Notes
 2,C1 C2,100nF,0603,(C14663),NOT FITTED - optional divider filters
 1,C3,47uF 10V,1206,(C96123),NOT FITTED - optional ring bulk cap
 1,D1,B5819W,SOD-123,C8598,motor flyback
-1,J1,Battery,PH2,,"JST-PH 2: + on the right pin (pin 2), GND left"
-1,J2,LED ring,PH3,,"JST-PH 3: VBAT, DATA, GND"
-1,J3,Motor,PH2,,JST-PH 2
-1,J4,Touch,PH3,,"JST-PH 3: 3V3, OUT, GND"
-1,J5,Pogo (tower),PH2,,"JST-PH 2: 5V, GND"
+1,J1,Battery,PH2,,"JST-PH 2: GND, + (right)"
+1,J2,LED ring,PH3,,"JST-PH 3: GND, DATA, VBAT"
+1,J3,Motor,PH2,,"JST-PH 2: motor -, +"
+1,J4,Touch,PH3,,"JST-PH 3: GND, OUT, 3V3"
+1,J5,Pogo (tower),PH2,,"JST-PH 2: GND, 5V"

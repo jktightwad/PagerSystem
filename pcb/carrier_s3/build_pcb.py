@@ -202,11 +202,11 @@ PH2 = ("Connector_JST", "JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
 PH3 = ("Connector_JST", "JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical")
 conn = {
     # ref: (lib, x, y of pad 1, name, pin labels)
-    "J1": (PH2, 2.6, ROW1, "BAT", "-+"),   # + on the right (matches the battery plug)
-    "J5": (PH2, 9.6, ROW1, "DOCK", "+-"),
-    "J3": (PH2, 16.6, ROW1, "MOTOR", "+-"),
-    "J2": (PH3, 2.6, ROW2, "RING", "VDG"),
-    "J4": (PH3, 17.0, ROW2, "TOUCH", "VOG"),
+    "J1": (PH2, 2.6, ROW1, "BAT", "-+"),   # all connectors: GND left, power right
+    "J5": (PH2, 9.6, ROW1, "DOCK", "-+"),
+    "J3": (PH2, 16.6, ROW1, "MOTOR", "-+"),
+    "J2": (PH3, 2.6, ROW2, "RING", "GDV"),
+    "J4": (PH3, 17.0, ROW2, "TOUCH", "GOV"),
 }
 for ref, (lf, x, y, label, pins) in conn.items():
     fp = add_fp(lib_fp(*lf), ref, PARTS[ref][0], x, y)

@@ -3,6 +3,9 @@
 Single source of truth for the schematic drawing and the PCB generator.
 Net names are what the schematic labels show.
 
+Connectors all the same way round: pin 1 (left, square pad) = GND, last pin
+(right) = power, signal in the middle.
+
 Power:
   BAT+ (battery connector) -> SW1 -> VBAT -> SuperMini B+ (wire through the
   board), LED ring, buzzer, motor, battery divider.
@@ -30,23 +33,23 @@ PARTS = {
     "C2":  ("100nF", "0603", None, "dock divider filter: NOT FITTED (pads kept; was C14663)"),
     "C3":  ("47uF 10V", "1206", None, "ring bulk: NOT FITTED (pads left for hand-soldering if the ring needs it; was C96123)"),
     "D1":  ("B5819W", "SOD-123", "C8598", "motor flyback"),
-    "J1":  ("Battery", "PH2", None, "JST-PH 2: pin 2 (right, tab up) = +, pin 1 = GND, to match the battery plug"),
-    "J2":  ("LED ring", "PH3", None, "JST-PH 3: VBAT, DATA, GND"),
-    "J3":  ("Motor", "PH2", None, "JST-PH 2"),
-    "J4":  ("Touch", "PH3", None, "JST-PH 3: 3V3, OUT, GND"),
-    "J5":  ("Pogo (tower)", "PH2", None, "JST-PH 2: 5V, GND"),
+    "J1":  ("Battery", "PH2", None, "JST-PH 2: pin 1 = GND, pin 2 = + (right, tab up), to match the battery plug"),
+    "J2":  ("LED ring", "PH3", None, "JST-PH 3: GND, DATA, VBAT (pins 1-3)"),
+    "J3":  ("Motor", "PH2", None, "JST-PH 2: pin 1 = motor -, pin 2 = + (VBAT)"),
+    "J4":  ("Touch", "PH3", None, "JST-PH 3: GND, OUT, 3V3 (pins 1-3)"),
+    "J5":  ("Pogo (tower)", "PH2", None, "JST-PH 2: GND, 5V (pins 1-2)"),
 }
 
 # net: [(ref, pin), ...]   SuperMini pins by label
 NETS = {
-    "GND":    [("U1", "GND"), ("U1", "B-"), ("J1", "1"), ("J2", "3"), ("J4", "3"), ("J5", "2"),
+    "GND":    [("U1", "GND"), ("U1", "B-"), ("J1", "1"), ("J2", "1"), ("J4", "1"), ("J5", "1"),
                ("Q1", "S"), ("Q2", "S"), ("R2", "2"), ("R4", "2"), ("R7", "2"), ("R9", "2"),
                ("C1", "2"), ("C2", "2"), ("C3", "2")],
     "BAT+":   [("J1", "2"), ("SW1", "COM")],
-    "VBAT":   [("SW1", "ON"), ("U1", "B+"), ("J2", "1"), ("BZ1", "+"), ("J3", "1"), ("D1", "K"),
+    "VBAT":   [("SW1", "ON"), ("U1", "B+"), ("J2", "3"), ("BZ1", "+"), ("J3", "2"), ("D1", "K"),
                ("R6", "1"), ("C3", "1")],
-    "POGO5V": [("J5", "1"), ("U1", "5V"), ("R8", "1")],
-    "3V3":    [("U1", "3V3"), ("J4", "1")],
+    "POGO5V": [("J5", "2"), ("U1", "5V"), ("R8", "1")],
+    "3V3":    [("U1", "3V3"), ("J4", "3")],
     "DOCK_SENSE": [("R8", "2"), ("R9", "1"), ("C2", "1"), ("U1", "GP1")],
     "BAT_SENSE":  [("R6", "2"), ("R7", "1"), ("C1", "1"), ("U1", "GP2")],
     "TOUCH":      [("J4", "2"), ("U1", "GP4")],
@@ -57,7 +60,7 @@ NETS = {
     "BUZ_-":      [("Q1", "D"), ("BZ1", "-")],
     "MOT_IO":     [("U1", "GP13"), ("R3", "1")],
     "MOT_G":      [("R3", "2"), ("R4", "1"), ("Q2", "G")],
-    "MOT_-":      [("Q2", "D"), ("J3", "2"), ("D1", "A")],
+    "MOT_-":      [("Q2", "D"), ("J3", "1"), ("D1", "A")],
 }
 
 if __name__ == "__main__":

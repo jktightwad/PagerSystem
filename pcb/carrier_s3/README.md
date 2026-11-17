@@ -39,8 +39,9 @@ Open `carrier_s3.kicad_pcb` in KiCad 7+ to inspect or edit by hand.
   holes (J6).
 - Unused pins (TX, RX, GP3, GP6–GP11) each go to a 0.9 mm solder hole at the
   board edge, labelled on the bottom.
-- Connectors: JST-PH 2.0 vertical, labelled on the top: pin names over the
-  pins (`+ -`, `V D G`, `V O G`) and the connector name above them. Their
+- Connectors: JST-PH 2.0 vertical, all the same way round: GND on the left
+  pin (square pad), power on the right, signal in the middle. Labelled on
+  the top: `BAT - +`, `DOCK - +`, `MOTOR - +`, `RING G D V`, `TOUCH G O V`. Their
   holes also take wires directly. J1 battery: + is the RIGHT pin (pin 2,
   round pad), ground the left (square pad), to match the battery plug with
   its tab facing the top of the board. **Check against your battery plug before soldering a
