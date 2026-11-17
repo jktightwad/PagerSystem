@@ -202,7 +202,7 @@ turn. Must work without office Wi-Fi. At least 4 pagers; currently planning 8.
   short wires from B+/B- through holes in the carrier to the battery
   connector / switch. Leave the unexplained "BOOST" pad alone.
 - Proposed pins (left edge): dock sense GP1, battery sense GP2 (both ADC1),
-  touch GP4, ring GP5, buzzer GP6, motor GP7. Avoid GP0/3/45/46 (strapping),
+  touch GP4, ring GP5, buzzer GP12, motor GP13. Avoid GP0/3/45/46 (strapping),
   GP11-16 (ADC2), GP19/20 (USB).
 - To check on real boards first: (1) 5 V into the 5V pin charges a battery on
   B+/B-; (2) runs from the battery alone; (3) range vs the LOLIN32 with the

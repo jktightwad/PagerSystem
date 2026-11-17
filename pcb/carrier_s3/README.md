@@ -1,6 +1,6 @@
 # Pager carrier board (ESP32-S3 SuperMini) — draft
 
-**Status: laid out and routed (27 x 47.2 mm, 2 layers), DRC clean. Not ordered,
+**Status: laid out and routed (27 x 47.4 mm, 2 layers), DRC clean. Not ordered,
 not tested. SuperMini row spacing and B+/B− pad position are still unmeasured.**
 
 ![Schematic](schematic.png)
@@ -27,16 +27,23 @@ Open `carrier_s3.kicad_pcb` in KiCad 7+ to inspect or edit by hand.
 ## Board notes
 - Rules: 0.2 mm clearance, 0.25 mm signal / 0.3–0.5 mm power tracks,
   0.6/0.3 mm vias, 0.3 mm to the edge; within standard JLCPCB/PCBWay limits.
-- SuperMini soldered flat by its castellated edges onto long pads (tolerate
-  about ±1.5 mm of row-spacing error). No top copper under its body.
+- SuperMini lies sideways along the top: USB-C end flush with the left edge
+  (plug not blocked), antenna end flush with the right edge of a 24 mm band;
+  the board is 27 mm wide only below that. No copper (pour, tracks, vias) on
+  either layer under the antenna end (`ANT_LEN` = 5 mm, an estimate: measure)
+  or in the corner just below it. All pins are on the board.
+- Soldered flat by its castellated edges onto long pads (tolerate about
+  ±1.5 mm of row-spacing error). No top copper under the middle of its body;
+  a 2 mm strip inside each pad row is used to get the pins out.
 - Its B+/B− pads are underneath: wires go down through the slot to the B+/B−
   holes (J6).
-- Unused pins (TX, RX, GP3, GP8–GP13) each go to a 0.9 mm solder hole at the
-  board edge, labelled.
+- Unused pins (TX, RX, GP3, GP6–GP11) each go to a 0.9 mm solder hole at the
+  board edge, labelled on the bottom.
 - Connectors: JST-PH 2.0 vertical. Their holes also take wires directly. J1
   battery: pin 1 (square pad, `+` on top silk) = battery +. **Check against your
   battery plug before soldering a connector** — the latch makes it one-way.
-- Buzzer: 5 mm pin spacing, pins either way round. Switch: two wire holes.
+- Buzzer and switch: two wire holes each (both stay in their pockets in the
+  base). Buzzer and motor are on GP12 / GP13 (away from the antenna end).
 - 3 × M2 holes (2.2 mm) with copper kept 2 mm from centre for the screw head.
 - JLCPCB assembly: top side only, all basic parts (LCSC numbers checked on
   lcsc.com / jlcpcb.com, Nov 2026). Check part rotations in JLC's placement
@@ -50,9 +57,11 @@ Open `carrier_s3.kicad_pcb` in KiCad 7+ to inspect or edit by hand.
 - SuperMini **3V3** → touch module only.
 - Buzzer and motor: low-side AO3400A MOSFETs, 100 Ω gate resistor, 100 kΩ
   pull-down; Schottky across the motor.
-- Pins: dock GP1, battery GP2, touch GP4, ring GP5, buzzer GP6, motor GP7.
+- Pins: dock GP1, battery GP2, touch GP4, ring GP5, buzzer GP12, motor GP13.
+  (Firmware: the S3 build must use these; the LOLIN build keeps its own pins.)
 
 ## Still to confirm before ordering
-1. SuperMini: row-to-row spacing and B+/B− pad position (measure one board).
+1. SuperMini: row-to-row spacing, B+/B− pad position, and how far the antenna
+   reaches in from its end (`ANT_LEN`).
 2. Battery plug polarity against J1.
 3. Hole positions against the Rev 2 base columns (enclosure not yet changed).

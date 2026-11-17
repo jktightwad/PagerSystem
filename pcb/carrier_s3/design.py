@@ -14,7 +14,7 @@ Power:
 PARTS = {
     "U1":  ("ESP32-S3 SuperMini", "SUPERMINI", None, "hand-soldered; B+/B- wired through H1/H2"),
     "SW1": ("Slide switch", "SWITCH", None, "power: breaks battery +"),
-    "BZ1": ("TDB05 5V buzzer", "BUZZER", None, "hand-soldered"),
+    "BZ1": ("TDB05 5V buzzer", "WIRE2", None, "in its base pocket, wired to two pads"),
     "Q1":  ("AO3400A", "SOT-23", "C20917", "buzzer driver"),
     "Q2":  ("AO3400A", "SOT-23", "C20917", "motor driver"),
     "R1":  ("100R", "0603", "C22775", "Q1 gate"),
@@ -53,10 +53,10 @@ NETS = {
     "TOUCH":      [("J4", "2"), ("U1", "GP4")],
     "RING_IO":    [("U1", "GP5"), ("R5", "1")],
     "RING_DATA":  [("R5", "2"), ("J2", "2")],
-    "BUZ_IO":     [("U1", "GP6"), ("R1", "1")],
+    "BUZ_IO":     [("U1", "GP12"), ("R1", "1")],
     "BUZ_G":      [("R1", "2"), ("R2", "1"), ("Q1", "G")],
     "BUZ_-":      [("Q1", "D"), ("BZ1", "-")],
-    "MOT_IO":     [("U1", "GP7"), ("R3", "1")],
+    "MOT_IO":     [("U1", "GP13"), ("R3", "1")],
     "MOT_G":      [("R3", "2"), ("R4", "1"), ("Q2", "G")],
     "MOT_-":      [("Q2", "D"), ("J3", "2"), ("D1", "A")],
 }

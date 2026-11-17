@@ -2,28 +2,44 @@
 Routing is done afterwards by route_pcb.py. Run with the system python (KiCad's pcbnew).
 
 Coordinates in mm, KiCad style: x right, y DOWN, origin = board top-left.
-The SuperMini sits at the top, USB-C at the top edge, components underneath it.
+
+The SuperMini lies sideways along the top: USB-C end flush with the left edge,
+antenna end flush with the right edge of that band. All its pins are on the
+board. No copper pour, tracks or vias under the antenna end or just below it;
+the board is full width (27 mm) only further down, clear of the antenna.
 """
-import math
+import json, math
 import pcbnew
 from design import PARTS, NETS
 
 FPLIB = "/usr/share/kicad/footprints"
 OUT = "carrier_s3.kicad_pcb"
 
-# ---------------- board and SuperMini geometry (measure and adjust) ----------------
-BOARD_W = 27.0
-BOARD_L = 47.2
-SM_W, SM_L = 18.0, 24.0          # SuperMini board (longest reported); USB end at y = SM_Y0
-SM_X0, SM_Y0 = (BOARD_W - SM_W) / 2, 0.6
-ROW_INSET = 1.25                 # pin row centre from the SuperMini's long edge (assumed; pads tolerate +-1.5)
+# ---------------- SuperMini geometry (measure and adjust) ----------------
+SM_L, SM_W = 24.0, 18.0          # length (USB to antenna end, longest reported) x width
+ANT_LEN = 5.0                    # antenna end kept free of copper (ESTIMATE: measure)
+ROW_INSET = 1.25                 # pin row centre from the long edge (assumed; pads tolerate +-1.5)
 PIN_PITCH = 2.54
-PIN_Y0 = SM_Y0 + (SM_L - 8 * PIN_PITCH) / 2      # first pin (USB end), pins centred on the board
-# rows as seen from the top with USB at the top edge
-LEFT_ROW = ["TX", "RX", "GP1", "GP2", "GP3", "GP4", "GP5", "GP6", "GP7"]
-RIGHT_ROW = ["5V", "GND", "3V3", "GP13", "GP12", "GP11", "GP10", "GP9", "GP8"]
-SM_PAD = (3.4, 1.5)              # long pad across the edge: covers row-spacing uncertainty
-SPARE_HOLE_D = 0.9               # solder hole for unused pins, outside the SuperMini outline
+PIN_U0 = (SM_L - 8 * PIN_PITCH) / 2       # first pin from the USB end (pins centred)
+# rows as seen from the top with the USB end LEFT
+TOP_ROW = ["5V", "GND", "3V3", "GP13", "GP12", "GP11", "GP10", "GP9", "GP8"]
+BOT_ROW = ["TX", "RX", "GP1", "GP2", "GP3", "GP4", "GP5", "GP6", "GP7"]
+SM_PAD = (1.5, 3.4)              # pad (x, y): long across the edge, covers row-spacing error
+SPARE_HOLE_D = 0.9
+
+# ---------------- board ----------------
+BOARD_W = 27.0
+BAND_W = SM_L                    # board width under the SuperMini: antenna end flush with the edge
+SM_X0 = 0.0                      # USB end flush with the left edge
+SM_YC = 11.6                     # SuperMini centre line (room for the top spare holes)
+ROW_TOP_Y = SM_YC - SM_W / 2 + ROW_INSET
+ROW_BOT_Y = SM_YC + SM_W / 2 - ROW_INSET
+SPARE_DY = SM_PAD[1] / 2 + 0.9   # spare hole distance from the pad row
+NOTCH_Y = ROW_BOT_Y + SPARE_DY + 1.4   # band ends here; full width below
+ANT_X = SM_L - ANT_LEN           # antenna zone starts here
+ANT_CLEAR_Y = NOTCH_Y + 3.0      # no copper right of ANT_X - 2 down to here
+BOARD_L = 47.4
+R = 1.5                          # corner radius
 
 def mm(v): return pcbnew.FromMM(v)
 def layers(*ls):
@@ -43,65 +59,69 @@ ds.m_CopperEdgeClearance = mm(0.3)
 nc = ds.m_NetSettings.m_DefaultNetClass
 nc.SetTrackWidth(mm(0.3)); nc.SetClearance(mm(0.2)); nc.SetViaDiameter(mm(0.6)); nc.SetViaDrill(mm(0.3))
 
-# ---------------- nets ----------------
 nets = {}
 for name in NETS:
     n = pcbnew.NETINFO_ITEM(board, name); board.Add(n); nets[name] = n
 pin_net = {(r, p): n for n, pins in NETS.items() for r, p in pins}
-spare_nets = {}
 
-# ---------------- outline ----------------
-def edge_line(a, b):
+# ---------------- outline: band under the SuperMini, full width below ----------------
+def edge_seg(a, b):
     s = pcbnew.PCB_SHAPE(board); s.SetShape(pcbnew.SHAPE_T_SEGMENT)
     s.SetStart(pt(*a)); s.SetEnd(pt(*b)); s.SetLayer(pcbnew.Edge_Cuts); s.SetWidth(mm(0.1)); board.Add(s)
-R = 1.5
-corners = [(0, 0), (BOARD_W, 0), (BOARD_W, BOARD_L), (0, BOARD_L)]
-edge_line((R, 0), (BOARD_W - R, 0)); edge_line((BOARD_W, R), (BOARD_W, BOARD_L - R))
-edge_line((BOARD_W - R, BOARD_L), (R, BOARD_L)); edge_line((0, BOARD_L - R), (0, R))
-for cx, cy, sa in [(R, R, 180), (BOARD_W - R, R, 270), (BOARD_W - R, BOARD_L - R, 0), (R, BOARD_L - R, 90)]:
+def edge_arc(cx, cy, a0, sweep, r=R):
     a = pcbnew.PCB_SHAPE(board); a.SetShape(pcbnew.SHAPE_T_ARC); a.SetLayer(pcbnew.Edge_Cuts); a.SetWidth(mm(0.1))
-    a.SetCenter(pt(cx, cy)); import math
-    a.SetStart(pt(cx + R * math.cos(math.radians(sa)), cy + R * math.sin(math.radians(sa))))
-    a.SetArcAngleAndEnd(pcbnew.EDA_ANGLE(90, pcbnew.DEGREES_T)); board.Add(a)
+    a.SetCenter(pt(cx, cy)); a.SetStart(pt(cx + r * math.cos(math.radians(a0)), cy + r * math.sin(math.radians(a0))))
+    a.SetArcAngleAndEnd(pcbnew.EDA_ANGLE(sweep, pcbnew.DEGREES_T)); board.Add(a)
+W, L, B, N = BOARD_W, BOARD_L, BAND_W, NOTCH_Y
+edge_seg((R, 0), (B - R, 0)); edge_arc(B - R, R, 270, 90)
+edge_seg((B, R), (B, N))                         # inner corner at (B, N) left square
+edge_seg((B, N), (W - R, N)); edge_arc(W - R, N + R, 270, 90)
+edge_seg((W, N + R), (W, L - R)); edge_arc(W - R, L - R, 0, 90)
+edge_seg((W - R, L), (R, L)); edge_arc(R, L - R, 90, 90)
+edge_seg((0, L - R), (0, R)); edge_arc(R, R, 180, 90)
+OUTLINE = [(0, 0), (B, 0), (B, N), (W, N), (W, L), (0, L)]
 
-def silk_text(txt, x, y, size=0.8, layer=pcbnew.F_SilkS, mirror=False):
+def silk_text(txt, x, y, size=0.8, layer=pcbnew.F_SilkS, mirror=False, rot=0):
     t = pcbnew.PCB_TEXT(board); t.SetText(txt); t.SetPosition(pt(x, y)); t.SetLayer(layer)
     t.SetTextSize(pcbnew.VECTOR2I(mm(size), mm(size))); t.SetTextThickness(mm(size * 0.15))
     if mirror: t.SetMirrored(True)
+    if rot: t.SetTextAngleDegrees(rot)
     board.Add(t)
 
-def silk_rect(x0, y0, x1, y1, layer=pcbnew.F_SilkS):
-    for a, b in [((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))]:
+def silk_poly(points, layer=pcbnew.F_SilkS, w=0.12):
+    for a, b in zip(points, points[1:]):
         s = pcbnew.PCB_SHAPE(board); s.SetShape(pcbnew.SHAPE_T_SEGMENT); s.SetStart(pt(*a)); s.SetEnd(pt(*b))
-        s.SetLayer(layer); s.SetWidth(mm(0.12)); board.Add(s)
+        s.SetLayer(layer); s.SetWidth(mm(w)); board.Add(s)
+
+def rule_area(poly, lays, pour=True, tracks=True, vias=True):
+    for lay in lays:
+        z = pcbnew.ZONE(board); z.SetIsRuleArea(True); z.SetDoNotAllowCopperPour(pour)
+        z.SetDoNotAllowTracks(tracks); z.SetDoNotAllowVias(vias); z.SetDoNotAllowPads(False)
+        z.SetDoNotAllowFootprints(False); z.SetLayer(lay)
+        ol = z.Outline(); ol.NewOutline()
+        for x, y in poly: ol.Append(mm(x), mm(y))
+        board.Add(z)
 
 # ---------------- footprints ----------------
-def lib_fp(lib, name):
-    return pcbnew.FootprintLoad(f"{FPLIB}/{lib}.pretty", name)
+def lib_fp(lib, name): return pcbnew.FootprintLoad(f"{FPLIB}/{lib}.pretty", name)
 
-def add_fp(fp, ref, value, x, y, rot=0, layer_bottom=False):
+def add_fp(fp, ref, value, x, y, rot=0):
     fp.SetReference(ref); fp.SetValue(value)
-    fp.SetPosition(pt(x, y)); fp.SetOrientationDegrees(rot)
-    board.Add(fp)
-    if layer_bottom: fp.Flip(pt(x, y), False)
-    return fp
+    fp.SetPosition(pt(x, y)); fp.SetOrientationDegrees(rot); board.Add(fp); return fp
 
 def set_pad_nets(fp, ref, mapping):
-    """mapping: pad number -> design pin name"""
     for pad in fp.Pads():
         pin = mapping.get(pad.GetNumber())
-        if pin is not None and (ref, pin) in pin_net:
-            pad.SetNet(nets[pin_net[(ref, pin)]])
+        if pin is not None and (ref, pin) in pin_net: pad.SetNet(nets[pin_net[(ref, pin)]])
 
 def new_fp(ref):
     fp = pcbnew.FOOTPRINT(board); fp.SetReference(ref)
     fp.Reference().SetVisible(False); fp.Value().SetVisible(False); return fp
 
-def smd_pad(fp, num, x, y, w, h, shape=pcbnew.PAD_SHAPE_ROUNDRECT):
-    p = pcbnew.PAD(fp); p.SetNumber(num); p.SetAttribute(pcbnew.PAD_ATTRIB_SMD); p.SetShape(shape)
+def smd_pad(fp, num, x, y, w, h):
+    p = pcbnew.PAD(fp); p.SetNumber(num); p.SetAttribute(pcbnew.PAD_ATTRIB_SMD); p.SetShape(pcbnew.PAD_SHAPE_ROUNDRECT)
     p.SetSize(pcbnew.VECTOR2I(mm(w), mm(h))); p.SetPos0(pt(x, y)); p.SetPosition(pt(x, y))
-    p.SetLayerSet(layers(pcbnew.F_Cu, pcbnew.F_Paste, pcbnew.F_Mask))
-    if shape == pcbnew.PAD_SHAPE_ROUNDRECT: p.SetRoundRectRadiusRatio(0.25)
+    p.SetLayerSet(layers(pcbnew.F_Cu, pcbnew.F_Paste, pcbnew.F_Mask)); p.SetRoundRectRadiusRatio(0.25)
     fp.Add(p); return p
 
 def tht_pad(fp, num, x, y, d, drill, shape=pcbnew.PAD_SHAPE_CIRCLE):
@@ -109,73 +129,81 @@ def tht_pad(fp, num, x, y, d, drill, shape=pcbnew.PAD_SHAPE_CIRCLE):
     p.SetSize(pcbnew.VECTOR2I(mm(d), mm(d))); p.SetDrillSize(pcbnew.VECTOR2I(mm(drill), mm(drill)))
     p.SetPos0(pt(x, y)); p.SetPosition(pt(x, y)); p.SetLayerSet(pcbnew.PAD.PTHMask()); fp.Add(p); return p
 
-# U1: SuperMini (castellated edges soldered flat onto long pads); unused pins get an
-# extra solder hole just outside the SuperMini outline.
+# U1: SuperMini soldered flat by its castellated edges; unused pins get a solder hole outside the rows
 u1 = new_fp("U1"); u1.SetValue("ESP32-S3 SuperMini"); u1.SetPosition(pt(0, 0))
 used = {p for (r, p) in pin_net if r == "U1"}
-for side, row in [(-1, LEFT_ROW), (1, RIGHT_ROW)]:
-    xr = SM_X0 + ROW_INSET if side < 0 else SM_X0 + SM_W - ROW_INSET
+spares = []
+for side, row, yr in [(-1, TOP_ROW, ROW_TOP_Y), (1, BOT_ROW, ROW_BOT_Y)]:
     for i, name in enumerate(row):
-        y = PIN_Y0 + i * PIN_PITCH
-        p = smd_pad(u1, name, xr, y, SM_PAD[0], SM_PAD[1])
+        x = SM_X0 + PIN_U0 + i * PIN_PITCH
+        smd_pad(u1, name, x, yr, *SM_PAD)
         if name not in used:
-            hx = xr + side * (SM_PAD[0] / 2 + 0.9)
-            tht_pad(u1, name, hx, y, 1.5, SPARE_HOLE_D)
-u1.Reference().SetPosition(pt(BOARD_W / 2, SM_Y0 + SM_L - 3)); u1.Value().SetVisible(False)
+            hy = yr + side * SPARE_DY
+            tht_pad(u1, name, x, hy, 1.5, SPARE_HOLE_D); spares.append((name, x, hy, side))
 board.Add(u1)
 for pad in u1.Pads():
     name = pad.GetNumber()
     if ("U1", name) in pin_net: pad.SetNet(nets[pin_net[("U1", name)]])
     else:
-        if name not in spare_nets:
-            n = pcbnew.NETINFO_ITEM(board, "SPARE_" + name); board.Add(n); spare_nets[name] = n
-        pad.SetNet(spare_nets[name])
-silk_rect(SM_X0, SM_Y0, SM_X0 + SM_W, SM_Y0 + SM_L)
-slot_ref_hide = True
-for side, row in [(-1, LEFT_ROW), (1, RIGHT_ROW)]:
-    for i, name in enumerate(row):
-        if name in used: continue
-        xr = (SM_X0 + ROW_INSET if side < 0 else SM_X0 + SM_W - ROW_INSET) + side * (SM_PAD[0] / 2 + 0.9)
-        silk_text(name.replace("GP", ""), xr + side * 1.6, PIN_Y0 + i * PIN_PITCH, 0.8)
+        n = board.FindNet("SPARE_" + name)
+        if n is None: n = pcbnew.NETINFO_ITEM(board, "SPARE_" + name); board.Add(n)
+        pad.SetNet(n)
+i_ = 0.3   # outline drawn just inside the board edge
+silk_poly([(SM_X0 + i_, SM_YC - SM_W / 2), (SM_L - i_, SM_YC - SM_W / 2), (SM_L - i_, SM_YC + SM_W / 2),
+           (SM_X0 + i_, SM_YC + SM_W / 2), (SM_X0 + i_, SM_YC - SM_W / 2)])
+silk_text("USB", SM_X0 + 1.6, SM_YC, 0.8, rot=90)
+# spare pin labels on the bottom silk, just inside the holes (the top is under the SuperMini)
+for name, x, hy, side in spares:
+    silk_text(name.replace("GP", ""), x, hy - side * 2.9, 0.8, pcbnew.B_SilkS, True)
+silk_text("SPARE PINS", 14.0, SM_YC, 0.8, pcbnew.B_SilkS, True)
 
-# B+/B- pass-through: slot under the SuperMini's battery pads (USB end, centre),
-# wires go down through it to the B+/B- pads on the bottom.
+# no top copper under the middle of the SuperMini body
+inner_top, inner_bot = ROW_TOP_Y + SM_PAD[1] / 2 + 0.2, ROW_BOT_Y - SM_PAD[1] / 2 - 0.2
+# (a 2 mm strip inside each pad row stays open so the pins can get out)
+rule_area([(0.3, inner_top + 2), (BAND_W, inner_top + 2), (BAND_W, inner_bot - 2), (0.3, inner_bot - 2)],
+          [pcbnew.F_Cu], tracks=True, vias=False)
+# antenna: nothing on either layer under its end (between the rows) or just below the band
+rule_area([(ANT_X, inner_top), (BAND_W + 0.5, inner_top), (BAND_W + 0.5, inner_bot), (ANT_X, inner_bot)],
+          [pcbnew.F_Cu, pcbnew.B_Cu])
+rule_area([(ANT_X - 2, NOTCH_Y - 0.6), (W + 0.5, NOTCH_Y - 0.6), (W + 0.5, ANT_CLEAR_Y), (ANT_X - 2, ANT_CLEAR_Y)],
+          [pcbnew.F_Cu, pcbnew.B_Cu])
+silk_text("ANT", ANT_X + ANT_LEN / 2, NOTCH_Y + 1.6, 0.8)
+
+# B+/B- pass-through: slot under the SuperMini's battery pads (USB end, centre)
 slot = new_fp("H1"); slot.SetValue("B+/B- wires"); slot.SetPosition(pt(0, 0))
 sp = pcbnew.PAD(slot); sp.SetNumber(""); sp.SetAttribute(pcbnew.PAD_ATTRIB_NPTH); sp.SetShape(pcbnew.PAD_SHAPE_OVAL)
-sp.SetSize(pcbnew.VECTOR2I(mm(7), mm(2.6))); sp.SetDrillShape(pcbnew.PAD_DRILL_SHAPE_OBLONG)
-sp.SetDrillSize(pcbnew.VECTOR2I(mm(7), mm(2.6))); sp.SetPos0(pt(BOARD_W / 2, SM_Y0 + 4.5)); sp.SetPosition(pt(BOARD_W / 2, SM_Y0 + 4.5))
+sp.SetSize(pcbnew.VECTOR2I(mm(2.6), mm(7))); sp.SetDrillShape(pcbnew.PAD_DRILL_SHAPE_OBLONG)
+sp.SetDrillSize(pcbnew.VECTOR2I(mm(2.6), mm(7))); sp.SetPos0(pt(SM_X0 + 4.5, SM_YC)); sp.SetPosition(pt(SM_X0 + 4.5, SM_YC))
 sp.SetLayerSet(layers(pcbnew.F_Cu, pcbnew.B_Cu, pcbnew.F_Mask, pcbnew.B_Mask)); slot.Add(sp)
 board.Add(slot)
 
-# bottom pads for the B+/B- wires (and battery / switch wires)
-def wire_pads(ref, label, x, y, pins, pitch=2.54, nets_for=None, vertical=False):
+def wire_pads(ref, label, x, y, pins, pitch=2.54, vertical=False):
     fp = new_fp(ref); fp.SetValue(label); fp.SetPosition(pt(0, 0))
     for i, (num, pin) in enumerate(pins):
         px, py = (x, y + i * pitch) if vertical else (x + i * pitch, y)
-        p = tht_pad(fp, num, px, py, 1.7, 1.0, pcbnew.PAD_SHAPE_CIRCLE if i else pcbnew.PAD_SHAPE_RECT)
-    board.Add(fp)
-    return fp
+        tht_pad(fp, num, px, py, 1.7, 1.0, pcbnew.PAD_SHAPE_CIRCLE if i else pcbnew.PAD_SHAPE_RECT)
+    board.Add(fp); return fp
 
-# ---------------- placement (below the SuperMini) ----------------
-y_top = SM_Y0 + SM_L + 0.6          # first row under the SuperMini
+hb = wire_pads("J6", "SuperMini B+/B-", SM_X0 + 7.4, SM_YC - 1.27, [("1", "B+"), ("2", "B-")], vertical=True)
+for pad in hb.Pads(): pad.SetNet(nets["VBAT"] if pad.GetNumber() == "1" else nets["GND"])
+silk_text("B+", SM_X0 + 9.1, SM_YC - 1.27, 0.8, pcbnew.B_SilkS, True)
+silk_text("B-", SM_X0 + 9.1, SM_YC + 1.27, 0.8, pcbnew.B_SilkS, True)
 
-# U1 B+/B- wire pads (through holes so the wires can be soldered from either side)
-hb = wire_pads("J6", "SuperMini B+/B-", BOARD_W / 2 - 1.27, SM_Y0 + 7.4, [("1", "B+"), ("2", "B-")])
-for pad in hb.Pads():
-    pad.SetNet(nets["VBAT"] if pad.GetNumber() == "1" else nets["GND"])
-silk_text("B+  B-", BOARD_W / 2, SM_Y0 + 9.0, 0.8)
+# ---------------- lower area ----------------
+y0 = NOTCH_Y + 0.4
+r1, r2, r3 = y0 + 1.7, y0 + 5.6, y0 + 9.2
+ROW1, ROW2 = r3 + 4.2, r3 + 10.0
 
-# connectors: JST-PH vertical, two rows along the bottom. Their holes also take wires directly.
+# connectors: JST-PH vertical; their holes also take wires directly
 PH2 = ("Connector_JST", "JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
 PH3 = ("Connector_JST", "JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical")
-ROW1, ROW2 = BOARD_L - 9.4, BOARD_L - 3.6
 conn = {
-    # ref: (lib, x, y of pad 1, name, pin labels) -- labels go on the bottom silk
+    # ref: (lib, x, y of pad 1, name, pin labels) -- labels on the bottom silk
     "J1": (PH2, 2.6, ROW1, "BAT", "+-"),
     "J5": (PH2, 9.6, ROW1, "DOCK", "5G"),
     "J3": (PH2, 16.6, ROW1, "MOTOR", "+-"),
     "J2": (PH3, 2.6, ROW2, "RING", "VDG"),
-    "J4": (PH3, 11.6, ROW2, "TOUCH", "VOG"),
+    "J4": (PH3, 19.4, ROW2, "TOUCH", "VOG"),
 }
 for ref, (lf, x, y, label, pins) in conn.items():
     fp = add_fp(lib_fp(*lf), ref, PARTS[ref][0], x, y)
@@ -187,20 +215,13 @@ for ref, (lf, x, y, label, pins) in conn.items():
     silk_text(label, x + (npin - 1), y + 2.55, 0.8, pcbnew.B_SilkS, True)
 silk_text("+", 0.75, ROW1 - 2.65, 0.8)          # battery + next to J1 pin 1 (top side)
 
-# power switch: two wire pads (switch stays in its printed mount)
-sw = wire_pads("SW1", "Switch", 23.4, ROW1 - 1.4, [("1", "COM"), ("2", "ON")], vertical=True)
-for pad in sw.Pads(): pad.SetNet(nets[pin_net[("SW1", "COM" if pad.GetNumber() == "1" else "ON")]])
-silk_text("SW", 25.4, ROW1 - 0.1, 0.8)
-
-# buzzer: 9.2 mm round, pins 5 mm apart (pins equal, either way round)
-bz = new_fp("BZ1"); bz.SetValue("TDB05"); bz.SetPosition(pt(0, 0))
-bx, by = 21.7, y_top + 4.8
-tht_pad(bz, "1", bx - 2.5, by, 1.8, 0.9); tht_pad(bz, "2", bx + 2.5, by, 1.8, 0.9)
-c = pcbnew.FP_SHAPE(bz); c.SetShape(pcbnew.SHAPE_T_CIRCLE); c.SetStart0(pt(bx, by)); c.SetEnd0(pt(bx + 4.6, by)); c.SetCenter(pt(bx, by)); c.SetEnd(pt(bx + 4.6, by))
-c.SetLayer(pcbnew.F_SilkS); c.SetWidth(mm(0.12)); bz.Add(c)
-board.Add(bz)
+# switch and buzzer: wire pads (both stay in their printed mounts in the base)
+bz = wire_pads("BZ1", "Buzzer", 17.2, r3, [("1", "+"), ("2", "-")])
 for pad in bz.Pads(): pad.SetNet(nets[pin_net[("BZ1", "+" if pad.GetNumber() == "1" else "-")]])
-silk_text("BZ", bx, by - 2.6, 0.8)
+silk_text("BZ", 18.5, r3 - 1.7, 0.8)
+sw = wire_pads("SW1", "Switch", 22.4, r3, [("1", "COM"), ("2", "ON")])
+for pad in sw.Pads(): pad.SetNet(nets[pin_net[("SW1", "COM" if pad.GetNumber() == "1" else "ON")]])
+silk_text("SW", 23.7, r3 - 1.7, 0.8)
 
 # small parts (JLCPCB assembly, top side)
 R0603 = ("Resistor_SMD", "R_0603_1608Metric")
@@ -208,44 +229,38 @@ C0603 = ("Capacitor_SMD", "C_0603_1608Metric")
 C1206 = ("Capacitor_SMD", "C_1206_3216Metric")
 SOT23 = ("Package_TO_SOT_SMD", "SOT-23")
 SOD123 = ("Diode_SMD", "D_SOD-123")
-r1, r2, r3 = y_top + 1.7, y_top + 5.6, y_top + 9.2
 small = {
     # dividers: battery (R6 R7 C1), dock (R8 R9 C2)
-    "R6": (R0603, 1.3, r1, 90), "R7": (R0603, 3.0, r1, 90), "C1": (C0603, 4.7, r1, 90),
-    "R8": (R0603, 6.9, r1, 90), "R9": (R0603, 8.6, r1, 90), "C2": (C0603, 10.3, r1, 90),
-    "C3": (C1206, 14.0, r1, 0),
+    "R6": (R0603, 5.0, r1, 90), "R7": (R0603, 6.7, r1, 90), "C1": (C0603, 8.4, r1, 90),
+    "R8": (R0603, 10.6, r1, 90), "R9": (R0603, 12.3, r1, 90), "C2": (C0603, 14.0, r1, 90),
     # drivers: buzzer (Q1 R1 R2), motor (Q2 R3 R4 D1)
-    "Q1": (SOT23, 2.6, r2, 0), "R1": (R0603, 5.4, r2, 90), "R2": (R0603, 7.1, r2, 90),
-    "Q2": (SOT23, 10.4, r2, 0), "R3": (R0603, 13.2, r2, 90), "R4": (R0603, 14.9, r2, 90),
+    "Q1": (SOT23, 5.4, r2, 0), "R1": (R0603, 8.2, r2, 90), "R2": (R0603, 9.9, r2, 90),
+    "Q2": (SOT23, 13.2, r2, 0), "R3": (R0603, 16.0, r2, 90), "R4": (R0603, 17.7, r2, 90),
+    "C3": (C1206, 22.6, r2, 0),
     # ring
-    "R5": (R0603, 2.2, r3, 0), "C4": (C1206, 6.6, r3, 0), "D1": (SOD123, 12.2, r3, 180),
+    "R5": (R0603, 3.4, r3, 0), "C4": (C1206, 7.6, r3, 0), "D1": (SOD123, 12.6, r3, 180),
 }
-pinmap = {
-    "R": {"1": "1", "2": "2"}, "C": {"1": "1", "2": "2"},
-    "Q": {"1": "G", "2": "S", "3": "D"}, "D": {"1": "K", "2": "A"},
-}
+pinmap = {"R": {"1": "1", "2": "2"}, "C": {"1": "1", "2": "2"},
+          "Q": {"1": "G", "2": "S", "3": "D"}, "D": {"1": "K", "2": "A"}}
+SMALL_DX = 0.5   # whole block, clear of MH1
 for ref, (lf, x, y, rot) in small.items():
+    x += SMALL_DX
     fp = add_fp(lib_fp(*lf), ref, PARTS[ref][0], x, y, rot)
     set_pad_nets(fp, ref, pinmap[ref[0]])
     fp.Reference().SetVisible(False); fp.Value().SetVisible(False)
     silk_text(ref, x, y, 0.5, pcbnew.F_Fab)
 
-# mounting holes for M2 self-tapping screws; copper is kept 2 mm from the centre (screw head)
+# mounting holes for M2 self-tapping screws; copper kept 2 mm from the centre (screw head)
 MH_KEEP = 2.0
-mh_pos = [(BOARD_W - 1.9, 5.0), (1.9, 19.6), (BOARD_W - 3.4, ROW2 + 0.2)]
+mh_pos = [(1.8, y0 + 2.2), (W - 2.4, ROW1 + 0.2), (13.0, ROW2 + 0.3)]
 for i, (x, y) in enumerate(mh_pos):
     mfp = add_fp(lib_fp("MountingHole", "MountingHole_2.2mm_M2"), f"MH{i+1}", "M2", x, y)
     mfp.Reference().SetVisible(False); mfp.Value().SetVisible(False)
-    for lay in (pcbnew.F_Cu, pcbnew.B_Cu):
-        z = pcbnew.ZONE(board); z.SetIsRuleArea(True); z.SetDoNotAllowCopperPour(True)
-        z.SetDoNotAllowTracks(True); z.SetDoNotAllowVias(True); z.SetDoNotAllowPads(False)
-        z.SetDoNotAllowFootprints(False); z.SetLayer(lay)
-        ol = z.Outline(); ol.NewOutline()
-        for k in range(16):
-            a = 2 * math.pi * k / 16
-            ol.Append(mm(x + MH_KEEP * math.cos(a)), mm(y + MH_KEEP * math.sin(a)))
-        board.Add(z)
+    rule_area([(x + MH_KEEP * math.cos(2 * math.pi * k / 16), y + MH_KEEP * math.sin(2 * math.pi * k / 16))
+               for k in range(16)], [pcbnew.F_Cu, pcbnew.B_Cu])
 
-silk_text("POOL PAGER S3", BOARD_W / 2, 12.0, 0.8, pcbnew.B_SilkS, True)
+silk_text("POOL PAGER S3", 21.2, NOTCH_Y + 1.6, 0.8, pcbnew.B_SilkS, True)
+
 board.Save(OUT)
-print("saved", OUT, f"{BOARD_W} x {BOARD_L} mm")
+json.dump({"outline": OUTLINE, "corner_r": R}, open("board_geom.json", "w"))
+print("saved", OUT, f"{BOARD_W} x {BOARD_L} mm (band under the SuperMini {BAND_W} wide)")

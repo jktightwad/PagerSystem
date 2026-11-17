@@ -5,7 +5,8 @@ Two layers, 0.1 mm grid, 8 directions, vias between layers. Each net is grown as
 tree: the nearest unconnected pad is joined to everything already routed on that net.
 If a net fails, the whole board is re-routed with the failed nets first.
 
-Run with the system python (KiCad's pcbnew) after build_pcb.py:  python3 route_pcb.py
+Run with the system python (KiCad's pcbnew) straight after build_pcb.py (it needs the
+unrouted board):  python3 build_pcb.py && python3 route_pcb.py
 Needs numpy and scipy.
 """
 import heapq, math, random, sys
@@ -22,7 +23,6 @@ VIA_D, VIA_DRILL = 0.6, 0.3
 VIA_COST = 25           # in grid steps
 WIDTH = {"VBAT": 0.5, "BAT+": 0.5, "POGO5V": 0.4, "GND": 0.4, "MOT_-": 0.4, "BUZ_-": 0.3, "3V3": 0.3}
 SIG_W = 0.25
-TOP_KEEPOUT = [(7.65, 0.6, 19.35, 24.6)]   # under the SuperMini body (x0, y0, x1, y1): no top copper
 ZONE_NET = "GND"
 
 def mm(v): return pcbnew.FromMM(v)
@@ -40,7 +40,11 @@ class Router:
         self.holes = np.zeros((self.NY, self.NX), bool)
         self.netpads = {}                                       # net name -> list of (cells set)
         self._edges()
+        self.npth = np.zeros((self.NY, self.NX), bool)
         self._pads()
+        # non-plated holes count as board edge (0.3 mm), like the outline
+        near = (distance_transform_edt(~self.npth) * G) < 0.15
+        self.cu[0][near] = -1; self.cu[1][near] = -1
         self._keepouts()
 
     # ---------- rasterising ----------
@@ -48,15 +52,16 @@ class Router:
     def xy(self, r, c): return c * G, r * G
 
     def _edges(self):
-        rr, cc = np.mgrid[0:self.NY, 0:self.NX]
-        x, y = cc * G, rr * G
-        R = 1.5
-        d = np.minimum(np.minimum(x, self.W - x), np.minimum(y, self.H - y))
-        qx = np.maximum(np.maximum(R - x, x - (self.W - R)), 0)
-        qy = np.maximum(np.maximum(R - y, y - (self.H - R)), 0)
-        corner = (qx > 0) & (qy > 0)
-        d = np.where(corner, R - np.hypot(qx, qy), d)
-        edge = d < 0.12          # tracks keep CLR + MARGIN from these cells -> >= EDGE_CLR from the edge
+        """cells outside the board outline (or within 0.12 mm of it) are keepout"""
+        poly = pcbnew.SHAPE_POLY_SET()
+        self.b.GetBoardPolygonOutlines(poly)
+        inside = np.zeros((self.NY, self.NX), bool)
+        for r in range(self.NY):
+            for c in range(self.NX):
+                x, y = self.xy(r, c)
+                inside[r, c] = poly.Contains(pcbnew.VECTOR2I(mm(x), mm(y)))
+        d = distance_transform_edt(inside) * G
+        edge = d < 0.15        # tracks keep CLR + MARGIN from these cells -> >= EDGE_CLR from the edge
         self.cu[0][edge] = -1; self.cu[1][edge] = -1
 
     def _pads(self):
@@ -80,11 +85,11 @@ class Router:
                                 cells.add((l, r, c))
                             if pad.GetDrillSize().x > 0:
                                 self.holes[r, c] = True
+                            if net <= 0: self.npth[r, c] = True
                 if net > 0 and cells:
                     self.netpads.setdefault(pad.GetNetname(), []).append((f"{fp.GetReference()}.{pad.GetNumber()}", cells))
-            if fp.GetReference().startswith("MH"):       # screw head keepout
-                p = fp.GetPosition(); self._disc(to_mm(p.x), to_mm(p.y), 2.0, [0, 1], -1)
-                self._disc(to_mm(p.x), to_mm(p.y), 1.1, [0, 1], -1, hole=True)
+            if fp.GetReference().startswith("MH"):       # the hole itself
+                p = fp.GetPosition(); self._disc(to_mm(p.x), to_mm(p.y), 1.1, [0, 1], -1, hole=True)
 
     def _disc(self, x, y, rad, lays, val, hole=False):
         rr, cc = np.mgrid[0:self.NY, 0:self.NX]
@@ -93,10 +98,20 @@ class Router:
         if hole: self.holes[m] = True
 
     def _keepouts(self):
-        for x0, y0, x1, y1 in TOP_KEEPOUT:
-            r0, c0 = self.cell(x0, y0); r1, c1 = self.cell(x1, y1)
-            blk = self.cu[0, r0:r1 + 1, c0:c1 + 1]
-            blk[blk == 0] = -1
+        """rule areas from the board (screw heads, under the SuperMini, antenna)"""
+        lid = {pcbnew.F_Cu: 0, pcbnew.B_Cu: 1}
+        for z in [self.b.GetArea(i) for i in range(self.b.GetAreaCount())]:
+            if not (z.GetIsRuleArea() and z.GetDoNotAllowTracks()): continue
+            l = lid.get(z.GetLayer())
+            if l is None: continue
+            ol = z.Outline(); bb = ol.BBox()
+            r0, c0 = self.cell(to_mm(bb.GetLeft()), to_mm(bb.GetTop()))
+            r1, c1 = self.cell(to_mm(bb.GetRight()), to_mm(bb.GetBottom()))
+            for r in range(max(r0, 0), min(r1 + 1, self.NY)):
+                for c in range(max(c0, 0), min(c1 + 1, self.NX)):
+                    x, y = self.xy(r, c)
+                    if self.cu[l, r, c] == 0 and ol.Contains(pcbnew.VECTOR2I(mm(x), mm(y))):
+                        self.cu[l, r, c] = -1
 
     # ---------- routing ----------
     def free_maps(self, code, hw):
@@ -243,7 +258,7 @@ class Router:
 def run(order):
     board = pcbnew.LoadBoard(IN)
     for t in list(board.GetTracks()): board.Remove(t)
-    for z in list(board.Zones()):
+    for z in [board.GetArea(i) for i in range(board.GetAreaCount())]:
         if not z.GetIsRuleArea(): board.Remove(z)
     rt = Router(board)
     failed = [n for n in order if not rt.route_net(n)]
@@ -264,14 +279,6 @@ def add_zones(board):
                      (bb.GetRight(), bb.GetBottom()), (bb.GetLeft(), bb.GetBottom())]:
             ol.Append(x, y)
         board.Add(z)
-    # no top pour under the SuperMini
-    for x0, y0, x1, y1 in TOP_KEEPOUT:
-        k = pcbnew.ZONE(board); k.SetIsRuleArea(True); k.SetDoNotAllowCopperPour(True)
-        k.SetDoNotAllowTracks(False); k.SetDoNotAllowVias(False); k.SetDoNotAllowPads(False)
-        k.SetDoNotAllowFootprints(False); k.SetLayer(pcbnew.F_Cu)
-        ol = k.Outline(); ol.NewOutline()
-        for x, y in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]: ol.Append(mm(x), mm(y))
-        board.Add(k)
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
 
 

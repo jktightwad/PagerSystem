@@ -2,3 +2,4 @@ __pycache__/
 *.kicad_prl
 fab/pos_front.csv
 *-backups/
+board_geom.json

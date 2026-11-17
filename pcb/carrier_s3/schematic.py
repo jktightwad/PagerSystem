@@ -16,13 +16,13 @@ with schemdraw.Drawing(file='schematic.svg', show=False) as d:
     U = e.Ic(pins=[e.IcPin(name='5V', side='left'), e.IcPin(name='GND', side='left'), e.IcPin(name='3V3', side='left'),
                    e.IcPin(name='B+', side='left'), e.IcPin(name='B-', side='left'),
                    e.IcPin(name='GP1', side='right'), e.IcPin(name='GP2', side='right'), e.IcPin(name='GP4', side='right'),
-                   e.IcPin(name='GP5', side='right'), e.IcPin(name='GP6', side='right'), e.IcPin(name='GP7', side='right')],
+                   e.IcPin(name='GP5', side='right'), e.IcPin(name='GP12', side='right'), e.IcPin(name='GP13', side='right')],
              size=(3.4, 6.5), pinspacing=1.0, edgepadW=0.5).label('U1\nESP32-S3\nSuperMini', 'center')
     d += U.at((0, 0))
     for pin, net in [('5V', 'POGO5V'), ('GND', 'GND'), ('3V3', '3V3'), ('B+', 'VBAT (wire, H1)'), ('B-', 'GND (wire, H2)')]:
         d += e.Line().at(getattr(U, pin)).left(1.2)
         lab(d, net, 'left')
-    for pin, net in [('GP1', 'DOCK_SENSE'), ('GP2', 'BAT_SENSE'), ('GP4', 'TOUCH'), ('GP5', 'RING_IO'), ('GP6', 'BUZ_IO'), ('GP7', 'MOT_IO')]:
+    for pin, net in [('GP1', 'DOCK_SENSE'), ('GP2', 'BAT_SENSE'), ('GP4', 'TOUCH'), ('GP5', 'RING_IO'), ('GP12', 'BUZ_IO'), ('GP13', 'MOT_IO')]:
         d += e.Line().at(getattr(U, pin)).right(1.2)
         lab(d, net, 'right')
 

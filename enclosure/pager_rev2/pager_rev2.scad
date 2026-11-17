@@ -24,7 +24,7 @@ use <fonts/LiberationSans-Bold.ttf>
 use <fonts/DejaVuSerif-Bold.ttf>
 
 /* [Part to show / export] */
-part = "all"; // [all, ball, white, number, touch_mark, base, pogo_tower, pogo_test]
+part = "all"; // [all, ball, white, number, touch_mark, base, pogo_tower, pogo_test, pogo_section]
 
 /* [Ball] */
 ball_od      = 104;
@@ -75,7 +75,7 @@ key_clear     = 0.15;   // [0:0.05:0.5] round the key in the column pocket
 // wall" now sit against the base's rim.
 rim_w         = 2.0;    // [1:0.1:5] ledge / rim width
 // the ledge and rim are cut away round the pogo tower (this much clearance)
-pogo_notch_clear = 0.5; // [0:0.1:3]
+pogo_notch_clear = 1.3; // [0:0.1:3] (collar 1.0 + 0.3)
 
 /* [Number] */
 number_text  = "2";
@@ -139,17 +139,22 @@ pogo_r        = 44;
 pogo_angle    = 180;
 
 /* [Pogo tower] */
-tower_wall    = 1.6;    // [1:0.1:3] wall round the flange pockets
-// flanges stand this proud of their pockets, so the clamp presses them
+tower_wall    = 1.6;    // [1:0.1:3] tube size = flange pocket + this all round
+// flanges stand this proud of their pockets, so the tower ends press them
 flange_proud  = 0.1;    // [0:0.05:0.4]
-// crush bumps on the tower's top end: take up print variation when the
-// screws pull the base up (total squeeze = this)
-tower_rib_h   = 0.4;    // [0:0.05:1]
-tower_rib_d   = 1.2;
+// extra depth in each flange pocket (base and ball): 0.9 = printed test needed
+// about 1 mm more for the connectors to sit flush
+pogo_pocket_extra = 0.9; // [0:0.05:2]
 tower_slot_w  = 4.0;    // [2:0.5:8] wire exit slot (centre side), width
 tower_slot_h  = 5.0;    // [2:0.5:10] and height
+// snap fit: a collar on the base pad and on the ball pad holds each tower end;
+// a bead inside the collar clicks into a groove round the tower
+tower_socket_h = 1.6;   // [0.8:0.1:3] collar height
+tower_socket_t = 0.9;   // [0.6:0.1:2] collar wall
+tower_fit      = 0.1;   // [0:0.05:0.4] clearance tower to collar, per side
+snap_bead      = 0.25;  // [0:0.05:0.5] bead depth (0 = plain socket)
 // gap from each tower end to the column beside it
-col_gap       = 1.0;    // [0.5:0.5:5]
+col_gap       = 1.6;    // [0.5:0.1:5] (collar 1.0 + 0.6)
 
 /* [Component mounts] */
 pocket_wall    = 1.2;
@@ -221,11 +226,14 @@ col_start   = base_t + screw_boss_h;        // columns start here
 ring_bottom = white_under - led_gap - ring_h;
 inner_r     = (ball_od - 2 * ball_wall) / 2;
 inside_r    = inner_r - base_clear_d / 2 - rim_w - wall_gap;   // parts placed against the wall (the base rim) touch here
-// pogo tower: from the base pad (face_body up) to the ball pad (face_body down)
+// pogo flanges sit in pockets in the base and ball pads (printed open side up,
+// no overhangs); the tower is a plain tube clamping them from between
+base_pocket_d = flange_t + base_pogo_extra + pogo_pocket_extra - flange_proud;
+top_pocket_d  = flange_t + pogo_pocket_extra - flange_proud;
 tower_L   = flange_pocket_l + 2 * tower_wall;
 tower_W   = flange_pocket_w + 2 * tower_wall;
-tower_z0  = face_body;
-tower_z1  = ball_h - face_body;
+tower_z0  = face_body + base_pocket_d;            // base pad top
+tower_z1  = ball_h - face_body - top_pocket_d;    // ball pad underside
 boss_r    = ball_od / 2 - ball_wall - boss_d / 2 + 0.5;
 col_da    = asin((tower_L / 2 + col_gap + boss_d / 2) / boss_r);   // column angle either side of the pogo
 boss_angles = [45, pogo_angle - col_da, pogo_angle + col_da, 315];
@@ -333,6 +341,8 @@ module ball_shell() {
       // pogo: pad round the hole for the tower's top end to bear on
       at_angle(pogo_r, pogo_angle) translate([0, 0, tower_z1])
         linear_extrude(top_under - tower_z1 + 0.01) offset(delta = 1) stadium_2d(tower_L, tower_W);
+      // snap collar hanging down from the pad
+      at_angle(pogo_r, pogo_angle) translate([0, 0, tower_z1 + 0.01]) mirror([0, 0, 1]) tower_collar();
     }
     // light pocket under the white
     translate([0, 0, top_under - 1]) cylinder(d = pocket_d, h = white_under - top_under + 1);
@@ -340,8 +350,10 @@ module ball_shell() {
     for (a = mag_angles) at_angle(mag_r, a)
       translate([0, 0, ball_h - mag_skin - mag_h - 1]) cylinder(d = mag_hole_ball, h = mag_h + 1);
     // pogo: oval through the top
-    at_angle(pogo_r, pogo_angle)
-      translate([0, 0, tower_z1 - 0.01]) linear_extrude(face_body + 1) stadium_2d(oval_hole_l, oval_hole_w);
+    at_angle(pogo_r, pogo_angle) {
+      translate([0, 0, ball_h - face_body - 0.01]) linear_extrude(face_body + 1) stadium_2d(oval_hole_l, oval_hole_w);
+      translate([0, 0, tower_z1 - 1]) linear_extrude(top_pocket_d + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
+    }
     // pockets in the column ends for the base's keys
     for (a = boss_angles) at_angle(boss_r, a) translate([0, 0, col_start - 0.01]) cylinder(d = boss_d + 2 * key_clear, h = key_h + key_clear + 0.01);
     // column screw pilots
@@ -373,27 +385,45 @@ module ball_body() { difference() { ball_shell(); white_vol(); mark_vol(); } }  
 module white_body() { difference() { white_vol(); number_vol(); mark_vol(); } }
 
 // ================= Pogo tower =============================================
+// bead / groove centre height above the pad (in the collar's own frame)
+function snap_z() = tower_socket_h - snap_bead - 0.3;
+// triangular (45 deg) ring centred at z = 0, depth d at the middle: on the
+// tower outline (outside = true, a groove cutter) or inside the collar (a bead)
+module snap_ring(d, outside = false) {
+  n = 8;
+  for (k = [0 : n - 1]) {
+    z0 = -d + 2 * d * k / n; zm = z0 + d / n;
+    dd = d - abs(zm);
+    o0 = outside ? 1 : tower_fit + 0.01;      // outer offset of the ring
+    o1 = outside ? -dd : tower_fit - dd;      // inner offset
+    translate([0, 0, z0]) linear_extrude(2 * d / n + 0.001) difference() {
+      offset(delta = o0) stadium_2d(tower_L, tower_W);
+      offset(delta = o1) stadium_2d(tower_L, tower_W);
+    }
+  }
+}
+// collar standing on a pad (z = 0 at the pad, growing +z); flip for the ball
+module tower_collar() {
+  linear_extrude(tower_socket_h) difference() {
+    offset(delta = tower_fit + tower_socket_t) stadium_2d(tower_L, tower_W);
+    offset(delta = tower_fit) stadium_2d(tower_L, tower_W);
+  }
+  if (snap_bead > 0) translate([0, 0, snap_z()]) snap_ring(snap_bead);
+}
 // Upright (print orientation = as fitted). Bottom connector's flange in the
 // bottom pocket, top connector's in the top pocket; wires inside, the lead
 // to the board out through the slot on the centre side.
 module pogo_tower() {
   H = tower_z1 - tower_z0;
   difference() {
-    union() {
-      linear_extrude(H) stadium_2d(tower_L, tower_W);
-      // crush bumps on the top end
-      for (p = [[tower_L / 2 - tower_wall / 2, 0], [-(tower_L / 2 - tower_wall / 2), 0],
-                [5, tower_W / 2 - tower_wall / 2], [-5, tower_W / 2 - tower_wall / 2],
-                [5, -(tower_W / 2 - tower_wall / 2)], [-5, -(tower_W / 2 - tower_wall / 2)]])
-        translate([p[0], p[1], H - 0.01]) cylinder(d = tower_rib_d, h = tower_rib_h + 0.01, $fn = 16);
-    }
+    linear_extrude(H) stadium_2d(tower_L, tower_W);
     // through channel for the back bodies and wires
     translate([0, 0, -1]) linear_extrude(H + 2) stadium_2d(oval_hole_l + 0.6, oval_hole_w + 0.6);
-    // flange pockets (flanges stand flange_proud out so the clamp presses them)
-    translate([0, 0, -0.01]) linear_extrude(flange_t + base_pogo_extra - flange_proud + 0.01) stadium_2d(flange_pocket_l, flange_pocket_w);
-    translate([0, 0, H - (flange_t - flange_proud)]) linear_extrude(flange_t + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
     // wire exit, centre side (local -y)
     translate([-tower_slot_w / 2, -tower_W, H / 2 - tower_slot_h / 2]) cube([tower_slot_w, tower_W, tower_slot_h]);
+    // snap grooves round both ends (45 deg faces, prints without support)
+    if (snap_bead > 0) for (z = [snap_z(), H - snap_z()])
+      translate([0, 0, z]) snap_ring(snap_bead + 0.1, outside = true);
   }
 }
 
@@ -482,6 +512,8 @@ module base_part(parts = true) {
         translate([0, 0, base_t - 0.01]) mag_boss(mag_hole_base, mag_skin + mag_h - base_t + 0.01, 1);
       // pogo: pad round the hole for the tower's bottom end to stand on
       at_angle(pogo_r, pogo_angle) linear_extrude(tower_z0) offset(delta = 1) stadium_2d(tower_L, tower_W);
+      // snap collar standing on the pad
+      at_angle(pogo_r, pogo_angle) translate([0, 0, tower_z0 - 0.01]) tower_collar();
       // component pockets
       if (parts) translate([0, 0, base_t - 0.01]) intersection() {
         union() {
@@ -499,12 +531,15 @@ module base_part(parts = true) {
       if (parts) translate([lolin_x - (lolin_w + lolin_w_adj) / 2 - lolin_clear + lolin_tab_off,
                  lolin_y - lolin_l / 2 - lolin_clear - lolin_tab_t + lolin_len_adj, base_t - 0.01])
         cube([lolin_tab_w, lolin_tab_t, lolin_tab_h + 0.01]);
-      if (parts) translate([motor_x, motor_y, base_t]) rotate([0, 0, motor_angle]) motor_clip();
+      if (parts) translate([motor_x, motor_y, base_t - 0.01]) rotate([0, 0, motor_angle]) motor_clip();
       if (parts) switch_place() translate([0, 0, base_t]) switch_mount();
     }
     }
     // pogo: oval through the bottom
-    at_angle(pogo_r, pogo_angle) translate([0, 0, -1]) linear_extrude(face_body + 1.01) stadium_2d(oval_hole_l, oval_hole_w);
+    at_angle(pogo_r, pogo_angle) {
+      translate([0, 0, -1]) linear_extrude(face_body + 1.01) stadium_2d(oval_hole_l, oval_hole_w);
+      translate([0, 0, face_body]) linear_extrude(base_pocket_d + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
+    }
     // magnet pockets (from the inside)
     for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, mag_skin]) cylinder(d = mag_hole_base, h = mag_h + 1);
     // screws: clearance + head recess from the bottom
@@ -546,7 +581,7 @@ module pogo_test() {
     base_part(parts = false);
     translate([-cx, -r1, -1]) cube([2 * cx, r1 - r0, 20]);
   }
-  translate([0, -42, 0]) pogo_tower();
+  translate([0, -55, 0]) pogo_tower();
 }
 
 if (part == "ball") flip() ball_body();
@@ -555,6 +590,13 @@ else if (part == "number") flip() number_vol();
 else if (part == "base") base_part();
 else if (part == "pogo_tower") pogo_tower();
 else if (part == "pogo_test") pogo_test();
+else if (part == "pogo_section") intersection() {   // assembled, cut through the tower (view only)
+  union() {
+    color("royalblue") ball_shell(); color("gray") base_part(parts = false);
+    color("orange") at_angle(pogo_r, pogo_angle) translate([0, 0, tower_z0]) pogo_tower();
+  }
+  at_angle(pogo_r, pogo_angle) translate([-30, 0, -1]) cube([60, 20, ball_h + 2]);
+}
 else if (part == "touch_mark") flip() mark_vol();
 else preview();
 
@@ -565,6 +607,6 @@ assert(white_t < number_t, "number_t must be deeper than white_t");
 assert(number_t <= top_t, "number_t deeper than the top");
 assert(screw_head_h < col_start - 0.3, "screw head recess leaves under 0.3 mm");
 assert(switch_pad_h > 0, "switch riser pads <= 0");
-echo(str("Pogo tower ", tower_L, " x ", tower_W, " x ", tower_z1 - tower_z0, " mm (+", tower_rib_h, " crush bumps); columns at ", boss_angles, " deg"));
+echo(str("Pogo tower ", tower_L, " x ", tower_W, " x ", tower_z1 - tower_z0, " mm (plain tube); flange pockets base ", base_pocket_d, " / ball ", top_pocket_d, " mm deep; columns at ", boss_angles, " deg"));
 echo(str("Touch sensor: centre ", mark_r, " mm from the middle; outer edge ", mark_r + tsens_w / 2 + tsens_clear + pocket_wall,
          " mm (ball inside ", inner_r, "); light pocket edge ", pocket_d / 2, " mm, sensor inner edge ", mark_r - tsens_w / 2 - tsens_clear - pocket_wall));

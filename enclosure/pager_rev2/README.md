@@ -37,18 +37,25 @@ same for every number).
   triangle. The battery sits over the 300 deg magnet boss on the base. Magnet
   bosses flare out 45 deg to the root (hill shape) against shearing.
 - Pogo connectors at 6 o'clock (r 44), top and bottom, faces flush, held by
-  the **pogo tower**: an oval tube (22.4 x 7.1 x 17 mm) with a flange pocket
-  in each end. The flanges stand 0.1 mm proud of the pockets, and 0.4 mm
-  crush bumps on the tower's top end take up print variation, so tightening
-  the screws clamps both connectors. Wire the two connectors together inside
+  the **pogo tower**: a plain oval tube (22.4 x 7.1 x 13.4 mm). Each
+  connector's flange sits in a pocket in the base / ball pad (1.9 / 1.7 mm
+  deep, `pogo_pocket_extra` 0.9 mm more than the first test print), printed
+  open side up so there are no overhangs. The flanges stand 0.1 mm proud of
+  the pockets, so the tower ends clamp them when the screws are tightened.
+  No crush bumps (`tower_rib_h` removed: the test only fitted without them).
+- Snap fit: a collar (1.6 mm tall, 0.9 mm wall, 0.1 mm clearance) on the
+  base pad and on the ball pad holds each tower end; a 0.25 mm bead inside
+  each collar clicks into a groove round the tower. Bead and groove have
+  45 deg faces, so neither needs support (`tower_socket_*`, `tower_fit`,
+  `snap_bead`; `snap_bead = 0` gives a plain socket).
+  Wire the two connectors together inside
   the tower (5 V and GND pass straight up the stack); a 2-wire lead to the
   electronics leaves through the slot on the centre side.
-- The ball top and the base each have a 0.25 mm pad round the oval hole for
-  the tower's ends; the support ledge, rim and corner build-up are cut away
-  round the tower.
-- Screw columns at 45 and 315 deg as before; the other two moved to 160.3
-  and 199.7 deg, one each side of the tower (1 mm from its ends), so the
-  screws there clamp it.
+- The support ledge, rim and corner build-up are cut away round the tower
+  and collars (1.3 mm clear).
+- Screw columns at 45 and 315 deg as before; the other two at 159.5 and
+  200.5 deg, one each side of the tower (1.6 mm from its ends, 0.6 mm from
+  the collars), so the screws there clamp it.
 
 ## Base support
 - The base's screw build-ups stand 1 mm proud and key into pockets in the
@@ -57,7 +64,7 @@ same for every number).
   it, prints without support), and the base has a matching 2 mm rim round its
   edge up to the same height, so the base is supported all round. Parts that
   sat against the wall now sit against the rim (2 mm further in).
-- The ledge and the rim are cut away round the pogo tower (0.5 mm clear).
+- The ledge and the rim are cut away round the pogo tower (1.3 mm clear).
 
 ## Base
 - 1.65 mm plate, built up to 3.65 mm under each column for the M2 x 8 screw
@@ -81,6 +88,7 @@ same for every number).
 
 The pogo end of the ball (printed top down, full height, with the two
 screw columns either side), the matching piece of the base, and the tower.
-Fit a connector in each end of the tower, stand it on the base piece, put
-the ball piece over it and screw the two together: both connector faces
-should sit flush and not move.
+Drop a connector into the pocket in each piece, snap the tower into the
+base piece's collar, press the ball piece's collar over the top and screw
+the two together: both connector faces should sit flush and not move.
+`part = "pogo_section"` shows the assembled stack cut through the tower.
