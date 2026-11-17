@@ -37,11 +37,14 @@ same for every number).
   triangle. The battery sits over the 300 deg magnet boss on the base. Magnet
   bosses flare out 45 deg to the root (hill shape) against shearing.
 - Pogo connectors at 6 o'clock (r 44), top and bottom, faces flush, held by
-  the **pogo tower**: a plain oval tube (22.4 x 7.1 x 13.4 mm). Each
-  connector's flange sits in a pocket in the base / ball pad (1.9 / 1.7 mm
-  deep, `pogo_pocket_extra` 0.9 mm more than the first test print), printed
-  open side up so there are no overhangs. The flanges stand 0.1 mm proud of
-  the pockets, so the tower ends clamp them when the screws are tightened.
+  the **pogo tower**: a plain oval tube (22.4 x 7.1 x 14.75 mm). Each
+  connector's flange sits in a pocket in the base / ball pad (1.05 / 1.05 mm
+  deep), printed open side up so there are no overhangs. Corrections from
+  test print 2 (`pogo_pocket_extra_base` / `_ball`, `tower_len_adj`,
+  `col_len_adj`): faces were 0.85 (base) / 0.65 (ball) below the surface, so
+  the pockets are that much shallower and the tower that much longer; the
+  tower was 0.15 too tall (now -0.15); the screw columns were 0.10 short, so
+  the base build-ups are 0.10 taller (ball key pockets 0.10 deeper).
   No crush bumps (`tower_rib_h` removed: the test only fitted without them).
 - Snap fit: a collar (1.6 mm tall, 0.9 mm wall, 0.1 mm clearance) on the
   base pad and on the ball pad holds each tower end; a 0.25 mm bead inside

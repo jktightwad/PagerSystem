@@ -142,9 +142,15 @@ pogo_angle    = 180;
 tower_wall    = 1.6;    // [1:0.1:3] tube size = flange pocket + this all round
 // flanges stand this proud of their pockets, so the tower ends press them
 flange_proud  = 0.1;    // [0:0.05:0.4]
-// extra depth in each flange pocket (base and ball): 0.9 = printed test needed
-// about 1 mm more for the connectors to sit flush
-pogo_pocket_extra = 0.9; // [0:0.05:2]
+// extra depth in each flange pocket. Test print 2: with 0.9 in both the
+// connector faces sat 0.85 (base) / 0.65 (ball) below the surface
+pogo_pocket_extra_base = 0.05; // [0:0.05:2]
+pogo_pocket_extra_ball = 0.25; // [0:0.05:2]
+// tower length correction (test print 2: 0.15 too tall)
+tower_len_adj = -0.15;   // [-1:0.05:1]
+// screw columns: extra length (test print 2: 0.10 short, base not flush).
+// Added to the base build-ups; the ball's key pockets deepen to match.
+col_len_adj = 0.10;      // [-0.5:0.05:0.5]
 tower_slot_w  = 4.0;    // [2:0.5:8] wire exit slot (centre side), width
 tower_slot_h  = 5.0;    // [2:0.5:10] and height
 // snap fit: a collar on the base pad and on the ball pad holds each tower end;
@@ -228,8 +234,8 @@ inner_r     = (ball_od - 2 * ball_wall) / 2;
 inside_r    = inner_r - base_clear_d / 2 - rim_w - wall_gap;   // parts placed against the wall (the base rim) touch here
 // pogo flanges sit in pockets in the base and ball pads (printed open side up,
 // no overhangs); the tower is a plain tube clamping them from between
-base_pocket_d = flange_t + base_pogo_extra + pogo_pocket_extra - flange_proud;
-top_pocket_d  = flange_t + pogo_pocket_extra - flange_proud;
+base_pocket_d = flange_t + base_pogo_extra + pogo_pocket_extra_base - flange_proud;
+top_pocket_d  = flange_t + pogo_pocket_extra_ball - flange_proud;
 tower_L   = flange_pocket_l + 2 * tower_wall;
 tower_W   = flange_pocket_w + 2 * tower_wall;
 tower_z0  = face_body + base_pocket_d;            // base pad top
@@ -355,7 +361,7 @@ module ball_shell() {
       translate([0, 0, tower_z1 - 1]) linear_extrude(top_pocket_d + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
     }
     // pockets in the column ends for the base's keys
-    for (a = boss_angles) at_angle(boss_r, a) translate([0, 0, col_start - 0.01]) cylinder(d = boss_d + 2 * key_clear, h = key_h + key_clear + 0.01);
+    for (a = boss_angles) at_angle(boss_r, a) translate([0, 0, col_start - 0.01]) cylinder(d = boss_d + 2 * key_clear, h = key_h + col_len_adj + key_clear + 0.01);
     // column screw pilots
     for (a = boss_angles) at_angle(boss_r, a)
       translate([0, 0, col_start - 1]) cylinder(d = screw_pilot, h = top_under - col_start, $fn = 24);
@@ -414,7 +420,7 @@ module tower_collar() {
 // bottom pocket, top connector's in the top pocket; wires inside, the lead
 // to the board out through the slot on the centre side.
 module pogo_tower() {
-  H = tower_z1 - tower_z0;
+  H = tower_z1 - tower_z0 + tower_len_adj;
   difference() {
     linear_extrude(H) stadium_2d(tower_L, tower_W);
     // through channel for the back bodies and wires
@@ -503,7 +509,7 @@ module base_part(parts = true) {
         pogo_notch();
       }
       // build-up under each column for the screw head
-      for (a = boss_angles) at_angle(boss_r, a) cylinder(d = boss_d, h = col_start + key_h);   // + key into the column
+      for (a = boss_angles) at_angle(boss_r, a) cylinder(d = boss_d, h = col_start + col_len_adj + key_h);   // + key into the column
       // LED ring posts
       for (p = ring_posts) translate([p[0] * ring_hole_cx / 2, p[1] * ring_hole_cy / 2, base_t - 0.01])
         cylinder(d = ring_post_d, h = ring_bottom - base_t + 0.01, $fn = 32);
@@ -607,6 +613,6 @@ assert(white_t < number_t, "number_t must be deeper than white_t");
 assert(number_t <= top_t, "number_t deeper than the top");
 assert(screw_head_h < col_start - 0.3, "screw head recess leaves under 0.3 mm");
 assert(switch_pad_h > 0, "switch riser pads <= 0");
-echo(str("Pogo tower ", tower_L, " x ", tower_W, " x ", tower_z1 - tower_z0, " mm (plain tube); flange pockets base ", base_pocket_d, " / ball ", top_pocket_d, " mm deep; columns at ", boss_angles, " deg"));
+echo(str("Pogo tower ", tower_L, " x ", tower_W, " x ", tower_z1 - tower_z0 + tower_len_adj, " mm (plain tube); flange pockets base ", base_pocket_d, " / ball ", top_pocket_d, " mm deep; columns at ", boss_angles, " deg"));
 echo(str("Touch sensor: centre ", mark_r, " mm from the middle; outer edge ", mark_r + tsens_w / 2 + tsens_clear + pocket_wall,
          " mm (ball inside ", inner_r, "); light pocket edge ", pocket_d / 2, " mm, sensor inner edge ", mark_r - tsens_w / 2 - tsens_clear - pocket_wall));
