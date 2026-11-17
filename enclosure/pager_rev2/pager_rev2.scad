@@ -157,8 +157,10 @@ tower_slot_h  = 5.0;    // [2:0.5:10] and height
 // a bead inside the collar clicks into a groove round the tower
 tower_socket_h = 1.6;   // [0.8:0.1:3] collar height
 tower_socket_t = 0.9;   // [0.6:0.1:2] collar wall
-tower_fit      = 0.1;   // [0:0.05:0.4] clearance tower to collar, per side
-snap_bead      = 0.25;  // [0:0.05:0.5] bead depth (0 = plain socket)
+tower_fit      = 0.05;  // [0:0.05:0.4] clearance tower to collar, per side (0.1 was sloppy)
+snap_bead      = 0.25;  // [0:0.05:0.5] bead depth (0 = plain socket); sticks into the tower by this - tower_fit
+// groove depth beyond the bead (0 = bead seats in the groove with no play; 0.1 was loose)
+snap_clear     = 0;     // [0:0.05:0.3]
 // gap from each tower end to the column beside it
 col_gap       = 1.6;    // [0.5:0.1:5] (collar 1.0 + 0.6)
 
@@ -429,7 +431,7 @@ module pogo_tower() {
     translate([-tower_slot_w / 2, -tower_W, H / 2 - tower_slot_h / 2]) cube([tower_slot_w, tower_W, tower_slot_h]);
     // snap grooves round both ends (45 deg faces, prints without support)
     if (snap_bead > 0) for (z = [snap_z(), H - snap_z()])
-      translate([0, 0, z]) snap_ring(snap_bead + 0.1, outside = true);
+      translate([0, 0, z]) snap_ring(snap_bead - tower_fit + snap_clear, outside = true);
   }
 }
 

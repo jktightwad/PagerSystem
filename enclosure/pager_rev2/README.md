@@ -46,9 +46,11 @@ same for every number).
   tower was 0.15 too tall (now -0.15); the screw columns were 0.10 short, so
   the base build-ups are 0.10 taller (ball key pockets 0.10 deeper).
   No crush bumps (`tower_rib_h` removed: the test only fitted without them).
-- Snap fit: a collar (1.6 mm tall, 0.9 mm wall, 0.1 mm clearance) on the
-  base pad and on the ball pad holds each tower end; a 0.25 mm bead inside
-  each collar clicks into a groove round the tower. Bead and groove have
+- Snap fit: a collar (1.6 mm tall, 0.9 mm wall, 0.05 mm clearance,
+  `tower_fit`; 0.1 was sloppy) on the base pad and on the ball pad holds each
+  tower end; a 0.25 mm bead inside each collar (0.2 mm into the tower) clicks
+  into a matching groove round the tower with no play (`snap_clear` 0; the
+  first version's 0.1 extra groove depth meant the bead never touched). Bead and groove have
   45 deg faces, so neither needs support (`tower_socket_*`, `tower_fit`,
   `snap_bead`; `snap_bead = 0` gives a plain socket).
   Wire the two connectors together inside
