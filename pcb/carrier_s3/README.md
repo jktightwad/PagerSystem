@@ -45,6 +45,9 @@ Open `carrier_s3.kicad_pcb` in KiCad 7+ to inspect or edit by hand.
 - Buzzer and switch: two wire holes each (both stay in their pockets in the
   base). Buzzer and motor are on GP12 / GP13 (away from the antenna end).
 - 3 × M2 holes (2.2 mm) with copper kept 2 mm from centre for the screw head.
+- C3/C4 (47 uF ring bulk caps) are not fitted: the hand-wired prototype runs the
+  ring without them. Pads stay; hand-solder 1206 caps (e.g. C96123) if the
+  ring flickers or resets the board at high brightness.
 - JLCPCB assembly: top side only, all basic parts (LCSC numbers checked on
   lcsc.com / jlcpcb.com, Nov 2026). Check part rotations in JLC's placement
   preview before paying.

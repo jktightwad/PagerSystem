@@ -7,7 +7,7 @@ Qty,Refs,Value,Footprint,LCSC (verify),Notes
 6,R2 R4 R6 R7 R8 R9,100k,0603,C25803,
 1,R5,330R,0603,C23138,ring data
 2,C1 C2,100nF,0603,C14663,
-2,C3 C4,47uF 10V,1206,C96123,
+2,C3 C4,47uF 10V,1206,(C96123),NOT FITTED - optional ring bulk caps
 1,D1,B5819W,SOD-123,C8598,motor flyback
 1,J1,Battery,PH2,,JST-PH 2
 1,J2,LED ring,PH3,,"JST-PH 3: VBAT, DATA, GND"
