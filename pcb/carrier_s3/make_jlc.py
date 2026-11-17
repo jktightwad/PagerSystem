@@ -17,5 +17,6 @@ with open("fab/pos_front.csv") as f, open("fab/cpl_jlc.csv", "w", newline="") as
     for row in csv.DictReader(f):
         ref = row["Ref"]
         if ref in PARTS and PARTS[ref][2]:
-            w.writerow([ref, row["PosX"] + "mm", row["PosY"] + "mm", "Top", row["Rot"]])
+            # plain numbers in mm, as in KiCad's own export (JLCPCB's KiCad guide only renames headers)
+            w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', "Top", f'{float(row["Rot"]):.0f}'])
 print("fab/bom_jlc.csv, fab/cpl_jlc.csv written")
