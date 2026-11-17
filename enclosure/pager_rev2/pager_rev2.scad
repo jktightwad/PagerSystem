@@ -1,6 +1,6 @@
 // Pool-ball pager, Rev 2 (OpenSCAD)
 //
-// Two printed parts plus two small clamps:
+// Two printed parts plus a pogo tower:
 //   - ball: shell + flat top, printed TOP DOWN in three colours on the AMS
 //     (export ball / white / number as separate STLs, load them together as
 //     one multi-part object and give each part its filament).
@@ -10,8 +10,9 @@
 //     corner against light bleed at the rounded edge.
 //   - base: flat plate (base_t) that carries every component, printed
 //     BOTTOM DOWN. Same mounts as Rev 1's chassis.
-//   - pogo_clamp (x2): holds each pogo connector's flange; a short piece of
-//     1.75 mm filament through the fork bosses holds each end of the clamp.
+//   - pogo_tower: oval tube holding both pogo connectors (top and bottom),
+//     clamped between the ball top and the base by the two screws either
+//     side of it. The connectors' 1.9 mm fronts stick through the top / base.
 // Magnets go in from the inside (mag_skin of plastic in front of them), so
 // nothing sticks out of the top or the bottom.
 //
@@ -23,7 +24,7 @@ use <fonts/LiberationSans-Bold.ttf>
 use <fonts/DejaVuSerif-Bold.ttf>
 
 /* [Part to show / export] */
-part = "all"; // [all, ball, white, number, touch_mark, base, pogo_clamp, pogo_test]
+part = "all"; // [all, ball, white, number, touch_mark, base, pogo_tower, pogo_test]
 
 /* [Ball] */
 ball_od      = 104;
@@ -36,7 +37,7 @@ top_t        = 1.65;    // [1:0.05:4] top thickness
 corner_build = 3.0;     // [0:0.2:8]
 column_fillet = 3;
 boss_d       = 7;
-boss_angles  = [45, 135, 225, 315];
+// screw columns: 45 / 315 stay; the other two flank the pogo tower (see Hidden)
 
 /* [Top: white circle, light and number] */
 white_d      = 72;      // white circle (LED ring is 68.2)
@@ -73,8 +74,8 @@ key_clear     = 0.15;   // [0:0.05:0.5] round the key in the column pocket
 // is supported all round, not only at the screws. Parts placed "against the
 // wall" now sit against the base's rim.
 rim_w         = 2.0;    // [1:0.1:5] ledge / rim width
-// the ledge and rim are cut away round the pogo holders (this much clearance)
-pogo_notch_clear = 1.0; // [0:0.1:3]
+// the ledge and rim are cut away round the pogo tower (this much clearance)
+pogo_notch_clear = 0.5; // [0:0.1:3]
 
 /* [Number] */
 number_text  = "2";
@@ -136,49 +137,19 @@ flange_pocket_w = 3.9;
 base_pogo_extra = 0.2;  // spring-pin connector flange room
 pogo_r        = 44;
 pogo_angle    = 180;
-pogo_wall     = 1.2;    // wall round the flange
-// flange pocket walls stop this short so the clamp presses the flange, not the walls
-pogo_press    = 0.2;    // [0:0.05:0.6]
-clamp_t       = 1.6;    // [0.8:0.1:4]
-// clamp body half-widths from the connector centre line: towards the ball
-// wall (curved side, limited by the wall) and towards the centre
-clamp_out     = 4.5;    // [2:0.1:5]
-clamp_in      = 4.5;    // [2:0.1:8]
-tongue_w      = 5.0;    // [3:0.1:8] latch end of the clamp
-// taken off the tongue's wall side so the ball's curve doesn't push the clamp
-// (and the connector) off centre
-tongue_trim_out = 0.5;  // [0:0.1:2]
-clamp_short   = 0;      // [0:0.1:4] taken off the tongue end of the clamp
-// tongue: straight tongue_w for tongue_len from the tip, then a curved taper
-// out to the full body width at taper_len from the tip
-tongue_len    = 3.5;    // [1:0.1:8]
-taper_len     = 8.0;    // [2:0.1:12]
-// latch window from the centre line: the curved side is 1 mm in
-latch_win_out = 2.8;    // [2:0.1:5]
-latch_win_in  = 3.8;    // [2:0.1:6]
-clamp_end     = 5.0;    // [3:0.5:10] clamp length past each flange end
-clamp_hole_add = 0.6;   // oval hole in the clamp: oval + this (back body + wires)
-// One clamp end hooks under a latch bar (insert, then lever the clamp down).
-// The other end is forked round a single post; a 1.75 mm filament pin through
-// the post, across the fork's tines, holds it. Latch on the 7 o'clock side,
-// post on the 5 o'clock side (pin pushed in from the centre).
-latch_leg_t   = 1.6;    // [1:0.1:4]
-latch_bar_t   = 1.6;    // [0.8:0.1:4]
-latch_clear   = 0.1;    // [0:0.05:0.5] room for the clamp end under the latch bar
-fork_clear    = 0.3;    // clamp end to latch leg / fork to post
-post_t        = 3.5;    // [3.5:0.1:6] pin post, along the connector
-post_w        = 3.5;    // [3.5:0.1:6] pin post, across (= pin hole length)
-tine_w        = 2.0;    // [1:0.1:4] fork tine beside the post, centre side
-tine_w_out    = 1.0;    // [0.6:0.1:4] fork tine on the curved (wall) side
-pin_hole_d    = 1.95;   // 1.75 filament
-pin_floor     = 1.2;    // plastic beyond the pin hole
-// smoothing (strength): rounded clamp corners, fillets on its inside corners,
-// rounded post / leg edges and a 45 deg flare where they join the part
-clamp_round   = 0.8;    // [0:0.1:2] outside corners of the clamp
-clamp_fillet  = 1.0;    // [0:0.1:2] inside corners of the clamp (fork root, step)
-post_round    = 1.2;    // [0:0.1:1.7] vertical edges of the pin post
-leg_round     = 0.6;    // [0:0.1:0.8] vertical edges of the latch legs
-root_flare    = 0.9;    // [0:0.1:1.1] 45 deg flare at the post / leg roots
+
+/* [Pogo tower] */
+tower_wall    = 1.6;    // [1:0.1:3] wall round the flange pockets
+// flanges stand this proud of their pockets, so the clamp presses them
+flange_proud  = 0.1;    // [0:0.05:0.4]
+// crush bumps on the tower's top end: take up print variation when the
+// screws pull the base up (total squeeze = this)
+tower_rib_h   = 0.4;    // [0:0.05:1]
+tower_rib_d   = 1.2;
+tower_slot_w  = 4.0;    // [2:0.5:8] wire exit slot (centre side), width
+tower_slot_h  = 5.0;    // [2:0.5:10] and height
+// gap from each tower end to the column beside it
+col_gap       = 1.0;    // [0.5:0.5:5]
 
 /* [Component mounts] */
 pocket_wall    = 1.2;
@@ -250,9 +221,14 @@ col_start   = base_t + screw_boss_h;        // columns start here
 ring_bottom = white_under - led_gap - ring_h;
 inner_r     = (ball_od - 2 * ball_wall) / 2;
 inside_r    = inner_r - base_clear_d / 2 - rim_w - wall_gap;   // parts placed against the wall (the base rim) touch here
-// pogo z levels
-top_flange_back  = ball_h - face_body - flange_t;              // clamp's top face (ball)
-base_flange_back = face_body + flange_t + base_pogo_extra;     // clamp's bottom face (base)
+// pogo tower: from the base pad (face_body up) to the ball pad (face_body down)
+tower_L   = flange_pocket_l + 2 * tower_wall;
+tower_W   = flange_pocket_w + 2 * tower_wall;
+tower_z0  = face_body;
+tower_z1  = ball_h - face_body;
+boss_r    = ball_od / 2 - ball_wall - boss_d / 2 + 0.5;
+col_da    = asin((tower_L / 2 + col_gap + boss_d / 2) / boss_r);   // column angle either side of the pogo
+boss_angles = [45, pogo_angle - col_da, pogo_angle + col_da, 315];
 switch_pad_h = switch_slider_l - base_t + switch_tip_recess;
 
 // ================= Helpers =================================================
@@ -302,7 +278,6 @@ module mag_boss(hole, h, dir) {
   else cylinder(d1 = d_top, d2 = d_root, h = h);
 }
 module bosses_2d() { for (a = boss_angles) at_angle(boss_r, a) circle(d = boss_d); }
-boss_r = ball_od / 2 - ball_wall - boss_d / 2 + 0.5;
 module cavity_2d(grow = 0) {
   offset(delta = grow) offset(r = column_fillet) offset(delta = -column_fillet)
     difference() { circle(d = ball_od - 2 * ball_wall); bosses_2d(); }
@@ -340,12 +315,9 @@ module ball_shell() {
         // touch sensor seat under the top (cuts the corner build-up where needed)
         at_angle(mark_r, tsens_angle) translate([tsens_dx, 0, top_under - tsens_wall_h - 2])
           linear_extrude(tsens_wall_h + 2 + 0.001) square([tsens_l + 2 * tsens_clear, tsens_w + 2 * tsens_clear], center = true);
-        // room for the clamp in the corner build-up (not into the wall)
-        at_angle(pogo_r, pogo_angle) translate([0, 0, top_flange_back - clamp_t - 0.4])
-          linear_extrude(clamp_t + 0.41) intersection() {
-            offset(r = 0.4) square([clamp_L, 2 * max(clamp_in, clamp_out)], center = true);   // fixed: clamp tweaks don't change the ball
-            rotate([0, 0, pogo_angle]) translate([0, pogo_r]) circle(r = inner_r);   // = the ball's inside, in local coords
-          }
+        // room for the tower in the corner build-up (not into the wall)
+        at_angle(pogo_r, pogo_angle) translate([0, 0, col_start])
+          linear_extrude(tower_z1 - col_start) offset(delta = pogo_notch_clear) stadium_2d(tower_L, tower_W);
       }
       // touch sensor locating walls (open at the end away from the touch area, for the wires)
       at_angle(mark_r, tsens_angle) translate([tsens_dx, 0, top_under - tsens_wall_h])
@@ -358,25 +330,18 @@ module ball_shell() {
       // magnet bosses under the top
       for (a = mag_angles) at_angle(mag_r, a)
         translate([0, 0, ball_h - mag_skin - mag_h]) mag_boss(mag_hole_ball, mag_h + mag_skin - top_t + 0.01, -1);
-      // pogo: flange walls + ledge, and the clamp forks
-      at_angle(pogo_r, pogo_angle) {
-        translate([0, 0, top_flange_back + pogo_press])
-          linear_extrude(top_under - top_flange_back - pogo_press + 0.01)
-            stadium_2d(flange_pocket_l + 2 * pogo_wall, flange_pocket_w + 2 * pogo_wall);
-        pogo_forks(top_flange_back - clamp_t, top_under, -1);
-      }
+      // pogo: pad round the hole for the tower's top end to bear on
+      at_angle(pogo_r, pogo_angle) translate([0, 0, tower_z1])
+        linear_extrude(top_under - tower_z1 + 0.01) offset(delta = 1) stadium_2d(tower_L, tower_W);
     }
     // light pocket under the white
     translate([0, 0, top_under - 1]) cylinder(d = pocket_d, h = white_under - top_under + 1);
     // magnet pockets (from the inside)
     for (a = mag_angles) at_angle(mag_r, a)
       translate([0, 0, ball_h - mag_skin - mag_h - 1]) cylinder(d = mag_hole_ball, h = mag_h + 1);
-    // pogo: oval through the top, flange pocket behind it
-    at_angle(pogo_r, pogo_angle) {
-      translate([0, 0, ball_h - face_body - 0.01]) linear_extrude(face_body + 1) stadium_2d(oval_hole_l, oval_hole_w);
-      translate([0, 0, top_flange_back - 3]) linear_extrude(ball_h - face_body - top_flange_back + 3)
-        stadium_2d(flange_pocket_l, flange_pocket_w);
-    }
+    // pogo: oval through the top
+    at_angle(pogo_r, pogo_angle)
+      translate([0, 0, tower_z1 - 0.01]) linear_extrude(face_body + 1) stadium_2d(oval_hole_l, oval_hole_w);
     // pockets in the column ends for the base's keys
     for (a = boss_angles) at_angle(boss_r, a) translate([0, 0, col_start - 0.01]) cylinder(d = boss_d + 2 * key_clear, h = key_h + key_clear + 0.01);
     // column screw pilots
@@ -384,7 +349,6 @@ module ball_shell() {
       translate([0, 0, col_start - 1]) cylinder(d = screw_pilot, h = top_under - col_start, $fn = 24);
   }
 }
-base_clamp_face = base_flange_back + clamp_t;          // base clamp's top face
 // ledge all round the wall: flat underside at the column ends, 45 deg above
 module support_ledge() {
   difference() {
@@ -393,10 +357,10 @@ module support_ledge() {
     pogo_notch();
   }
 }
-// clearance round the base's pogo holders and clamp, cut out of the ledge / rim
+// clearance round the pogo tower, cut out of the ledge / rim
 module pogo_notch() {
   at_angle(pogo_r, pogo_angle) translate([0, 0, -1])
-    linear_extrude(ball_h) square([clamp_L + 2 * (root_flare + pogo_notch_clear), 30], center = true);
+    linear_extrude(ball_h) offset(delta = pogo_notch_clear) stadium_2d(tower_L, tower_W + 30);
 }
 // touch area / mark centre, and the sensor's centre along the edge
 mark_r  = white_d / 2 + mark_gap + mark_od / 2;
@@ -408,88 +372,30 @@ module mark_vol() {
 module ball_body() { difference() { ball_shell(); white_vol(); mark_vol(); } }   // same for every number
 module white_body() { difference() { white_vol(); number_vol(); mark_vol(); } }
 
-// ================= Pogo clamp holders ======================================
-// Local +x end (world 7 o'clock side): latch = two thin legs and a bar; hook
-// the clamp end under the bar, then lever the clamp down. Local -x end: one
-// post with a pin hole; the clamp's forked end goes round the post and the
-// filament pin through the post lies across the tines.
-// clamp_face = z of the clamp face away from the flange; z_root = where the
-// holders join the part; dir = -1 for the ball (they hang down), +1 for the base.
-function fork_x() = flange_pocket_l / 2 + 1 + clamp_end / 2;
-// rounded rectangle centred on [cx, cy]
-module rrect_2d(w, l, r) { offset(r = r) square([max(0.01, w - 2 * r), max(0.01, l - 2 * r)], center = true); }
-// extrude a 2D profile from z_root to z_tip, flaring 45 deg (root_flare) at the root
-module flared(z_root, z_tip) {
-  dir = z_tip > z_root ? 1 : -1;
-  h = abs(z_tip - z_root); f = min(root_flare, h);
-  steps = max(1, round(f / 0.15));
-  translate([0, 0, min(z_root, z_tip) - (dir < 0 ? 0 : 0.01)]) linear_extrude(h + 0.01) children();
-  for (k = [0 : steps - 1]) {
-    g = f * (1 - (k + 0.5) / steps);             // grow at this slice
-    z = z_root + dir * k * f / steps;
-    translate([0, 0, dir > 0 ? z - 0.01 : z - f / steps]) linear_extrude(f / steps + 0.01) offset(delta = g) children();
-  }
-}
-module pogo_forks(clamp_face, z_root, dir, post_to = undef, latch_to = undef) {
-  pin_z  = clamp_face + dir * (pin_hole_d / 2);          // pin touches the clamp face
-  tip_pin   = pin_z + dir * (pin_hole_d / 2 + pin_floor);
-  tip_latch = clamp_face + dir * (latch_clear + latch_bar_t);
-  // latch (+x)
-  translate([fork_x(), 0, 0]) {
-    for (yy = [-(latch_win_in + latch_leg_t / 2), latch_win_out + latch_leg_t / 2]) flared(z_root, latch_to == undef ? tip_latch : latch_to)
-      translate([0, yy]) rrect_2d(clamp_end, latch_leg_t, leg_round);
-    translate([-clamp_end / 2, -latch_win_in, min(clamp_face + dir * latch_clear, tip_latch)])
-      cube([clamp_end, latch_win_in + latch_win_out, latch_bar_t]);   // a short bridge in the print
-  }
-  // pin post (-x)
-  translate([-fork_x(), 0, 0]) difference() {
-    flared(z_root, post_to == undef ? tip_pin : post_to) rrect_2d(post_t, post_w, post_round);
-    // teardrop points up in the print (ball prints top down: up = -z)
-    translate([0, 0, pin_z]) mirror([0, 0, dir < 0 ? 1 : 0]) teardrop_y(pin_hole_d, post_w + 2 * root_flare + 2);
-  }
-}
-// clamp outline (local: +x latch / tongue end, -x forked end, +y towards the wall)
-clamp_L = flange_pocket_l + 2 + 2 * clamp_end;
-module pogo_clamp_outline_2d() {
-  L = clamp_L; x0 = L / 2 - clamp_end;
-  slot_r = post_w / 2 + fork_clear;
-  xe = L / 2 - clamp_short - tongue_len;                    // tongue_w from here to the tip
-  xs = L / 2 - clamp_short - taper_len;                     // full body width up to here
-  n = 24;
-  function hw(t, a, b) = b + (a - b) * (1 + cos(180 * t)) / 2;   // a at t = 0, b at t = 1
-  // body up to the start of the curve
-  translate([-x0, -clamp_in]) square([x0 + xs, clamp_in + clamp_out]);
-  // S-curve taper, then the straight tongue to the end
-  polygon(concat(
-    [for (k = [0 : n]) [xs + (xe - xs) * k / n,  hw(k / n, clamp_out, tongue_w / 2 - tongue_trim_out)]],
-    [[L / 2 - clamp_short, tongue_w / 2 - tongue_trim_out], [L / 2 - clamp_short, -tongue_w / 2]],
-    [for (k = [n : -1 : 0]) [xs + (xe - xs) * k / n, -hw(k / n, clamp_in, tongue_w / 2)]]));
-  // forked end (thinner tine on the wall side), tapering into the body
-  fy0 = -(slot_r + tine_w); fy1 = slot_r + tine_w_out;
-  ftap = max(abs(-clamp_in - fy0), abs(clamp_out - fy1));
-  hull() {
-    translate([-L / 2, fy0]) square([clamp_end, fy1 - fy0]);
-    translate([-x0 + ftap, -clamp_in]) square([0.01, clamp_in + clamp_out]);
-  }
-}
-module pogo_clamp_2d() {
-  L = clamp_L;
-  slot_r = post_w / 2 + fork_clear;
-  slot_cx = -fork_x() + fork_clear;                    // round end of the slot, just past the post centre
+// ================= Pogo tower =============================================
+// Upright (print orientation = as fitted). Bottom connector's flange in the
+// bottom pocket, top connector's in the top pocket; wires inside, the lead
+// to the board out through the slot on the centre side.
+module pogo_tower() {
+  H = tower_z1 - tower_z0;
   difference() {
-    // fillet inside corners, then round outside corners (outline + slot only)
-    offset(r = -clamp_fillet) offset(delta = clamp_fillet)
-    offset(r = clamp_round) offset(delta = -clamp_round)
-    difference() {
-      pogo_clamp_outline_2d();
-      // slot with a round end round the post
-      translate([-L / 2 - 1, -slot_r]) square([slot_cx + L / 2 + 1, 2 * slot_r]);
-      translate([slot_cx, 0]) circle(r = slot_r, $fn = 48);
+    union() {
+      linear_extrude(H) stadium_2d(tower_L, tower_W);
+      // crush bumps on the top end
+      for (p = [[tower_L / 2 - tower_wall / 2, 0], [-(tower_L / 2 - tower_wall / 2), 0],
+                [5, tower_W / 2 - tower_wall / 2], [-5, tower_W / 2 - tower_wall / 2],
+                [5, -(tower_W / 2 - tower_wall / 2)], [-5, -(tower_W / 2 - tower_wall / 2)]])
+        translate([p[0], p[1], H - 0.01]) cylinder(d = tower_rib_d, h = tower_rib_h + 0.01, $fn = 16);
     }
-    stadium_2d(oval_hole_l + clamp_hole_add, oval_hole_w + clamp_hole_add);
+    // through channel for the back bodies and wires
+    translate([0, 0, -1]) linear_extrude(H + 2) stadium_2d(oval_hole_l + 0.6, oval_hole_w + 0.6);
+    // flange pockets (flanges stand flange_proud out so the clamp presses them)
+    translate([0, 0, -0.01]) linear_extrude(flange_t + base_pogo_extra - flange_proud + 0.01) stadium_2d(flange_pocket_l, flange_pocket_w);
+    translate([0, 0, H - (flange_t - flange_proud)]) linear_extrude(flange_t + 1) stadium_2d(flange_pocket_l, flange_pocket_w);
+    // wire exit, centre side (local -y)
+    translate([-tower_slot_w / 2, -tower_W, H / 2 - tower_slot_h / 2]) cube([tower_slot_w, tower_W, tower_slot_h]);
   }
 }
-module pogo_clamp() { linear_extrude(clamp_t) pogo_clamp_2d(); }
 
 // ================= Component mounts (base top at z = base_t) ===============
 function wall_r(w, l, gap) = sqrt(pow(inside_r - gap, 2) - pow(w / 2 + pocket_clear, 2)) - l / 2 - pocket_clear;
@@ -574,12 +480,8 @@ module base_part(parts = true) {
       // magnet bosses
       for (a = mag_angles) at_angle(mag_r, a)
         translate([0, 0, base_t - 0.01]) mag_boss(mag_hole_base, mag_skin + mag_h - base_t + 0.01, 1);
-      // pogo: flange walls + ledge, and the clamp forks
-      at_angle(pogo_r, pogo_angle) {
-        linear_extrude(base_flange_back - pogo_press)
-          stadium_2d(flange_pocket_l + 2 * pogo_wall, flange_pocket_w + 2 * pogo_wall);
-        pogo_forks(base_flange_back + clamp_t, base_t - 0.01, 1);
-      }
+      // pogo: pad round the hole for the tower's bottom end to stand on
+      at_angle(pogo_r, pogo_angle) linear_extrude(tower_z0) offset(delta = 1) stadium_2d(tower_L, tower_W);
       // component pockets
       if (parts) translate([0, 0, base_t - 0.01]) intersection() {
         union() {
@@ -601,11 +503,8 @@ module base_part(parts = true) {
       if (parts) switch_place() translate([0, 0, base_t]) switch_mount();
     }
     }
-    // pogo: oval through the bottom, flange pocket above it
-    at_angle(pogo_r, pogo_angle) {
-      translate([0, 0, -1]) linear_extrude(face_body + 1.01) stadium_2d(oval_hole_l, oval_hole_w);
-      translate([0, 0, face_body]) linear_extrude(base_flange_back - face_body + 3) stadium_2d(flange_pocket_l, flange_pocket_w);
-    }
+    // pogo: oval through the bottom
+    at_angle(pogo_r, pogo_angle) translate([0, 0, -1]) linear_extrude(face_body + 1.01) stadium_2d(oval_hole_l, oval_hole_w);
     // magnet pockets (from the inside)
     for (a = mag_angles) at_angle(mag_r, a) translate([0, 0, mag_skin]) cylinder(d = mag_hole_base, h = mag_h + 1);
     // screws: clearance + head recess from the bottom
@@ -632,32 +531,29 @@ module preview() {
   color("black") translate([0, 0, e]) number_vol();
   color("black") translate([0, 0, e]) mark_vol();
   color("gray") base_part();
-  color("orange") at_angle(pogo_r, pogo_angle) translate([0, 0, base_flange_back]) pogo_clamp();
-  color("orange") translate([0, 0, e]) at_angle(pogo_r, pogo_angle) translate([0, 0, top_flange_back - clamp_t]) pogo_clamp();
+  color("orange") translate([0, 0, e / 2]) at_angle(pogo_r, pogo_angle) translate([0, 0, tower_z0]) pogo_tower();
 }
 
-// test print: the pogo corner of the ball (as printed, top down) and of the
-// base, cut out of the real parts, plus two clamps
+// test print: the pogo end of the ball (top down, with the two columns either
+// side, full height) and of the base, cut out of the real parts, plus the tower
 module pogo_test() {
-  cx = fork_x() + clamp_end / 2 + root_flare + 1; r0 = 36; r1 = ball_od / 2 + 1;
-  // ball piece: after flip() the pogo is at +y
+  cx = boss_r * sin(col_da) + boss_d / 2 + 3; r0 = 36; r1 = ball_od / 2 + 1;
   translate([0, -pogo_r, 0]) intersection() {
     flip() ball_shell();
-    translate([-cx, r0, -1]) cube([2 * cx, r1 - r0, top_t + face_body + flange_t + clamp_t + 6]);
+    translate([-cx, r0, -1]) cube([2 * cx, r1 - r0, ball_h + 2]);
   }
-  // base piece
-  translate([0, pogo_r - 22, 0]) intersection() {
+  translate([0, pogo_r - 24, 0]) intersection() {
     base_part(parts = false);
     translate([-cx, -r1, -1]) cube([2 * cx, r1 - r0, 20]);
   }
-  for (k = [0, 1]) translate([0, -38 - k * 10, 0]) pogo_clamp();
+  translate([0, -42, 0]) pogo_tower();
 }
 
 if (part == "ball") flip() ball_body();
 else if (part == "white") flip() white_body();
 else if (part == "number") flip() number_vol();
 else if (part == "base") base_part();
-else if (part == "pogo_clamp") pogo_clamp();
+else if (part == "pogo_tower") pogo_tower();
 else if (part == "pogo_test") pogo_test();
 else if (part == "touch_mark") flip() mark_vol();
 else preview();
@@ -669,6 +565,6 @@ assert(white_t < number_t, "number_t must be deeper than white_t");
 assert(number_t <= top_t, "number_t deeper than the top");
 assert(screw_head_h < col_start - 0.3, "screw head recess leaves under 0.3 mm");
 assert(switch_pad_h > 0, "switch riser pads <= 0");
-assert(top_flange_back - clamp_t - pin_hole_d - pin_floor > col_start, "top pogo forks reach the base");
+echo(str("Pogo tower ", tower_L, " x ", tower_W, " x ", tower_z1 - tower_z0, " mm (+", tower_rib_h, " crush bumps); columns at ", boss_angles, " deg"));
 echo(str("Touch sensor: centre ", mark_r, " mm from the middle; outer edge ", mark_r + tsens_w / 2 + tsens_clear + pocket_wall,
          " mm (ball inside ", inner_r, "); light pocket edge ", pocket_d / 2, " mm, sensor inner edge ", mark_r - tsens_w / 2 - tsens_clear - pocket_wall));
