@@ -17,11 +17,11 @@ import pcbnew
 IN = OUT = "carrier_s3.kicad_pcb"
 G = 0.1                 # grid, mm
 CLR = 0.2               # copper clearance (design rule)
-MARGIN = 0.09           # raster error allowance
+MARGIN = 0.1            # raster error allowance
 EDGE_CLR = 0.3
 VIA_D, VIA_DRILL = 0.6, 0.3
 VIA_COST = 25           # in grid steps
-WIDTH = {"VBAT": 0.5, "BAT+": 0.5, "POGO5V": 0.4, "GND": 0.4, "MOT_-": 0.4, "BUZ_-": 0.3, "3V3": 0.3}
+WIDTH = {"VBAT": 0.4, "BAT+": 0.5, "POGO5V": 0.4, "GND": 0.3, "MOT_-": 0.4, "BUZ_-": 0.3, "3V3": 0.3}
 SIG_W = 0.25
 ZONE_NET = "GND"
 
@@ -60,7 +60,8 @@ class Router:
             for c in range(self.NX):
                 x, y = self.xy(r, c)
                 inside[r, c] = poly.Contains(pcbnew.VECTOR2I(mm(x), mm(y)))
-        d = distance_transform_edt(inside) * G
+        # pad with "outside" so the array border counts as edge too
+        d = distance_transform_edt(np.pad(inside, 1))[1:-1, 1:-1] * G
         edge = d < 0.15        # tracks keep CLR + MARGIN from these cells -> >= EDGE_CLR from the edge
         self.cu[0][edge] = -1; self.cu[1][edge] = -1
 
@@ -289,7 +290,7 @@ if __name__ == "__main__":
     # short / signal nets first, wide power next, GND last
     order = sorted(names, key=lambda n: (n == "GND", n in WIDTH, n))
     random.seed(1)
-    for attempt in range(40):
+    for attempt in range(80):
         print(f"attempt {attempt + 1}: {' '.join(order)}")
         board, failed = run(order)
         if not failed: break

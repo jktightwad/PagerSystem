@@ -1,13 +1,12 @@
 Qty,Refs,Value,Footprint,LCSC (verify),Notes
-1,U1,ESP32-S3 SuperMini,SUPERMINI,,hand-soldered; B+/B- wired through H1/H2
-1,SW1,Slide switch,SWITCH,,power: breaks battery +
-1,BZ1,TDB05 5V buzzer,wired (2 pads),,in its base pocket
+1,U1,ESP32-S3 SuperMini,SUPERMINI,,hand-soldered; B+/B- wired through the slot to J6
+1,SW1,Slide switch,SWITCH,,power: breaks battery +; wired to two pads
+1,BZ1,9 mm buzzer (TDB05),BUZZER,,on the board; 5 mm pin spacing; hand-soldered
 2,Q1 Q2,AO3400A,SOT-23,C20917,
-2,R1 R3,100R,0603,C22775,
+3,R1 R3 R5,330R,0603,C23138,MOSFET gates + ring data
 6,R2 R4 R6 R7 R8 R9,100k,0603,C25803,
-1,R5,330R,0603,C23138,ring data
-2,C1 C2,100nF,0603,C14663,
-2,C3 C4,47uF 10V,1206,(C96123),NOT FITTED - optional ring bulk caps
+2,C1 C2,100nF,0603,(C14663),NOT FITTED - optional divider filters
+1,C3,47uF 10V,1206,(C96123),NOT FITTED - optional ring bulk cap
 1,D1,B5819W,SOD-123,C8598,motor flyback
 1,J1,Battery,PH2,,JST-PH 2
 1,J2,LED ring,PH3,,"JST-PH 3: VBAT, DATA, GND"
