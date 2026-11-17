@@ -41,8 +41,9 @@ Open `carrier_s3.kicad_pcb` in KiCad 7+ to inspect or edit by hand.
   board edge, labelled on the bottom.
 - Connectors: JST-PH 2.0 vertical, labelled on the top: pin names over the
   pins (`+ -`, `V D G`, `V O G`) and the connector name above them. Their
-  holes also take wires directly. J1 battery: pin 1 (square pad, `+`) =
-  battery +. **Check against your battery plug before soldering a
+  holes also take wires directly. J1 battery: + is the RIGHT pin (pin 2,
+  round pad), ground the left (square pad), to match the battery plug with
+  its tab facing the top of the board. **Check against your battery plug before soldering a
   connector** — the latch makes it one-way.
 - Buzzer (9 mm, 5 mm pin spacing) on the board, hand-soldered. Power switch:
   two wire holes (the switch stays in its mount in the base). Buzzer and motor

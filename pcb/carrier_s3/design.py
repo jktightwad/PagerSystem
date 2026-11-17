@@ -30,7 +30,7 @@ PARTS = {
     "C2":  ("100nF", "0603", None, "dock divider filter: NOT FITTED (pads kept; was C14663)"),
     "C3":  ("47uF 10V", "1206", None, "ring bulk: NOT FITTED (pads left for hand-soldering if the ring needs it; was C96123)"),
     "D1":  ("B5819W", "SOD-123", "C8598", "motor flyback"),
-    "J1":  ("Battery", "PH2", None, "JST-PH 2"),
+    "J1":  ("Battery", "PH2", None, "JST-PH 2: pin 2 (right, tab up) = +, pin 1 = GND, to match the battery plug"),
     "J2":  ("LED ring", "PH3", None, "JST-PH 3: VBAT, DATA, GND"),
     "J3":  ("Motor", "PH2", None, "JST-PH 2"),
     "J4":  ("Touch", "PH3", None, "JST-PH 3: 3V3, OUT, GND"),
@@ -39,10 +39,10 @@ PARTS = {
 
 # net: [(ref, pin), ...]   SuperMini pins by label
 NETS = {
-    "GND":    [("U1", "GND"), ("U1", "B-"), ("J1", "2"), ("J2", "3"), ("J4", "3"), ("J5", "2"),
+    "GND":    [("U1", "GND"), ("U1", "B-"), ("J1", "1"), ("J2", "3"), ("J4", "3"), ("J5", "2"),
                ("Q1", "S"), ("Q2", "S"), ("R2", "2"), ("R4", "2"), ("R7", "2"), ("R9", "2"),
                ("C1", "2"), ("C2", "2"), ("C3", "2")],
-    "BAT+":   [("J1", "1"), ("SW1", "COM")],
+    "BAT+":   [("J1", "2"), ("SW1", "COM")],
     "VBAT":   [("SW1", "ON"), ("U1", "B+"), ("J2", "1"), ("BZ1", "+"), ("J3", "1"), ("D1", "K"),
                ("R6", "1"), ("C3", "1")],
     "POGO5V": [("J5", "1"), ("U1", "5V"), ("R8", "1")],

@@ -202,7 +202,7 @@ PH2 = ("Connector_JST", "JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical")
 PH3 = ("Connector_JST", "JST_PH_B3B-PH-K_1x03_P2.00mm_Vertical")
 conn = {
     # ref: (lib, x, y of pad 1, name, pin labels)
-    "J1": (PH2, 2.6, ROW1, "BAT", "+-"),
+    "J1": (PH2, 2.6, ROW1, "BAT", "-+"),   # + on the right (matches the battery plug)
     "J5": (PH2, 9.6, ROW1, "DOCK", "+-"),
     "J3": (PH2, 16.6, ROW1, "MOTOR", "+-"),
     "J2": (PH3, 2.6, ROW2, "RING", "VDG"),
