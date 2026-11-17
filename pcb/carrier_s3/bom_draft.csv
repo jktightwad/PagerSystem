@@ -1,7 +1,7 @@
 Qty,Refs,Value,Footprint,LCSC (verify),Notes
 1,U1,ESP32-S3 SuperMini,SUPERMINI,,hand-soldered; B+/B- wired through H1/H2
 1,SW1,Slide switch,SWITCH,,power: breaks battery +
-1,BZ1,TDB05 5V buzzer,BUZZER,,hand-soldered
+1,BZ1,TDB05 5V buzzer,wired (2 pads),,in its base pocket
 2,Q1 Q2,AO3400A,SOT-23,C20917,
 2,R1 R3,100R,0603,C22775,
 6,R2 R4 R6 R7 R8 R9,100k,0603,C25803,
