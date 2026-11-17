@@ -153,12 +153,12 @@ tower_len_adj = -0.15;   // [-1:0.05:1]
 col_len_adj = 0.10;      // [-0.5:0.05:0.5]
 tower_slot_w  = 4.0;    // [2:0.5:8] wire exit slot (centre side), width
 tower_slot_h  = 5.0;    // [2:0.5:10] and height
-// snap fit: a collar on the base pad and on the ball pad holds each tower end;
-// a bead inside the collar clicks into a groove round the tower
+// a collar on the base pad and on the ball pad holds each tower end (snug fit;
+// optional bead / groove via snap_bead)
 tower_socket_h = 1.6;   // [0.8:0.1:3] collar height
 tower_socket_t = 0.9;   // [0.6:0.1:2] collar wall
 tower_fit      = 0.05;  // [0:0.05:0.4] clearance tower to collar, per side (0.1 was sloppy)
-snap_bead      = 0.25;  // [0:0.05:0.5] bead depth (0 = plain socket); sticks into the tower by this - tower_fit
+snap_bead      = 0;     // [0:0.05:0.5] bead depth, 0 = plain snug socket (a 0.25 bead was too small to print)
 // groove depth beyond the bead (0 = bead seats in the groove with no play; 0.1 was loose)
 snap_clear     = 0;     // [0:0.05:0.3]
 // gap from each tower end to the column beside it
