@@ -14,14 +14,15 @@ import numpy as np
 from scipy.ndimage import distance_transform_edt
 import pcbnew
 
-IN = OUT = "carrier_s3.kicad_pcb"
+import os
+IN = OUT = sys.argv[1] if len(sys.argv) > 1 else "carrier_s3.kicad_pcb"   # other boards: pass the file
 G = 0.1                 # grid, mm
 CLR = 0.2               # copper clearance (design rule)
 MARGIN = 0.1            # raster error allowance
 EDGE_CLR = 0.3
 VIA_D, VIA_DRILL = 0.6, 0.3
 VIA_COST = 25           # in grid steps
-WIDTH = {"VBAT": 0.4, "BAT+": 0.5, "POGO5V": 0.4, "GND": 0.3, "MOT_-": 0.4, "BUZ_-": 0.3, "3V3": 0.3}
+WIDTH = {"VDD": 0.5, "VBAT": 0.4, "BAT+": 0.5, "POGO5V": 0.4, "GND": 0.3, "MOT_-": 0.4, "BUZ_-": 0.3, "3V3": 0.3}
 SIG_W = 0.25
 ZONE_NET = "GND"
 
@@ -301,5 +302,5 @@ if __name__ == "__main__":
         print("could not route:", failed); board.Save(OUT); sys.exit(1)
     add_zones(board)
     board.Save(OUT)
-    pcbnew.WriteDRCReport(board, "drc_report.txt", pcbnew.EDA_UNITS_MILLIMETRES, True)
+    pcbnew.WriteDRCReport(board, os.path.join(os.path.dirname(OUT) or ".", "drc_report.txt"), pcbnew.EDA_UNITS_MILLIMETRES, True)
     print("routed and saved", OUT, "- DRC report in drc_report.txt")
