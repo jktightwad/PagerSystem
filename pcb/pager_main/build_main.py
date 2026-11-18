@@ -246,19 +246,32 @@ p1 = wire_pads("P1", -6.0, -19.5, ["-", "+"]); set_nets(p1, "P1", {"1": "1", "2"
 text("BAT - +", -6.0, -22.0, 0.8, pcbnew.B_SilkS)
 p2 = wire_pads("P2", 1.0, -19.5, ["-", "+"]); set_nets(p2, "P2", {"1": "1", "2": "2"})
 text("MOT - +", 1.0, -22.0, 0.8, pcbnew.B_SilkS)
-# spare pins: through-holes on an arc just outside the LED ring, in the two left corners (battery side)
-R_SPARE, STEP = 26.0, math.degrees(2.54 / 26.0)
-spare_angles = [122.5 + k * STEP for k in range(5)] + [237.5 - k * STEP for k in range(4)]
-sp = new_fp("P3"); sp.SetValue("spare pins")
-for k, name in enumerate(spares):
-    a = spare_angles[k]
+# spare pins + power: through-holes on an arc just outside the LED ring, in the two left corners.
+# Each corner takes the spares from the module row on its side (the 5V/GND/3V3 row faces -y),
+# plus 3V3 and GND (and VBAT at the bottom) for future additions.
+R_SPARE, PITCH_ARC = 26.0, 2.0      # last hole clear of the connector plugs
+STEP = math.degrees(PITCH_ARC / R_SPARE)
+top_names = [n for n in ROW_POS if n in spares] + ["3V3", "GND"]
+bot_names = [n for n in ROW_NEG if n in spares] + ["VBAT", "3V3", "GND"]
+def arc_holes(names, a0, direction):
+    return [(n, a0 + direction * k * STEP) for k, n in enumerate(names)]
+holes = arc_holes(top_names, 120.1, +1) + arc_holes(bot_names, 239.9, -1)
+sp = new_fp("P3"); sp.SetValue("spare pins / power")
+for k, (name, a) in enumerate(holes):
     px, py = R_SPARE * math.cos(math.radians(a)), R_SPARE * math.sin(math.radians(a))
-    add_pad(sp, str(k + 1), px, py, (1.6, 1.6), kind="pth", drill=0.9, shape=pcbnew.PAD_SHAPE_CIRCLE)
-    lx, ly = (R_SPARE + 1.9) * math.cos(math.radians(a)), (R_SPARE + 1.9) * math.sin(math.radians(a))
-    text(name.replace("GP", ""), lx, ly, 0.8, rot=a)
+    pd = add_pad(sp, str(k + 1), px, py, (1.5, 1.5), kind="pth", drill=0.9,
+                 shape=pcbnew.PAD_SHAPE_RECT if name == "GND" else pcbnew.PAD_SHAPE_CIRCLE)
+    lab = name.replace("GP", "")
+    # top label just outside the hole where it fits on the board, underside label just inside it
+    lx, ly = (R_SPARE + 1.8) * math.cos(math.radians(a)), (R_SPARE + 1.8) * math.sin(math.radians(a))
+    if X0 + 1.2 < lx < X1 - 1.2 and Y0 + 1.2 < ly < Y1 - 1.2:
+        text(lab, lx, ly, 0.8, rot=a + 90)
+    bx, by = (R_SPARE - 2.0) * math.cos(math.radians(a)), (R_SPARE - 2.0) * math.sin(math.radians(a))
+    text(lab, bx, by, 0.8, pcbnew.B_SilkS, rot=a + 90)
 board.Add(sp); sp.Reference().SetVisible(False); sp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(sp.Pads(), key=lambda p: int(p.GetNumber()))):
-    pad.SetNet(net("SPARE_" + spares[k]))
+    name = holes[k][0]
+    pad.SetNet(net(name if name in ("3V3", "GND", "VBAT") else "SPARE_" + name))
 
 # ---------------- mounting holes (4 corners) ----------------
 for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.2, Y0 + 2.2), (X1 - 2.2, Y0 + 2.2)]):
