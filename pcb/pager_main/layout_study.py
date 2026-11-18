@@ -235,6 +235,19 @@ C.pads("SPARE 9 (under)", 13.0, -21.3, n=9, pitch=1.9, tht=False)
 C.extra.append(battery(-41.5, 0))
 V.append(C)
 
+# A2: as A, holes in opposite corners (top-right, bottom-left); dock connector moved right of the hole.
+A2 = Layout("A2", box(-24, -25, 30, 25), "as A, holes in opposite corners (top-right / bottom-left)")
+A2.leds().supermini(6)
+A2.xh("TOUCH", 3, -17.0, 22.1, "-y").xh("DOCK", 2, -12.3, -22.1, "+y")
+A2.switch(19.0, 22.1)
+A2.hole(27.8, 22.8).hole(-21.8, -22.8)
+A2.buzzer(-6.0, 2.0)
+A2.smd_block(-3.0, -8.0, 10, 6)
+A2.pads("BAT +- (under)", -22.6, 1.9, rot=90, tht=False).pads("MOTOR +- (under)", -22.6, -2.6, rot=90, tht=False)
+A2.pads("SPARE 9 (under)", 13.0, -21.8, n=9, pitch=1.9, tht=False)
+A2.extra.append(battery(-41.5, 0))
+V.append(A2)
+
 if __name__ == "__main__":
     import subprocess, os
     rows = []
