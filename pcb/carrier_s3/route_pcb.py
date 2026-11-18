@@ -290,6 +290,8 @@ if __name__ == "__main__":
     b0 = pcbnew.LoadBoard(IN)
     names = [n for n in b0.GetNetsByName().keys() if str(n)]
     names = [str(n) for n in names]
+    SKIP = set(filter(None, os.environ.get("ROUTE_SKIP", "").split(",")))   # nets left to the copper pours
+    names = [n for n in names if n not in SKIP]
     # short / signal nets first, wide power next, GND last
     first = set()
     if FIRST_REF:
