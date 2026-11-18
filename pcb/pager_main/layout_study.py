@@ -34,15 +34,22 @@ def rect(cx, cy, w, h, rot=0):
     return rotate(box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2), rot, origin=(cx, cy))
 
 
-def led_ring(skip_cap_angles=()):
+def led_ring(skip_cap_angles=(), beside=False, avoid=None):
+    """caps between LEDs (old) or beside each LED on the inside (beside=True); a cap that would land
+    in `avoid` (e.g. the cut-out) goes into the gap after its LED instead"""
     leds, caps = [], []
     for i in range(N_LED):
         a = 11.25 + 22.5 * i
         x, y = R_LED * math.cos(math.radians(a)), R_LED * math.sin(math.radians(a))
         leds.append(rect(x, y, *LED_FP, rot=a - 90))
+        if beside:
+            ca, rc = a, R_LED - LED_FP[1] / 2 - CAP_FP[1] / 2 - 0.3
+            g = rect(rc * math.cos(math.radians(ca)), rc * math.sin(math.radians(ca)), *CAP_FP, rot=ca - 90)
+            if avoid is None or not g.intersects(avoid.buffer(0.3)):
+                caps.append(g); continue
         ca = a + 11.25
         if any(abs(((ca - s + 180) % 360) - 180) < 1 for s in skip_cap_angles):
-            continue
+            ca = a - 11.25
         cx, cy = R_CAP * math.cos(math.radians(ca)), R_CAP * math.sin(math.radians(ca))
         caps.append(rect(cx, cy, *CAP_FP, rot=ca - 90))
     return leds, caps
@@ -58,18 +65,20 @@ class Layout:
         self.items.append((label, side, geom, kind)); return self
 
     # ---- parts ----
-    def leds(self, skip_cap_angles=(0,)):
-        leds, caps = led_ring(skip_cap_angles)
+    def leds(self, skip_cap_angles=(0,), beside=False, avoid=None):
+        leds, caps = led_ring(skip_cap_angles, beside, avoid)
         for k, g in enumerate(leds): self.add(f"LED{k+1}", "top", g)
         for k, g in enumerate(caps): self.add("cap", "top", g)
         return self
 
-    def supermini(self, usb_x, axis="+x"):
+    def supermini(self, usb_x, axis="+x", cut_from=1.0):
         """module under the board along +x: USB end at usb_x, antenna end at usb_x + 24"""
         assert axis == "+x"
         x0 = usb_x
         self.add("ESP32 (under)", "bottom", box(x0, -SM_W / 2, x0 + SM_L, SM_W / 2))
-        self.add("cut-out", "both", box(x0 + 1, -CUT / 2, x0 + 1 + CUT, CUT / 2), "hole")
+        self.add("cut-out", "both", box(x0 + cut_from, -CUT / 2, x0 + 1 + CUT, CUT / 2), "hole")
+        if cut_from > 1.0:   # B+ / B- soldered through plated holes over solid board
+            self.add("B+/B- holes", "both", unary_union([Point(x0 + 2.0, d).buffer(0.8) for d in (-1.83, 1.83)]), "pins")
         self.add("antenna", "both", box(x0 + SM_L - ANT, -SM_W / 2, x0 + SM_L, SM_W / 2), "antenna")
         self.mod = (x0, x0 + SM_L)
         return self
@@ -125,6 +134,8 @@ class Layout:
                     continue                       # a part's own pins / plug space
                 if {ka, kb} == {"antenna", "body"} and "ESP32" in (la + lb):
                     continue
+                if "ESP32" in la + lb and "B+/B-" in la + lb:
+                    continue                       # the plated holes sit under the module's pads on purpose
                 same_side = sa == sb or "both" in (sa, sb)
                 if not same_side:
                     continue
@@ -247,6 +258,22 @@ A2.pads("BAT +- (under)", -22.6, 1.9, rot=90, tht=False).pads("MOTOR +- (under)"
 A2.pads("SPARE 9 (under)", 13.0, -21.8, n=9, pitch=1.9, tht=False)
 A2.extra.append(battery(-41.5, 0))
 V.append(A2)
+
+# D: 54 x 48. Connectors and switch under the board inside the LED circle (pins come up inside the
+#    circle, soldered on top); XH face the left edge so plugs go in from outside; holes in all 4
+#    corners; caps beside their LEDs; B+/B- through plated holes.
+D = Layout("D", box(-24, -24, 30, 24), "connectors + switch under, pins inside the LED circle; holes in 4 corners")
+D.supermini(6, cut_from=3.3)
+D.leds(beside=True, avoid=D.items[1][2])
+D.xh("TOUCH", 3, -11.5, 8.0, "-x").xh("DOCK", 2, -11.5, -8.0, "-x")
+D.switch(0.0, -11.5)
+D.hole(-21.8, 21.8).hole(27.8, 21.8).hole(-21.8, -21.8).hole(27.8, -21.8)
+D.buzzer(-2.5, 7.5)
+D.smd_block(0.5, -3.0, 9, 5)
+D.pads("BAT +- (under)", -6.0, -21.5, tht=False).pads("MOTOR +- (under)", 0.5, -21.5, tht=False)
+D.pads("SPARE 9 (under)", 13.0, -21.3, n=9, pitch=1.9, tht=False)
+D.extra.append(battery(-45.0, 0))
+V.append(D)
 
 if __name__ == "__main__":
     import subprocess, os
