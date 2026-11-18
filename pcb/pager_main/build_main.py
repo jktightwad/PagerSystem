@@ -22,7 +22,7 @@ ANT = 5.0                                           # antenna end kept copper-fr
 BHOLE_X, BHOLE_DY = 1.6, 1.83                       # B+/B- plated holes: from the USB end / either side of centre
 # cut-out only where the module's underside parts are (measured from a photo, +0.5 mm clearance):
 # L-shape, as (distance from the USB end, y) corners; y is + towards the module's TX/B- side
-CUT_L = [(3.0, -1.6), (7.7, -1.6), (7.7, 0.9), (11.2, 0.9), (11.2, 3.5), (3.0, 3.5)]
+CUT_L = [(3.0, -1.6), (7.7, -1.6), (7.7, 0.9), (11.2, 0.9), (11.2, 3.9), (3.0, 3.9)]   # lower parts 10.4-12.4 from the 5V edge (measured)
 # module pins as seen from the TOP of our board (module upside down under it, USB end left):
 # its 5V/GND/3V3 row is at -y, its TX/RX row at +y
 ROW_NEG = ["5V", "GND", "3V3", "GP13", "GP12", "GP11", "GP10", "GP9", "GP8"]
@@ -158,8 +158,9 @@ rule_area([(ax - 1, SM_W / 2 + 3), (X1 + 1, SM_W / 2 + 3), (X1 + 1, -SM_W / 2 - 
 # ---------------- LEDs + their capacitors (top) ----------------
 LED = ("LED_SMD", "LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm")      # pins 1 VDD, 2 DOUT, 3 GND, 4 DIN
 C0603 = ("Capacitor_SMD", "C_0603_1608Metric")
-# ring turned so every LED's capacitor clears the cut-out (spacing stays 22.5 deg; offset 19 deg found by search)
-a_first = 19.0 + 22.5 * 12                                   # LED1 (bottom right), chain runs clockwise
+# ring turned so every LED's capacitor clears the cut-out (spacing stays 22.5 deg; offset 19.75 deg found by search,
+# copper about 0.4 mm from the cut-out edge)
+a_first = 19.75 + 22.5 * 12                                   # LED1 (bottom right), chain runs clockwise
 for i in range(1, N_LED + 1):
     a = a_first - (i - 1) * 22.5
     x, y = R_LED * math.cos(math.radians(a)), R_LED * math.sin(math.radians(a))
