@@ -1,7 +1,7 @@
 # Combined pager board (16 LEDs + ESP32-S3 SuperMini) — draft
 
 **Status: placed, routed, GND stitched; DRC has no clearance or unconnected errors
-(remaining: silkscreen overlaps/clipping and 5 single-spoke thermals). Not ordered, not tested.**
+(remaining: silkscreen overlaps/clipping and 1 single-spoke thermal). Not ordered, not tested.**
 
 | Top | Bottom (seen from below) |
 |---|---|
@@ -9,12 +9,13 @@
 
 54 x 48 mm, 2 layers, M2 holes in all 4 corners (layout D from `layout_study.py`).
 
-- **Top:** 16 × XINGLIGHT XL-5050RGBC-2812B (r 20.5 mm ring) with a 100 nF cap beside
-  each, except the two LEDs beside the cut-out (no room; neighbours' caps are close).
+- **Top:** 16 × XINGLIGHT XL-5050RGBC-2812B, evenly spaced (22.5°) on a 20.5 mm radius,
+  ring turned 19.75° so every LED keeps its own 100 nF cap beside it, clear of the cut-out.
   Buzzer (9 mm, through-hole) and the small parts inside the ring.
 - **Under:** SuperMini flat on castellated pads, antenna end at the right edge (no copper
-  there); B+/B− soldered from the top through 1.1 × 1.6 mm plated oval holes; 9.5 mm-wide
-  cut-out from 2.7 mm off its USB end for its underside parts. Touch (XH-3) and dock
+  there); B+/B− soldered from the top through 1.1 × 1.6 mm plated oval holes; an
+  L-shaped cut-out only where the module's underside parts are (measured: 3.0–11.2 mm
+  from the USB end, incl. 0.5 mm clearance). GND pour (no tracks) allowed under the module. Touch (XH-3) and dock
   (XH-2) right-angle connectors, plugs in from the left edge. SS12F44 switch (slider
   down; end-leg spacing 11.2 mm is an ESTIMATE, slotted). Battery and motor wire pads.
 - **Spare pins** on an arc outside the LED ring: top-left TX RX 3 6 7 3V3 GND,
@@ -26,15 +27,17 @@ Pins: dock GP1, battery GP2, touch GP4, LEDs GP5 (via 330 Ω), buzzer GP12, moto
 ## Rebuild
 ```
 python3 build_main.py
-ROUTE_SKIP=GND ROUTE_FIRST=U1 ROUTE_MARGIN=0.08 \
-  ROUTE_WIDTHS='{"VBAT": 0.3, "BAT+": 0.4, "POGO5V": 0.3, "MOT_-": 0.3}' \
+ROUTE_OPTIONAL=GND ROUTE_FIRST=U1 ROUTE_MARGIN=0.08 \
+  ROUTE_WIDTHS='{"VBAT": 0.3, "BAT+": 0.4, "POGO5V": 0.3, "MOT_-": 0.3, "GND": 0.25}' \
   python3 ../carrier_s3/route_pcb.py pager_main.kicad_pcb
 python3 ../carrier_s3/stitch_gnd.py pager_main.kicad_pcb 2.0
 python3 ../carrier_s3/join_gnd.py pager_main.kicad_pcb
 sh export_fab.sh && sh render.sh pcb_top.png pcb_bottom.png
 ```
-Routing takes a while (randomised retries). GND is carried by the pours on both layers,
-~200 stitching vias, and a few short tracks added by `join_gnd.py`.
+Routing takes a while (randomised retries). GND gets tracks where they fit (routed last,
+best effort), plus pours on both layers, ~200 stitching vias and `join_gnd.py` for any
+piece left over. Check the DRC report for `via_dangling` after stitching: a via can land
+in a pour sliver that the fill then drops (remove it from the file, refill).
 
 ## JLCPCB
 `fab/pager_main_gerbers.zip`, `fab/bom_jlc.csv`, `fab/cpl_jlc.csv` (top-side assembly:
