@@ -24,7 +24,9 @@ VIA_D, VIA_DRILL = 0.6, 0.3
 VIA_COST = 25           # in grid steps
 WIDTH = {"VDD": 0.5, "VBAT": 0.4, "BAT+": 0.5, "POGO5V": 0.4, "GND": 0.3, "MOT_-": 0.4, "BUZ_-": 0.3, "3V3": 0.3}
 WIDTH.update(json.loads(os.environ.get("ROUTE_WIDTHS", "{}")))       # per-board overrides
-FIRST_REF = os.environ.get("ROUTE_FIRST")                              # route nets touching this part first
+FIRST_REF = os.environ.get("ROUTE_FIRST")
+# nets routed last, best effort: unreachable pads are skipped instead of failing the attempt
+OPTIONAL = set(filter(None, os.environ.get("ROUTE_OPTIONAL", "").split(",")))                              # route nets touching this part first
 SIG_W = 0.25
 ZONE_NET = "GND"
 
@@ -252,7 +254,10 @@ class Router:
             for l, r, c in cells | tree: free[l, r, c] = True
             path = self.astar(tree, cells, free, vok)
             if path is None:
-                print(f"  {name}: no path to {ref}"); return False
+                print(f"  {name}: no path to {ref}")
+                if name in OPTIONAL:          # best effort (e.g. GND, finished by the pours): skip this pad
+                    continue
+                return False
             new = self.commit(path, net, hw)
             tree |= cells | set(new)
             free, vok = self.free_maps(code, hw)
