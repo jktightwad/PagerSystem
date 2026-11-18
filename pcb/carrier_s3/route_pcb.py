@@ -9,7 +9,7 @@ Run with the system python (KiCad's pcbnew) straight after build_pcb.py (it need
 unrouted board):  python3 build_pcb.py && python3 route_pcb.py
 Needs numpy and scipy.
 """
-import heapq, math, random, sys
+import heapq, json, math, os, random, sys
 import numpy as np
 from scipy.ndimage import distance_transform_edt
 import pcbnew
@@ -18,11 +18,13 @@ import os
 IN = OUT = sys.argv[1] if len(sys.argv) > 1 else "carrier_s3.kicad_pcb"   # other boards: pass the file
 G = 0.1                 # grid, mm
 CLR = 0.2               # copper clearance (design rule)
-MARGIN = 0.1            # raster error allowance
+MARGIN = float(os.environ.get("ROUTE_MARGIN", 0.1))   # raster error allowance
 EDGE_CLR = 0.3
 VIA_D, VIA_DRILL = 0.6, 0.3
 VIA_COST = 25           # in grid steps
 WIDTH = {"VDD": 0.5, "VBAT": 0.4, "BAT+": 0.5, "POGO5V": 0.4, "GND": 0.3, "MOT_-": 0.4, "BUZ_-": 0.3, "3V3": 0.3}
+WIDTH.update(json.loads(os.environ.get("ROUTE_WIDTHS", "{}")))       # per-board overrides
+FIRST_REF = os.environ.get("ROUTE_FIRST")                              # route nets touching this part first
 SIG_W = 0.25
 ZONE_NET = "GND"
 
@@ -289,7 +291,12 @@ if __name__ == "__main__":
     names = [n for n in b0.GetNetsByName().keys() if str(n)]
     names = [str(n) for n in names]
     # short / signal nets first, wide power next, GND last
-    order = sorted(names, key=lambda n: (n == "GND", n in WIDTH, n))
+    first = set()
+    if FIRST_REF:
+        for fp in b0.GetFootprints():
+            if fp.GetReference() == FIRST_REF:
+                first = {p.GetNetname() for p in fp.Pads()}
+    order = sorted(names, key=lambda n: (n == "GND", n not in first, n in WIDTH, n))
     random.seed(1)
     for attempt in range(80):
         print(f"attempt {attempt + 1}: {' '.join(order)}")
