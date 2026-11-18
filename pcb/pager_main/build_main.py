@@ -144,9 +144,11 @@ u1.Reference().SetVisible(False); u1.Value().SetVisible(False)
 text("ESP32-S3 SuperMini (under)", SM_X + 12, 0, 0.8, pcbnew.B_SilkS)
 text("B+", SM_X + BHOLE_X, -BHOLE_DY - 1.6, 0.8); text("B-", SM_X + BHOLE_X, BHOLE_DY + 1.6, 0.8)
 
-# no bottom copper under the module body (between the castellation pads); its own pads are allowed
+# no bottom tracks under the module body (between the castellation pads); GND pour + stitching vias are
+# allowed there (covered by solder mask), so the LEDs / caps above the module can reach ground
 inner = SM_W / 2 - SM_PAD_IN - 0.3
-rule_area([(SM_X, inner), (SM_X + SM_L + 1, inner), (SM_X + SM_L + 1, -inner), (SM_X, -inner)], [pcbnew.B_Cu])
+rule_area([(SM_X, inner), (SM_X + SM_L + 1, inner), (SM_X + SM_L + 1, -inner), (SM_X, -inner)], [pcbnew.B_Cu],
+          pour=False, tracks=True, vias=False)
 # antenna end: no tracks / vias / pour on the top over it, none between the pads on the bottom
 ax = SM_X + SM_L - ANT
 rule_area([(ax, SM_W / 2), (X1 + 1, SM_W / 2), (X1 + 1, -SM_W / 2), (ax, -SM_W / 2)], [pcbnew.F_Cu])

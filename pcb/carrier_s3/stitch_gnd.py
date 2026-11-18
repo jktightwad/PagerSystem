@@ -31,6 +31,9 @@ for fp in b.GetFootprints():
         r = math.hypot(p.GetSize().x, p.GetSize().y) / 2      # half-diagonal: rotated rectangles reach further
         obst.append(("pt", to_mm(p.GetPosition().x), to_mm(p.GetPosition().y), to_mm(r) + (0.3 if p.GetDrillSize().x else 0)))
 for t in b.GetTracks():
+    if t.GetNetCode() == gnd.GetNetCode() and t.Type() == pcbnew.PCB_VIA_T:
+        obst.append(("pt", to_mm(t.GetPosition().x), to_mm(t.GetPosition().y), to_mm(t.GetWidth()) / 2))   # existing GND vias: keep apart
+        continue
     if t.GetNetCode() == gnd.GetNetCode():
         continue
     if t.Type() == pcbnew.PCB_VIA_T:

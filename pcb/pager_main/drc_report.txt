@@ -1,91 +1,91 @@
 ** Drc report for pager_main.kicad_pcb **
-** Created on 2026-11-18 06:34:03 **
+** Created on 2026-11-18 14:01:54 **
 
-** Found 113 DRC violations **
+** Found 313 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(3.4286 mm, 42.6992 mm): PCB Text 'VBAT' on F.Silkscreen
     @(2.0525 mm, 41.0630 mm): PCB Text '3V3' on F.Silkscreen
+    @(3.4286 mm, 42.6992 mm): PCB Text 'VBAT' on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(5.8790 mm, 23.8830 mm): Line on F.Silkscreen
-    @(7.3031 mm, 16.9573 mm): Line on F.Silkscreen
+    @(12.9383 mm, 38.3535 mm): Line on F.Silkscreen
+    @(8.2875 mm, 33.0278 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(5.8790 mm, 23.8830 mm): Line on F.Silkscreen
-    @(7.2136 mm, 30.8265 mm): Line on F.Silkscreen
+    @(12.9383 mm, 38.3535 mm): Line on F.Silkscreen
+    @(19.2732 mm, 41.4941 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(7.3031 mm, 16.9573 mm): Line on F.Silkscreen
-    @(11.2692 mm, 11.1038 mm): Line on F.Silkscreen
+    @(8.2875 mm, 33.0278 mm): Line on F.Silkscreen
+    @(6.0287 mm, 26.3277 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(11.2692 mm, 11.1038 mm): Line on F.Silkscreen
-    @(17.1735 mm, 7.2136 mm): Line on F.Silkscreen
+    @(14.9722 mm, 8.2875 mm): Line on F.Silkscreen
+    @(9.6465 mm, 12.9383 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(17.1735 mm, 7.2136 mm): Line on F.Silkscreen
-    @(24.1170 mm, 5.8790 mm): Line on F.Silkscreen
+    @(14.9722 mm, 8.2875 mm): Line on F.Silkscreen
+    @(21.6723 mm, 6.0287 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(11.1038 mm, 36.7308 mm): Line on F.Silkscreen
-    @(7.2136 mm, 30.8265 mm): Line on F.Silkscreen
+    @(6.5059 mm, 19.2732 mm): Line on F.Silkscreen
+    @(9.6465 mm, 12.9383 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(11.1038 mm, 36.7308 mm): Line on F.Silkscreen
-    @(16.9573 mm, 40.6969 mm): Line on F.Silkscreen
+    @(6.5059 mm, 19.2732 mm): Line on F.Silkscreen
+    @(6.0287 mm, 26.3277 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(31.0427 mm, 7.3031 mm): Line on F.Silkscreen
-    @(24.1170 mm, 5.8790 mm): Line on F.Silkscreen
+    @(21.6723 mm, 6.0287 mm): Line on F.Silkscreen
+    @(28.7268 mm, 6.5059 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(31.0427 mm, 7.3031 mm): Line on F.Silkscreen
-    @(36.8962 mm, 11.2692 mm): Line on F.Silkscreen
+    @(28.7268 mm, 6.5059 mm): Line on F.Silkscreen
+    @(35.0617 mm, 9.6465 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(16.9573 mm, 40.6969 mm): Line on F.Silkscreen
-    @(23.8830 mm, 42.1210 mm): Line on F.Silkscreen
+    @(19.2732 mm, 41.4941 mm): Line on F.Silkscreen
+    @(26.3277 mm, 41.9713 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(23.8830 mm, 42.1210 mm): Line on F.Silkscreen
-    @(30.8265 mm, 40.7864 mm): Line on F.Silkscreen
+    @(33.0278 mm, 39.7125 mm): Line on F.Silkscreen
+    @(26.3277 mm, 41.9713 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(42.1210 mm, 24.1170 mm): Line on F.Silkscreen
-    @(40.7864 mm, 17.1735 mm): Line on F.Silkscreen
+    @(33.0278 mm, 39.7125 mm): Line on F.Silkscreen
+    @(38.3535 mm, 35.0617 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(42.1210 mm, 24.1170 mm): Line on F.Silkscreen
-    @(40.6969 mm, 31.0427 mm): Line on F.Silkscreen
+    @(38.3535 mm, 35.0617 mm): Line on F.Silkscreen
+    @(41.4941 mm, 28.7268 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(36.8962 mm, 11.2692 mm): Line on F.Silkscreen
-    @(40.7864 mm, 17.1735 mm): Line on F.Silkscreen
+    @(41.4941 mm, 28.7268 mm): Line on F.Silkscreen
+    @(41.9713 mm, 21.6723 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(36.7308 mm, 36.8962 mm): Line on F.Silkscreen
-    @(40.6969 mm, 31.0427 mm): Line on F.Silkscreen
+    @(41.9713 mm, 21.6723 mm): Line on F.Silkscreen
+    @(39.7125 mm, 14.9722 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(36.7308 mm, 36.8962 mm): Line on F.Silkscreen
-    @(30.8265 mm, 40.7864 mm): Line on F.Silkscreen
+    @(39.7125 mm, 14.9722 mm): Line on F.Silkscreen
+    @(35.0617 mm, 9.6465 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(6.5000 mm, 32.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
+    @(3.8000 mm, 18.2500 mm): Line on B.Silkscreen
+    @(6.5000 mm, 16.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
     @(9.3000 mm, 31.0000 mm): Line on B.Silkscreen
+    @(6.5000 mm, 32.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 32.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
     @(3.8000 mm, 33.0000 mm): Line on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(5.0525 mm, 38.7307 mm): PCB Text '3V3' on B.Silkscreen
-    @(6.2405 mm, 40.1432 mm): PCB Text 'VBAT' on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(5.0525 mm, 38.7307 mm): PCB Text '3V3' on B.Silkscreen
-    @(3.9765 mm, 37.2310 mm): PCB Text 'GND' on B.Silkscreen
+    @(5.0525 mm, 9.2693 mm): PCB Text '3V3' on B.Silkscreen
+    @(3.9765 mm, 10.7690 mm): PCB Text 'GND' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 16.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
@@ -96,51 +96,33 @@
     @(9.3000 mm, 13.7500 mm): Line on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(6.5000 mm, 16.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
-    @(3.8000 mm, 15.7500 mm): Line on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(3.9765 mm, 10.7690 mm): PCB Text 'GND' on B.Silkscreen
     @(3.1900 mm, 16.0000 mm): Line on B.Silkscreen
+    @(3.9765 mm, 10.7690 mm): PCB Text 'GND' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(3.9765 mm, 10.7690 mm): PCB Text 'GND' on B.Silkscreen
     @(3.1900 mm, 10.9400 mm): Line on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
     @(3.9765 mm, 10.7690 mm): PCB Text 'GND' on B.Silkscreen
-    @(5.0525 mm, 9.2693 mm): PCB Text '3V3' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
+    @(3.8000 mm, 15.7500 mm): Line on B.Silkscreen
     @(6.5000 mm, 16.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
-    @(3.8000 mm, 18.2500 mm): Line on B.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(5.0525 mm, 38.7307 mm): PCB Text '3V3' on B.Silkscreen
+    @(6.2405 mm, 40.1432 mm): PCB Text 'VBAT' on B.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(5.0525 mm, 38.7307 mm): PCB Text '3V3' on B.Silkscreen
+    @(3.9765 mm, 37.2310 mm): PCB Text 'GND' on B.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(31.7575 mm, 6.2728 mm): Footprint Text '1' of LED10
+    @(14.5846 mm, 7.0949 mm): Footprint Text '1' of LED8
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(37.4092 mm, 37.9509 mm): Footprint Text '1' of LED15
+    @(39.1680 mm, 36.0152 mm): Footprint Text '1' of LED15
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(24.3831 mm, 4.6535 mm): Footprint Text '1' of LED9
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(10.5908 mm, 10.0491 mm): Footprint Text '1' of LED7
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(43.3465 mm, 24.3831 mm): Footprint Text '1' of LED13
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(4.6535 mm, 23.6169 mm): Footprint Text '1' of LED5
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(42.0204 mm, 16.9503 mm): Footprint Text '1' of LED12
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(41.7272 mm, 31.7575 mm): Footprint Text '1' of LED14
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(16.9503 mm, 5.9796 mm): Footprint Text '1' of LED8
+    @(26.2293 mm, 43.2214 mm): Footprint Text '1' of LED1
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(16.0000 mm, 32.6500 mm): Line on B.Silkscreen
@@ -149,19 +131,40 @@
     @(28.0000 mm, 38.3500 mm): Line on B.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(23.6169 mm, 43.3465 mm): Footprint Text '1' of LED1
+    @(43.2214 mm, 21.7707 mm): Footprint Text '1' of LED13
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(10.0491 mm, 37.4092 mm): Footprint Text '1' of LED3
+    @(42.6114 mm, 29.2961 mm): Footprint Text '1' of LED14
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(31.0497 mm, 42.0204 mm): Footprint Text '1' of LED16
+    @(40.9051 mm, 14.5846 mm): Footprint Text '1' of LED12
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(6.2728 mm, 16.2425 mm): Footprint Text '1' of LED6
+    @(4.7786 mm, 26.2293 mm): Footprint Text '1' of LED5
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(37.9509 mm, 10.5908 mm): Footprint Text '1' of LED11
+    @(21.7707 mm, 4.7786 mm): Footprint Text '1' of LED9
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(18.7039 mm, 42.6114 mm): Footprint Text '1' of LED2
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(33.4154 mm, 40.9051 mm): Footprint Text '1' of LED16
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(8.8320 mm, 11.9848 mm): Footprint Text '1' of LED7
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(29.2961 mm, 5.3886 mm): Footprint Text '1' of LED10
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(36.0152 mm, 8.8320 mm): Footprint Text '1' of LED11
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(11.9848 mm, 39.1680 mm): Footprint Text '1' of LED3
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(5.3886 mm, 18.7039 mm): Footprint Text '1' of LED6
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(30.0000 mm, 33.0000 mm): Line on B.Silkscreen
@@ -170,201 +173,996 @@
     @(54.0000 mm, 15.0000 mm): Line on B.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
-    @(5.9796 mm, 31.0497 mm): Footprint Text '1' of LED4
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(16.2425 mm, 41.7272 mm): Footprint Text '1' of LED2
+    @(7.0949 mm, 33.4154 mm): Footprint Text '1' of LED4
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(37.5797 mm, 13.9943 mm): Pad 2 [GND] of CL12 on F.Cu
+    @(33.5279 mm, 44.1456 mm): Pad 3 [GND] of LED1 on F.Cu
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(19.9526 mm, 7.6250 mm): Pad 2 [GND] of CL9 on F.Cu
+    @(39.4844 mm, 30.6900 mm): Pad 2 [GND] of CL15 on F.Cu
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(32.7170 mm, 9.5592 mm): Pad 2 [GND] of CL11 on F.Cu
+    @(30.2186 mm, 39.6797 mm): Pad 2 [GND] of CL1 on F.Cu
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(31.6000 mm, 22.1700 mm): PTH pad B- [GND] of U1
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(10.4203 mm, 34.0057 mm): Pad 2 [GND] of CL4 on F.Cu
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(27.9994 mm, 3.8939 mm): Footprint LED10
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(29.3000 mm, 27.0000 mm): Footprint R4
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(41.0451 mm, 35.3892 mm): Footprint LED15
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(16.5000 mm, 23.0000 mm): Footprint R6
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(38.0103 mm, 33.3614 mm): Footprint CL15
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(2.2000 mm, 45.8000 mm): Footprint MH3
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(20.0006 mm, 3.8939 mm): Footprint LED9
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(6.9549 mm, 12.6108 mm): Footprint LED7
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(38.0103 mm, 14.6386 mm): Footprint CL12
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(17.5000 mm, 27.0000 mm): Footprint Q1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(44.1061 mm, 20.0006 mm): Footprint LED13
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(51.8000 mm, 2.2000 mm): Footprint MH2
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(3.8939 mm, 27.9994 mm): Footprint LED5
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(41.0451 mm, 12.6108 mm): Footprint LED12
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(0.0000 mm, 0.0000 mm): Footprint BZ1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(20.7127 mm, 40.5262 mm): Footprint CL2
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(44.1061 mm, 27.9994 mm): Footprint LED14
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(21.8000 mm, 27.0000 mm): Footprint R2
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(12.6108 mm, 6.9549 mm): Footprint LED8
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(0.0000 mm, 0.0000 mm): Footprint SW1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(0.0000 mm, 0.0000 mm): Footprint P1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(0.0000 mm, 0.0000 mm): Footprint P2
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(27.9994 mm, 44.1061 mm): Footprint LED1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(20.2000 mm, 27.0000 mm): Footprint R1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(0.0000 mm, 0.0000 mm): Footprint P3
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(22.5000 mm, 30.8000 mm): Footprint C3
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(20.7127 mm, 7.4738 mm): Footprint CL9
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(27.2873 mm, 40.5262 mm): Footprint CL1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(12.6108 mm, 41.0451 mm): Footprint LED3
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(35.3892 mm, 41.0451 mm): Footprint LED16
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(51.8000 mm, 45.8000 mm): Footprint MH4
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(7.4738 mm, 27.2873 mm): Footprint CL5
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(27.2873 mm, 7.4738 mm): Footprint CL10
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(27.5000 mm, 30.8000 mm): Footprint D1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(27.7000 mm, 27.0000 mm): Footprint R3
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(18.2000 mm, 23.0000 mm): Footprint R7
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(19.9000 mm, 23.0000 mm): Footprint C1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(18.0000 mm, 30.8000 mm): Footprint R5
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(24.1000 mm, 23.0000 mm): Footprint R9
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(14.6386 mm, 38.0103 mm): Footprint CL3
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(2.2000 mm, 2.2000 mm): Footprint MH1
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(33.3614 mm, 9.9897 mm): Footprint CL11
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(25.0000 mm, 27.0000 mm): Footprint Q2
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(14.6386 mm, 9.9897 mm): Footprint CL8
-[lib_footprint_issues]: The current configuration does not include the library ''.
-    Local override; Severity: warning
-    @(3.8939 mm, 20.0006 mm): Footprint LED6
+    @(40.8659 mm, 24.2551 mm): Pad 2 [GND] of CL14 on F.Cu
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
     @(25.8000 mm, 23.0000 mm): Footprint C2
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
-    @(35.3892 mm, 6.9549 mm): Footprint LED11
+    @(25.0287 mm, 7.1814 mm): Footprint CL10
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
-    @(0.0000 mm, 0.0000 mm): Footprint U1
+    @(19.9000 mm, 23.0000 mm): Footprint C1
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
-    @(9.9897 mm, 14.6386 mm): Footprint CL7
+    @(51.8000 mm, 45.8000 mm): Footprint MH4
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
-    @(9.9897 mm, 33.3614 mm): Footprint CL4
+    @(12.8349 mm, 11.3801 mm): Footprint CL8
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
-    @(33.3614 mm, 38.0103 mm): Footprint CL16
+    @(10.4163 mm, 8.6464 mm): Footprint LED8
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
-    @(6.9549 mm, 35.3892 mm): Footprint LED4
+    @(0.0000 mm, 0.0000 mm): Footprint P3
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(42.4253 mm, 32.9866 mm): Footprint LED15
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(22.9713 mm, 40.8186 mm): Footprint CL2
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(31.3866 mm, 8.8553 mm): Footprint CL11
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(0.0000 mm, 0.0000 mm): Footprint P1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(18.0000 mm, 30.8000 mm): Footprint R5
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(8.0680 mm, 29.4858 mm): Footprint CL5
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(30.6741 mm, 43.3831 mm): Footprint LED1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(35.1651 mm, 36.6199 mm): Footprint CL16
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(0.0000 mm, 0.0000 mm): Footprint SW1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(43.3831 mm, 17.3259 mm): Footprint LED13
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(29.3000 mm, 27.0000 mm): Footprint R4
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(44.4618 mm, 25.2515 mm): Footprint LED14
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(27.5000 mm, 30.8000 mm): Footprint D1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(7.1814 mm, 22.9713 mm): Footprint CL6
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(18.5142 mm, 8.0680 mm): Footprint CL9
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(51.8000 mm, 2.2000 mm): Footprint MH2
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(39.3536 mm, 10.4163 mm): Footprint LED12
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(25.0000 mm, 27.0000 mm): Footprint Q2
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(4.6169 mm, 30.6741 mm): Footprint LED5
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(36.6199 mm, 12.8349 mm): Footprint CL12
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(17.3259 mm, 4.6169 mm): Footprint LED9
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(0.0000 mm, 0.0000 mm): Footprint BZ1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(2.2000 mm, 45.8000 mm): Footprint MH3
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(16.6134 mm, 39.1447 mm): Footprint CL3
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(22.7485 mm, 44.4618 mm): Footprint LED2
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(37.5837 mm, 39.3536 mm): Footprint LED16
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(21.8000 mm, 27.0000 mm): Footprint R2
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(20.2000 mm, 27.0000 mm): Footprint R1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(0.0000 mm, 0.0000 mm): Footprint P2
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(2.2000 mm, 2.2000 mm): Footprint MH1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(5.5747 mm, 15.0134 mm): Footprint LED7
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(25.2515 mm, 3.5382 mm): Footprint LED10
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(39.1447 mm, 31.3866 mm): Footprint CL15
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(17.5000 mm, 27.0000 mm): Footprint Q1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(32.9866 mm, 5.5747 mm): Footprint LED11
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(29.4858 mm, 39.9320 mm): Footprint CL1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(24.1000 mm, 23.0000 mm): Footprint R9
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(11.3801 mm, 35.1651 mm): Footprint CL4
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(16.5000 mm, 23.0000 mm): Footprint R6
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(15.0134 mm, 42.4253 mm): Footprint LED3
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(22.5000 mm, 30.8000 mm): Footprint C3
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(27.7000 mm, 27.0000 mm): Footprint R3
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
     @(22.4000 mm, 23.0000 mm): Footprint R8
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
-    @(7.4738 mm, 20.7127 mm): Footprint CL6
+    @(39.9320 mm, 18.5142 mm): Footprint CL13
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
-    @(20.0006 mm, 44.1061 mm): Footprint LED2
+    @(40.8186 mm, 25.0287 mm): Footprint CL14
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(3.5382 mm, 22.7485 mm): Footprint LED6
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(0.0000 mm, 0.0000 mm): Footprint U1
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(8.6464 mm, 37.5837 mm): Footprint LED4
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(18.2000 mm, 23.0000 mm): Footprint R7
+[lib_footprint_issues]: The current configuration does not include the library ''.
+    Local override; Severity: warning
+    @(8.8553 mm, 16.6134 mm): Footprint CL7
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
     @(12.5000 mm, 33.2500 mm): Footprint J2
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
     @(12.5000 mm, 18.5000 mm): Footprint J1
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(22.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(22.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(24.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(24.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(52.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(52.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(10.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(10.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(22.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(22.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(32.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(32.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(50.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(50.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(10.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(10.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(12.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(12.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(12.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(12.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 32.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 32.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(12.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(12.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 34.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 34.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(40.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(40.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(24.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(24.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(18.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(18.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(52.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(52.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(38.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(38.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(20.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(20.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(40.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(40.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(38.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(38.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(34.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(34.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(30.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(30.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(40.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(40.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 32.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 32.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(2.9500 mm, 30.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(2.9500 mm, 30.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(40.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(40.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(38.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(38.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(24.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(24.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(2.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(2.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(32.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(32.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(10.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(10.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(12.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(12.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(20.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(20.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(50.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(50.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(52.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(52.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(50.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(50.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(40.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(40.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(18.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(18.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(8.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(8.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(36.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(36.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(2.9500 mm, 14.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(2.9500 mm, 14.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(2.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(2.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 22.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 22.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(52.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(52.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(32.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(32.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(20.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(20.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 30.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 30.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(32.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(32.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(50.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(50.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(30.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(30.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(8.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(8.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(20.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(20.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(26.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(26.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(26.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(26.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(28.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(28.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(50.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(50.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(26.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(26.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(32.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(32.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(18.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(18.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 30.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 30.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(28.9500 mm, 22.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(28.9500 mm, 22.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 32.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 32.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(24.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(24.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(36.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(36.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(38.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(38.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(50.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(50.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(28.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(28.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(2.9500 mm, 34.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(2.9500 mm, 34.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(26.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(26.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(2.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(2.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(52.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(52.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(2.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(2.9500 mm, 16.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(38.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(38.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(52.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(52.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(28.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(28.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(22.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(22.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(26.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(26.9500 mm, 24.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(26.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(26.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 18.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(40.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(40.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(8.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(8.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(20.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(20.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 14.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 14.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(50.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(50.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(52.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(52.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(8.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(8.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(30.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(30.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(40.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(40.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 14.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 14.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(50.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(50.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(20.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(20.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(18.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(18.9500 mm, 10.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(34.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(34.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(40.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(40.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(24.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(24.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(8.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(8.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(10.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(10.9500 mm, 26.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 30.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 30.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(2.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(2.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(22.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(22.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(22.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(22.9500 mm, 38.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(0.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(0.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(12.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(12.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(30.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(30.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(52.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(52.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(22.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(22.9500 mm, 28.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(4.9500 mm, 22.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(4.9500 mm, 22.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(6.9500 mm, 14.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(6.9500 mm, 14.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(42.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(42.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 40.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(16.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(16.9500 mm, 20.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(34.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(34.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(14.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(14.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(10.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(10.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(24.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(24.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(24.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(24.9500 mm, 12.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 42.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(46.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(46.9500 mm, 6.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(30.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(30.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(36.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(36.9500 mm, 2.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(10.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(10.9500 mm, 8.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(30.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(30.9500 mm, 36.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(38.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(38.9500 mm, 44.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 0.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(44.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(44.9500 mm, 46.9500 mm): Via [GND] on F.Cu - B.Cu
+[holes_co_located]: Drilled holes co-located
+    Local override; Severity: warning
+    @(48.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
+    @(48.9500 mm, 4.9500 mm): Via [GND] on F.Cu - B.Cu
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; Severity: warning
     @(54.0000 mm, 1.5000 mm): Line on Edge.Cuts
@@ -378,7 +1176,11 @@
     @(54.0000 mm, 1.5000 mm): Line on Edge.Cuts
     @(54.0000 mm, 33.0000 mm): Line on B.Silkscreen
 
-** Found 0 unconnected pads **
+** Found 1 unconnected pads **
+[unconnected_items]: Missing connection between items
+    Local override; Severity: error
+    @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
+    @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
 
 ** Found 0 Footprint errors **
 
