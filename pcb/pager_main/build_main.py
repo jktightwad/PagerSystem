@@ -166,8 +166,7 @@ for i in range(1, N_LED + 1):
     cx, cy = rc * math.cos(math.radians(a)), rc * math.sin(math.radians(a))
     ca = a
     if cut_poly[0] < cx < cut_poly[1] + 1.0 and abs(cy) < cut_poly[2] + 1.0:
-        ca = a + (13.25 if math.sin(math.radians(a)) > 0 else -13.25)   # a little further from the cut-out edge
-        rc = 16.4; cx, cy = rc * math.cos(math.radians(ca)), rc * math.sin(math.radians(ca))
+        continue        # no room beside the cut-out: these two LEDs share their neighbours' capacitors
     cp = place(lib_fp(*C0603), f"CL{i}", cx, cy, rot=90 + ca)
     set_nets(cp, f"CL{i}", {"1": "1", "2": "2"})
 text("1", *[(R_LED + 3.3) * f(math.radians(a_first)) for f in (math.cos, math.sin)], 0.8)

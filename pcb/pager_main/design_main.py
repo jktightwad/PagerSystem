@@ -30,9 +30,11 @@ PARTS = {
     "P1":  ("Battery pads", None, "under: GND, BAT+"),
     "P2":  ("Motor pads", None, "under: MOT-, VBAT"),
 }
+NO_CAP = (13, 14)     # the two LEDs beside the cut-out: no room for their capacitor (neighbours' are close)
 for i in range(1, N_LED + 1):
     PARTS[f"LED{i}"] = ("XL-5050RGBC-2812B", "C2843785", "")
-    PARTS[f"CL{i}"] = ("100nF", "C14663", f"LED{i} decoupling")
+    if i not in NO_CAP:
+        PARTS[f"CL{i}"] = ("100nF", "C14663", f"LED{i} decoupling")
 
 NETS = {
     "GND":    [("U1", "GND"), ("U1", "B-"), ("J1", "1"), ("J2", "1"), ("P1", "1"),
@@ -58,8 +60,9 @@ NETS = {
 for i in range(1, N_LED + 1):
     NETS["VBAT"].append((f"LED{i}", "VDD"))
     NETS["GND"].append((f"LED{i}", "GND"))
-    NETS["VBAT"].append((f"CL{i}", "1"))
-    NETS["GND"].append((f"CL{i}", "2"))
+    if i not in NO_CAP:
+        NETS["VBAT"].append((f"CL{i}", "1"))
+        NETS["GND"].append((f"CL{i}", "2"))
     if i < N_LED:
         NETS[f"LED_D{i}"] = [(f"LED{i}", "DOUT"), (f"LED{i+1}", "DIN")]
 

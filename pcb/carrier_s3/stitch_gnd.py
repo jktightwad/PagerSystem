@@ -19,6 +19,7 @@ def to_mm(v): return pcbnew.ToMM(v)
 
 b = pcbnew.LoadBoard(PCB)
 gnd = b.FindNet("GND")
+# run on a freshly routed board (removing vias through the Python API is unreliable)
 outline = pcbnew.SHAPE_POLY_SET(); b.GetBoardPolygonOutlines(outline)
 bb = b.GetBoardEdgesBoundingBox()
 
@@ -27,7 +28,7 @@ for fp in b.GetFootprints():
     for p in fp.Pads():
         if p.GetNetCode() == gnd.GetNetCode() and p.GetDrillSize().x == 0:
             continue
-        r = max(p.GetSize().x, p.GetSize().y) / 2
+        r = math.hypot(p.GetSize().x, p.GetSize().y) / 2      # half-diagonal: rotated rectangles reach further
         obst.append(("pt", to_mm(p.GetPosition().x), to_mm(p.GetPosition().y), to_mm(r) + (0.3 if p.GetDrillSize().x else 0)))
 for t in b.GetTracks():
     if t.GetNetCode() == gnd.GetNetCode():
@@ -36,7 +37,8 @@ for t in b.GetTracks():
         obst.append(("pt", to_mm(t.GetPosition().x), to_mm(t.GetPosition().y), to_mm(t.GetWidth()) / 2 + 0.2))
     else:
         obst.append(("seg", to_mm(t.GetStart().x), to_mm(t.GetStart().y), to_mm(t.GetEnd().x), to_mm(t.GetEnd().y), to_mm(t.GetWidth()) / 2))
-noviazones = [z for z in b.Zones() if z.GetIsRuleArea() and z.GetDoNotAllowVias()]
+# no via where vias are forbidden, nor where the GND pour is kept out (it would connect to nothing)
+noviazones = [z for z in b.Zones() if z.GetIsRuleArea() and (z.GetDoNotAllowVias() or z.GetDoNotAllowCopperPour())]
 
 def seg_dist(px, py, x0, y0, x1, y1):
     dx, dy = x1 - x0, y1 - y0; L2 = dx * dx + dy * dy
