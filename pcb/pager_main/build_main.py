@@ -246,15 +246,19 @@ p1 = wire_pads("P1", -6.0, -19.5, ["-", "+"]); set_nets(p1, "P1", {"1": "1", "2"
 text("BAT - +", -6.0, -22.0, 0.8, pcbnew.B_SilkS)
 p2 = wire_pads("P2", 1.0, -19.5, ["-", "+"]); set_nets(p2, "P2", {"1": "1", "2": "2"})
 text("MOT - +", 1.0, -22.0, 0.8, pcbnew.B_SilkS)
+# spare pins: through-holes on an arc just outside the LED ring, in the two left corners (battery side)
+R_SPARE, STEP = 26.0, math.degrees(2.54 / 26.0)
+spare_angles = [122.5 + k * STEP for k in range(5)] + [237.5 - k * STEP for k in range(4)]
 sp = new_fp("P3"); sp.SetValue("spare pins")
 for k, name in enumerate(spares):
-    px = 7.5 + k * 2.0
-    add_pad(sp, str(k + 1), px, -19.5, (1.4, 2.2), side="bottom", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
-    text(name.replace("GP", ""), px, -21.6, 0.8, pcbnew.B_SilkS, rot=90)
+    a = spare_angles[k]
+    px, py = R_SPARE * math.cos(math.radians(a)), R_SPARE * math.sin(math.radians(a))
+    add_pad(sp, str(k + 1), px, py, (1.6, 1.6), kind="pth", drill=0.9, shape=pcbnew.PAD_SHAPE_CIRCLE)
+    lx, ly = (R_SPARE + 1.9) * math.cos(math.radians(a)), (R_SPARE + 1.9) * math.sin(math.radians(a))
+    text(name.replace("GP", ""), lx, ly, 0.8, rot=a)
 board.Add(sp); sp.Reference().SetVisible(False); sp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(sp.Pads(), key=lambda p: int(p.GetNumber()))):
     pad.SetNet(net("SPARE_" + spares[k]))
-text("SPARE", 16.0, -16.8, 0.8, pcbnew.B_SilkS)
 
 # ---------------- mounting holes (4 corners) ----------------
 for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.2, Y0 + 2.2), (X1 - 2.2, Y0 + 2.2)]):
