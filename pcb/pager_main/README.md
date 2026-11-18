@@ -9,7 +9,7 @@
 
 54 x 48 mm, 2 layers, M2 holes in all 4 corners (layout D from `layout_study.py`).
 
-- **Top:** 16 × XINGLIGHT XL-5050RGBC-2812B, evenly spaced (22.5°) on a 20.5 mm radius,
+- **Top:** 16 × TUOZHAN TZ-5050S2RGB-5V-I4-H1 (LCSC C26167850, allowed in JLC Economic PCBA; the XINGLIGHT part was Standard-only), evenly spaced (22.5°) on a 20.5 mm radius,
   ring turned 19.75° so every LED keeps its own 100 nF cap beside it, clear of the cut-out.
   Buzzer (9 mm, through-hole) and the small parts inside the ring.
 - **Under:** SuperMini flat on castellated pads, antenna end at the right edge (no copper
@@ -43,7 +43,7 @@ in a pour sliver that the fill then drops (remove it from the file, refill).
 `fab/pager_main_gerbers.zip`, `fab/bom_jlc.csv`, `fab/cpl_jlc.csv` (top-side assembly:
 LEDs, caps, resistors, MOSFETs, diode). Hand-soldered: SuperMini, switch, buzzer, XH
 connectors. **Check LED orientation in JLC's placement preview** (XINGLIGHT package
-drawing is an image only).
+drawing is an image only; same 5050 4-pin WS2812B pinout).
 
 ## Still to confirm
 1. Switch end-leg spacing (11.2 mm assumed).

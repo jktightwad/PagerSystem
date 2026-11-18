@@ -32,7 +32,7 @@ PARTS = {
 }
 NO_CAP = ()           # every LED has its own capacitor
 for i in range(1, N_LED + 1):
-    PARTS[f"LED{i}"] = ("XL-5050RGBC-2812B", "C2843785", "")
+    PARTS[f"LED{i}"] = ("TZ-5050S2RGB-5V-I4-H1", "C26167850", "TUOZHAN TZ2812, WS2812-compatible; JLC Economic + Standard PCBA")
     if i not in NO_CAP:
         PARTS[f"CL{i}"] = ("100nF", "C14663", f"LED{i} decoupling")
 
