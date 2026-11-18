@@ -30,7 +30,7 @@ PARTS = {
     "P1":  ("Battery pads", None, "under: GND, BAT+"),
     "P2":  ("Motor pads", None, "under: MOT-, VBAT"),
 }
-NO_CAP = (13, 14)     # the two LEDs beside the cut-out: no room for their capacitor (neighbours' are close)
+NO_CAP = ()           # every LED has its own capacitor
 for i in range(1, N_LED + 1):
     PARTS[f"LED{i}"] = ("XL-5050RGBC-2812B", "C2843785", "")
     if i not in NO_CAP:

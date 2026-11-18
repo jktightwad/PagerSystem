@@ -20,7 +20,9 @@ SM_X, SM_L, SM_W = 6.0, 24.0, 18.0
 ROW_IN, PIN_X0, PITCH = 1.375, 1.75, 2.54           # measured: rows 15.25 apart, first pin 1.75 from USB end
 ANT = 5.0                                           # antenna end kept copper-free (estimate)
 BHOLE_X, BHOLE_DY = 1.6, 1.83                       # B+/B- plated holes: from the USB end / either side of centre
-CUT_X0, CUT_X1, CUT_HW = 2.7, 10.5, 4.75            # cut-out under the module's underside parts (from USB end; parts start at 3.0)
+# cut-out only where the module's underside parts are (measured from a photo, +0.5 mm clearance):
+# L-shape, as (distance from the USB end, y) corners; y is + towards the module's TX/B- side
+CUT_L = [(3.0, -1.6), (7.7, -1.6), (7.7, 0.9), (11.2, 0.9), (11.2, 3.5), (3.0, 3.5)]
 # module pins as seen from the TOP of our board (module upside down under it, USB end left):
 # its 5V/GND/3V3 row is at -y, its TX/RX row at +y
 ROW_NEG = ["5V", "GND", "3V3", "GP13", "GP12", "GP11", "GP10", "GP9", "GP8"]
@@ -62,8 +64,8 @@ def arc(cx, cy, a0, sweep, r=R_CORNER):   # angles in design coords (CCW, y up)
 r = R_CORNER
 seg((X0 + r, Y1), (X1 - r, Y1)); seg((X1, Y1 - r), (X1, Y0 + r)); seg((X1 - r, Y0), (X0 + r, Y0)); seg((X0, Y0 + r), (X0, Y1 - r))
 arc(X1 - r, Y1 - r, 90, -90); arc(X1 - r, Y0 + r, 0, -90); arc(X0 + r, Y0 + r, 270, -90); arc(X0 + r, Y1 - r, 180, -90)
-cx0, cx1 = SM_X + CUT_X0, SM_X + CUT_X1
-for a, b in [((cx0, CUT_HW), (cx1, CUT_HW)), ((cx1, CUT_HW), (cx1, -CUT_HW)), ((cx1, -CUT_HW), (cx0, -CUT_HW)), ((cx0, -CUT_HW), (cx0, CUT_HW))]:
+cut = [(SM_X + u, v) for u, v in CUT_L]
+for a, b in zip(cut, cut[1:] + cut[:1]):
     seg(a, b)
 
 # ---------------- helpers ----------------
@@ -154,8 +156,8 @@ rule_area([(ax - 1, SM_W / 2 + 3), (X1 + 1, SM_W / 2 + 3), (X1 + 1, -SM_W / 2 - 
 # ---------------- LEDs + their capacitors (top) ----------------
 LED = ("LED_SMD", "LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm")      # pins 1 VDD, 2 DOUT, 3 GND, 4 DIN
 C0603 = ("Capacitor_SMD", "C_0603_1608Metric")
-cut_poly = (cx0 - 0.4, cx1 + 0.4, CUT_HW + 0.4)
-a_first = 281.25                                             # LED1 (bottom right), chain runs clockwise
+# ring turned so every LED's capacitor clears the cut-out (spacing stays 22.5 deg; offset 19 deg found by search)
+a_first = 19.0 + 22.5 * 12                                   # LED1 (bottom right), chain runs clockwise
 for i in range(1, N_LED + 1):
     a = a_first - (i - 1) * 22.5
     x, y = R_LED * math.cos(math.radians(a)), R_LED * math.sin(math.radians(a))
@@ -165,8 +167,6 @@ for i in range(1, N_LED + 1):
     rc = R_LED - 2.6 - 0.75 - 0.3
     cx, cy = rc * math.cos(math.radians(a)), rc * math.sin(math.radians(a))
     ca = a
-    if cut_poly[0] < cx < cut_poly[1] + 1.0 and abs(cy) < cut_poly[2] + 1.0:
-        continue        # no room beside the cut-out: these two LEDs share their neighbours' capacitors
     cp = place(lib_fp(*C0603), f"CL{i}", cx, cy, rot=90 + ca)
     set_nets(cp, f"CL{i}", {"1": "1", "2": "2"})
 text("1", *[(R_LED + 3.3) * f(math.radians(a_first)) for f in (math.cos, math.sin)], 0.8)
