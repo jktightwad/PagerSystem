@@ -217,8 +217,8 @@ def xh(ref, pins, x, y, mapping, label):
     set_nets(fp, ref, mapping)
     text(label, x - 6.0, y, 0.8, pcbnew.B_SilkS, rot=90)
     return fp
-xh("J1", 3, -11.5, 8.0, {"1": "1", "2": "2", "3": "3"}, "TOUCH G O V")
-xh("J2", 2, -11.5, -8.0, {"1": "1", "2": "2"}, "DOCK G +")
+xh("J1", 3, -11.5, 7.0, {"1": "1", "2": "2", "3": "3"}, "TOUCH G O V")
+xh("J2", 2, -11.5, -7.0, {"1": "1", "2": "2"}, "DOCK G +")
 
 # ---------------- small parts (top, inside the ring) ----------------
 R0603 = ("Resistor_SMD", "R_0603_1608Metric")
