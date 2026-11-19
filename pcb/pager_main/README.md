@@ -40,18 +40,12 @@ best effort), plus pours on both layers, ~200 stitching vias and `join_gnd.py` f
 piece left over. Check the DRC report for `via_dangling` after stitching: a via can land
 in a pour sliver that the fill then drops (remove it from the file, refill).
 
-## Two versions to quote
-| | `fab/` (pager_main) | `fab_smdconn/` (pager_main_smdconn) |
-|---|---|---|
-| JLC service | Economic PCBA (top side only, 2–50 pcs) | Standard PCBA (both sides) |
-| Touch / dock connectors | JST-XH right angle, through-hole, hand-soldered | DEALON XH-3PWB (C2905025) / XH-2PWB (C2905024), SMD right angle, JLC-fitted under the board |
-| Switch | SS12F44, hand-soldered | SS12F44G4 (C2887261), JLC-fitted (through-hole) |
-| You solder | SuperMini, switch, 2 connectors | SuperMini only |
-
-Build the variant with `PAGER_SMD_CONN=1 python3 build_main.py` (then route / stitch / join with
-`pager_main_smdconn.kicad_pcb`), export with `sh export_fab.sh smdconn`. The SMD XH footprint is drawn
-from DEALON's datasheet land pattern — check it in JLC's placement preview. `fix_anchors.py` puts the
-anchor of hand-built footprints at their centre (JLC places parts at the anchor).
+## Assembly
+Single-sided JLC Economic PCBA (top side): LEDs, caps, resistors, MOSFETs, diode, buzzer. Hand-soldered:
+SuperMini, switch and the two through-hole JST-XH connectors (under the board).
+A two-sided variant with SMD connectors (DEALON XH-3PWB / XH-2PWB) can still be built with
+`PAGER_SMD_CONN=1 python3 build_main.py` and exported with `sh export_fab.sh smdconn` (Standard PCBA);
+its files were removed to avoid uploading the wrong set.
 
 ## JLCPCB
 `fab/pager_main_gerbers.zip`, `fab/bom_jlc.csv`, `fab/cpl_jlc.csv` (top-side assembly:
