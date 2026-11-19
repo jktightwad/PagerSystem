@@ -11,7 +11,7 @@ WIRE = {
     "34": ("R6C1  dock sense", "orange"), "35": ("R6C9  battery sense", "orange"),
     "25": ("R2C9  motor driver", "purple"), "27": ("R2C1  buzzer driver", "purple"),
     "26": ("ring DI, 330R at the ring (direct)", "gray"),
-    "3V": ("R1C5  3V3 rail", "red"), "4": ("touch OUT (direct)", "gray"),
+    "3V": ("R1C5  3V3 rail", "red"), "G": ("R5C5  GND rail", "black"), "4": ("touch OUT (direct)", "gray"),
 }
 P = 34; BX0, BX1, TOP = 470, 760, 120
 W, H = 1250, 760
@@ -51,8 +51,8 @@ jy = y_last + 82
 d.line([BX0 + 58, jy, BX0 + 58, H - 95, 300, H - 95], fill="red", width=4)
 d.text((20, H - 105), "JST +  ->  R8C2  VBAT rail", font=f, fill="red")
 d.line([BX0 + 92, jy, BX0 + 125, jy, BX0 + 125, H - 60, 300, H - 60], fill="black", width=4)
-d.text((20, H - 70), "JST -  ->  R5C5  GND rail", font=f, fill="black")
-d.text((780, H - 105), "JST via the male JST pigtail (board unmodified).", font=fs, fill="black")
-d.text((780, H - 85), "+ is the pin nearest the board edge on this", font=fs, fill="black")
-d.text((780, H - 65), "board's silkscreen: confirm with a meter.", font=fs, fill="black")
+d.text((20, H - 70), "JST -  ->  battery - (direct)", font=f, fill="black")
+d.text((780, H - 105), "Battery - goes straight to the JST -; the stripboard", font=fs, fill="black")
+d.text((780, H - 85), "GND joins at the G pin. JST + = pin nearest the board", font=fs, fill="black")
+d.text((780, H - 65), "edge on this silkscreen: confirm with a meter.", font=fs, fill="black")
 img.save("lolin_wiring.png"); print("lolin_wiring.png", img.size)
