@@ -31,7 +31,7 @@ def obstacles():
     for t in b.GetTracks():
         if t.GetNetCode() == g and t.Type() != pcbnew.PCB_VIA_T: continue
         if t.Type() == pcbnew.PCB_VIA_T:
-            obst.append(("pt", to_mm(t.GetPosition().x), to_mm(t.GetPosition().y), to_mm(t.GetWidth()) / 2 + (0.15 if t.GetNetCode() == g else 0.2)))
+            obst.append(("pt", to_mm(t.GetPosition().x), to_mm(t.GetPosition().y), to_mm(t.GetWidth()) / 2 + 0.2))   # keeps drills >= 0.25 mm apart
         else:
             obst.append(("seg", to_mm(t.GetStart().x), to_mm(t.GetStart().y), to_mm(t.GetEnd().x), to_mm(t.GetEnd().y), to_mm(t.GetWidth()) / 2))
     return obst
@@ -108,7 +108,7 @@ for rnd in range(6):
             yy += 0.2
         if found:
             v = pcbnew.PCB_VIA(b); v.SetPosition(pcbnew.VECTOR2I(mm(found[0]), mm(found[1]))); v.SetWidth(mm(VIA_D)); v.SetDrill(mm(VIA_DRILL))
-            v.SetNet(b.FindNet("GND")); b.Add(v); obst.append(("pt", found[0], found[1], VIA_D / 2))
+            v.SetNet(b.FindNet("GND")); b.Add(v); obst.append(("pt", found[0], found[1], VIA_D / 2 + 0.2))
             done_groups.add(gid); fixed += 1; added += 1
         else:
             c = sp.BBox().GetCenter()

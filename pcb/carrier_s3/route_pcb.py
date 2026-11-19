@@ -304,7 +304,7 @@ if __name__ == "__main__":
             if fp.GetReference() == FIRST_REF:
                 first = {p.GetNetname() for p in fp.Pads()}
     order = sorted(names, key=lambda n: (n == "GND", n not in first, n in WIDTH, n))
-    random.seed(1)
+    random.seed(int(os.environ.get("ROUTE_SEED", "1")))
     for attempt in range(80):
         print(f"attempt {attempt + 1}: {' '.join(order)}")
         board, failed = run(order)
