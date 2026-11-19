@@ -133,7 +133,7 @@ class Router:
         for l in range(2):
             foreign = (self.cu[l] != 0) & (self.cu[l] != code)
             via_ok.append(distance_transform_edt(~foreign) * G >= VIA_D / 2 + CLR + MARGIN)
-        vok = via_ok[0] & via_ok[1] & (dpad >= VIA_D / 2 + CLR + MARGIN) & (dhole >= VIA_DRILL / 2 + 0.35)
+        vok = via_ok[0] & via_ok[1] & (dpad >= VIA_D / 2 + CLR + MARGIN) & (dhole >= VIA_DRILL + 0.25 + 2 * G)   # drill edges >= 0.25 apart (board rule) with raster slack
         return np.stack(free), vok
 
     def astar(self, starts, targets, free, vok):

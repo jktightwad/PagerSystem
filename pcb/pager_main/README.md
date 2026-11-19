@@ -33,12 +33,17 @@ ROUTE_OPTIONAL=GND ROUTE_FIRST=U1 ROUTE_MARGIN=0.08 \
   python3 ../carrier_s3/route_pcb.py pager_main.kicad_pcb
 python3 ../carrier_s3/stitch_gnd.py pager_main.kicad_pcb 2.0
 python3 ../carrier_s3/join_gnd.py pager_main.kicad_pcb
+python3 ../carrier_s3/remove_dangling.py pager_main.kicad_pcb
+python3 fix_anchors.py pager_main.kicad_pcb && python3 check_netlist.py
 sh export_fab.sh && sh render.sh pcb_top.png pcb_bottom.png
+python3 panelize.py && sh export_fab.sh panel
 ```
-Routing takes a while (randomised retries). GND gets tracks where they fit (routed last,
-best effort), plus pours on both layers, ~200 stitching vias and `join_gnd.py` for any
-piece left over. Check the DRC report for `via_dangling` after stitching: a via can land
-in a pour sliver that the fill then drops (remove it from the file, refill).
+Routing takes a while (randomised retries; `ROUTE_SEED` picks the sequence). GND gets tracks
+where they fit (routed last, best effort), plus pours on both layers, ~200 stitching vias and
+`join_gnd.py` for any piece left over; `remove_dangling.py` drops stitch vias left in pour
+islands. The current board is seed 3 with the transistor / divider block ripped up and
+re-routed (`../carrier_s3/reroute_area.py`, box 14,19-30,31, GND fan-out vias for R2, R7, Q2,
+C1), because those four GND pads were walled in by tracks.
 
 ## Assembly
 Single-sided JLC Economic PCBA (top side): LEDs, caps, resistors, MOSFETs, diode, buzzer. Hand-soldered:
@@ -46,6 +51,14 @@ SuperMini, switch and the two through-hole JST-XH connectors (under the board).
 A two-sided variant with SMD connectors (DEALON XH-3PWB / XH-2PWB) can still be built with
 `PAGER_SMD_CONN=1 python3 build_main.py` and exported with `sh export_fab.sh smdconn` (Standard PCBA);
 its files were removed to avoid uploading the wrong set.
+
+## Panel (3 x 2)
+`panelize.py` copies the finished board six times: 166 x 98 mm, 2 mm milled gaps, three
+2.5 mm tabs per shared edge (no mouse bites; cut them with a saw and file the stubs),
+"Pager 1".."Pager 6" on the top silk beside the antenna. References get a copy suffix
+(LED1_3) so the JLC BOM / CPL designators stay unique. Files: `fab_panel/`. Whether JLC
+treats this as a panel (fee, or not Economic) is decided in their file review; describe it
+as it is in the order.
 
 ## JLCPCB
 `fab/pager_main_gerbers.zip`, `fab/bom_jlc.csv`, `fab/cpl_jlc.csv` (top-side assembly:
