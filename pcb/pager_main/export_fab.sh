@@ -23,6 +23,7 @@ if variant == "smdconn":   # JLC also fits these (Standard PCBA, both sides)
     parts["J1"] = ("XH-3PWB SMD right angle (DEALON)", "C2905025")
     parts["J2"] = ("XH-2PWB SMD right angle (DEALON)", "C2905024")
     parts["SW1"] = ("SS12F44G4 slide switch (through-hole)", "C2887261")
+BOTTOM = {"J1", "J2", "SW1"}   # parts that sit under the board
 FOOT = {"R": "0603", "C": "0603", "Q": "SOT-23", "D": "SOD-123", "L": "5050", "B": "SMD 9x9", "J": "XH SMD", "S": "THT"}
 groups = defaultdict(list)
 for ref, (val, lcsc) in parts.items():
@@ -38,6 +39,9 @@ with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline=
         ref = row["Ref"]
         if ref in parts and parts[ref][1]:
             side = "Bottom" if row["Side"].lower().startswith("b") else "Top"
+            # hand-built footprints mounted under the board (pads on B.Cu / body below) are recorded by
+            # KiCad as top-side footprints: list them as Bottom for JLC
+            if ref in BOTTOM: side = "Bottom"
             w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', side, f'{float(row["Rot"]) % 360:.2f}'])
 print(f"{outd}/bom_jlc.csv, {outd}/cpl_jlc.csv written")
 PY

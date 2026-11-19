@@ -11,8 +11,8 @@
 
 - **Top:** 16 × TUOZHAN TZ-5050S2RGB-5V-I4-H1 (LCSC C26167850, allowed in JLC Economic PCBA; the XINGLIGHT part was Standard-only), evenly spaced (22.5°) on a 20.5 mm radius,
   ring turned 19.75° so every LED keeps its own 100 nF cap beside it, clear of the cut-out.
-  SMD buzzer MLT-8540H (C95298, 8.5 mm, passive: firmware drives GP12 with 2.7 kHz PWM)
-  with flyback diode D2, and the small parts inside the ring; all JLC-assembled.
+  Active SMD buzzer S&S SMD-0955-05-27 (C55014110, 9 x 9 mm, 3-6 V, plain on/off on GP12) and
+  the small parts inside the ring; all JLC-assembled.
 - **Under:** SuperMini flat on castellated pads, antenna end at the right edge (no copper
   there); B+/B− soldered from the top through 1.1 × 1.6 mm plated oval holes; an
   L-shaped cut-out only where the module's underside parts are (measured: 3.0–11.2 mm
@@ -39,6 +39,19 @@ Routing takes a while (randomised retries). GND gets tracks where they fit (rout
 best effort), plus pours on both layers, ~200 stitching vias and `join_gnd.py` for any
 piece left over. Check the DRC report for `via_dangling` after stitching: a via can land
 in a pour sliver that the fill then drops (remove it from the file, refill).
+
+## Two versions to quote
+| | `fab/` (pager_main) | `fab_smdconn/` (pager_main_smdconn) |
+|---|---|---|
+| JLC service | Economic PCBA (top side only, 2–50 pcs) | Standard PCBA (both sides) |
+| Touch / dock connectors | JST-XH right angle, through-hole, hand-soldered | DEALON XH-3PWB (C2905025) / XH-2PWB (C2905024), SMD right angle, JLC-fitted under the board |
+| Switch | SS12F44, hand-soldered | SS12F44G4 (C2887261), JLC-fitted (through-hole) |
+| You solder | SuperMini, switch, 2 connectors | SuperMini only |
+
+Build the variant with `PAGER_SMD_CONN=1 python3 build_main.py` (then route / stitch / join with
+`pager_main_smdconn.kicad_pcb`), export with `sh export_fab.sh smdconn`. The SMD XH footprint is drawn
+from DEALON's datasheet land pattern — check it in JLC's placement preview. `fix_anchors.py` puts the
+anchor of hand-built footprints at their centre (JLC places parts at the anchor).
 
 ## JLCPCB
 `fab/pager_main_gerbers.zip`, `fab/bom_jlc.csv`, `fab/cpl_jlc.csv` (top-side assembly:
