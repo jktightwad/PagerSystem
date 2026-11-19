@@ -294,12 +294,27 @@ for k, (name, a) in enumerate(holes):
     lx, ly = (R_SPARE + 1.8) * math.cos(math.radians(a)), (R_SPARE + 1.8) * math.sin(math.radians(a))
     if X0 + 1.2 < lx < X1 - 1.2 and Y0 + 1.2 < ly < Y1 - 1.2:
         text(lab, lx, ly, 0.8, rot=a + 90)
+    else:                                    # no room outside: label it on the inner side (towards the LEDs)
+        ix, iy = (R_SPARE - 1.75) * math.cos(math.radians(a)), (R_SPARE - 1.75) * math.sin(math.radians(a))
+        text(lab, ix, iy, 0.8, rot=a + 90)
     bx, by = (R_SPARE - 2.0) * math.cos(math.radians(a)), (R_SPARE - 2.0) * math.sin(math.radians(a))
     text(lab, bx, by, 0.8, pcbnew.B_SilkS, rot=a + 90)
 board.Add(sp); sp.Reference().SetVisible(False); sp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(sp.Pads(), key=lambda p: int(p.GetNumber()))):
     name = holes[k][0]
     pad.SetNet(net(name if name in ("3V3", "GND", "VBAT") else "SPARE_" + name))
+
+# ---------------- test points for the GPIOs in use (under the board, bare pads) ----------------
+TPS = [("GP1", "DOCK_SENSE"), ("GP2", "BAT_SENSE"), ("GP4", "TOUCH"), ("GP5", "RING_IO"), ("GP12", "BUZ_IO"), ("GP13", "MOT_IO")]
+tp = new_fp("TP1"); tp.SetValue("GPIO test points")
+for k, (lab, n) in enumerate(TPS):
+    x = 6.0 + k * 2.6
+    pd = add_pad(tp, str(k + 1), x, -20.0, (1.5, 1.5), side="bottom", shape=pcbnew.PAD_SHAPE_CIRCLE)
+    text(lab.replace("GP", ""), x, -22.0, 0.8, pcbnew.B_SilkS)
+board.Add(tp); tp.Reference().SetVisible(False); tp.Value().SetVisible(False)
+for k, pad in enumerate(sorted(tp.Pads(), key=lambda p: int(p.GetNumber()))):
+    pad.SetNet(net(TPS[k][1]))
+text("GPIO TEST", 12.5, -17.6, 0.8, pcbnew.B_SilkS)
 
 # ---------------- mounting holes (4 corners) ----------------
 for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.2, Y0 + 2.2), (X1 - 2.2, Y0 + 2.2)]):

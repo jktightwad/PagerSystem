@@ -37,7 +37,7 @@ for fp in b.GetFootprints():
             seen.add(key)
             if net != want[key]:
                 errors.append(f"{ref} pad {pad.GetNumber()} ({pin}) is on '{net}', design says '{want[key]}'")
-        elif net and not net.startswith("SPARE_") and not (ref == "P3" and net in ("GND", "3V3", "VBAT")):
+        elif net and not net.startswith("SPARE_") and not (ref == "P3" and net in ("GND", "3V3", "VBAT")) and ref != "TP1":
             errors.append(f"{ref} pad {pad.GetNumber()} on '{net}' but not in the design")
 missing = [k for k in want if k not in seen]
 for r, p in missing:
