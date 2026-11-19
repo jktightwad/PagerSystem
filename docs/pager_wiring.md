@@ -12,7 +12,7 @@ battery + --> power switch --> VBAT rail --> LOLIN32 JST +, battery sense divide
 battery - ------------------------------------> LOLIN32 JST - (stripboard GND rail joins at the LOLIN G pin)
 LOLIN32 3V3 --> vibration motor (+), touch module VCC
                 buzzer and motor switched on their GND side by NPNs (buzzer GPIO 27, motor GPIO 25), diode across the motor
-LED ring DI <-- 330R <-- GPIO 26          (3.3 V data on a 3.0-4.2 V supply: usually works; not tested here)
+LED ring DI <-- 330R <-- GPIO 26          (3.3 V data; ring tested by the user on supplies up to 5 V without issue)
 touch module OUT --> GPIO 4
 ```
 - No boost board and no P-MOSFET. The LED ring and the buzzer run from the
@@ -22,8 +22,8 @@ touch module OUT --> GPIO 4
   3V3 regulator now; the ring and buzzer draw from the battery directly.
 - **Motor on 3.3 V:** `VIBE_STRENGTH 230` in the firmware assumes 3.3 V. If the
   motor is moved to VBAT, lower it to about 180.
-- **Ring on VBAT:** the data line is 3.3 V and the ring supply up to 4.2 V; this
-  usually works with WS2812 rings but has not been tested on this build.
+- **Ring on VBAT:** 3.3 V data with the ring on up to 4.2 V. The ring has been
+  bench-tested on supplies up to 5 V with 3.3 V data without issue.
 - **Buzzer on VBAT:** the TDB05 is a 5 V part, so it is quieter on 3.0-4.2 V
   than at 5 V, but louder than it was on 3.3 V.
 - The power switch is between the battery and the VBAT rail, so a
