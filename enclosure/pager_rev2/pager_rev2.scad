@@ -151,13 +151,15 @@ tower_len_adj = -0.15;   // [-1:0.05:1]
 // screw columns: extra length (test print 2: 0.10 short, base not flush).
 // Added to the base build-ups; the ball's key pockets deepen to match.
 col_len_adj = 0.10;      // [-0.5:0.05:0.5]
+// inner channel = the ball / base oval hole + this per side (0 = same snug fit; was 0.3, sloppy)
+tower_channel_clear = 0;  // [0:0.05:0.5]
 tower_slot_w  = 8.0;    // [2:0.5:12] wire exit slot (centre side), width (room to solder the pins)
 tower_slot_h  = 11.0;   // [2:0.5:13] and height (centred; the solid ends still hold the flanges)
 // a collar on the base pad and on the ball pad holds each tower end (snug fit;
 // optional bead / groove via snap_bead)
 tower_socket_h = 5.6;   // [0.8:0.1:7] collar height (1.6 + 4 for alignment); the wire slot is cut through it
 tower_socket_t = 0.9;   // [0.6:0.1:2] collar wall
-tower_fit      = 0;     // [-0.1:0.05:0.4] clearance tower to collar, per side (0.1 and 0.05 printed loose; slicer hole compensation opens it)
+tower_fit      = -0.1;  // [-0.3:0.05:0.4] clearance tower to collar, per side; negative = interference (0.1, 0.05 and 0 all printed loose)
 snap_bead      = 0;     // [0:0.05:0.5] bead depth, 0 = plain snug socket (a 0.25 bead was too small to print)
 // groove depth beyond the bead (0 = bead seats in the groove with no play; 0.1 was loose)
 snap_clear     = 0;     // [0:0.05:0.3]
@@ -433,7 +435,7 @@ module pogo_tower() {
   difference() {
     linear_extrude(H) stadium_2d(tower_L, tower_W);
     // through channel for the back bodies and wires
-    translate([0, 0, -1]) linear_extrude(H + 2) stadium_2d(oval_hole_l + 0.6, oval_hole_w + 0.6);
+    translate([0, 0, -1]) linear_extrude(H + 2) stadium_2d(oval_hole_l + 2 * tower_channel_clear, oval_hole_w + 2 * tower_channel_clear);
     // wire exit, centre side (local -y)
     translate([-tower_slot_w / 2, -tower_W, H / 2 - tower_slot_h / 2]) cube([tower_slot_w, tower_W, tower_slot_h]);
     // snap grooves round both ends (45 deg faces, prints without support)
