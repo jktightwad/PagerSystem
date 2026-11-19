@@ -32,7 +32,9 @@ key = lambda r: (re.sub(r"\d", "", r), int(re.sub(r"\D", "", r) or 0))
 with open(f"{outd}/bom_jlc.csv", "w", newline="") as f:
     w = csv.writer(f); w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
     for (val, lcsc), refs in sorted(groups.items()):
-        refs.sort(key=key); w.writerow([val, ",".join(refs), FOOT.get(refs[0][0], ""), lcsc])
+        refs.sort(key=key)
+        foot = {"C3": "1206"}.get(refs[0], FOOT.get(refs[0][0], ""))
+        w.writerow([val, ",".join(refs), foot, lcsc])
 with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline="") as o:
     w = csv.writer(o); w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
     for row in csv.DictReader(f):
