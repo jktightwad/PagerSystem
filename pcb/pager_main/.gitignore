@@ -3,3 +3,4 @@ __pycache__/
 *-backups/
 fab/pos_front.csv
 route.log
+route_smd.log
