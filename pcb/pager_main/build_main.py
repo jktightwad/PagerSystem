@@ -174,17 +174,14 @@ for i in range(1, N_LED + 1):
     set_nets(cp, f"CL{i}", {"1": "1", "2": "2"})
 text("1", *[(R_LED + 3.3) * f(math.radians(a_first)) for f in (math.cos, math.sin)], 0.8)
 
-# ---------------- buzzer (top, through-hole) ----------------
-bz = new_fp("BZ1"); bz.SetValue(PARTS["BZ1"][0])
-BZX, BZY = -2.5, 7.5
-add_pad(bz, "1", BZX - 2.5, BZY, (1.8, 1.8), kind="pth", drill=0.9)
-add_pad(bz, "2", BZX + 2.5, BZY, (1.8, 1.8), kind="pth", drill=0.9, shape=pcbnew.PAD_SHAPE_CIRCLE)
-for lay, d in [(pcbnew.F_SilkS, 9.3), (pcbnew.F_CrtYd, 9.6)]:
-    c = pcbnew.FP_SHAPE(bz); c.SetShape(pcbnew.SHAPE_T_CIRCLE); c.SetLayer(lay); c.SetWidth(mm(0.12 if lay == pcbnew.F_SilkS else 0.05))
-    c.SetStart0(P(BZX, BZY)); c.SetEnd0(P(BZX + d / 2, BZY)); c.SetCenter(P(BZX, BZY)); c.SetEnd(P(BZX + d / 2, BZY)); bz.Add(c)
-board.Add(bz); set_nets(bz, "BZ1", {"1": "+", "2": "-"})
-bz.Reference().SetVisible(False); bz.Value().SetVisible(False)
-text("+", BZX - 2.5, BZY + 1.9, 0.8)
+# ---------------- buzzer (top, SMD, JLC-assembled) ----------------
+# Huaneng MLT-8540H, 8.5 x 8.5 mm, terminals in the corners: seen from the top, + bottom-left,
+# - bottom-right, the two top corners are dummy (mechanical) leads. KiCad's CUI CMT-8504 footprint
+# has the same 8.5 mm square with 2.5 mm corner pads.
+BZX, BZY = -2.5, 8.0
+bz = place(lib_fp("Buzzer_Beeper", "MagneticBuzzer_CUI_CMT-8504-100-SMT"), "BZ1", BZX, BZY, 0)
+set_nets(bz, "BZ1", {"2": "+", "3": "-"})
+text("+", BZX - 5.6, BZY - 3.5, 0.8)
 
 # ---------------- switch SS12F44 (under): 3 pins 2.5 mm, end legs slotted ----------------
 SWX, SWY, SW_LEG = -2.0, -11.5, 5.6          # leg spacing 11.2 mm is an ESTIMATE - measure
@@ -232,6 +229,7 @@ small = {
     "Q1": (SOT23, -6.5, yb, 0), "R1": (R0603, -3.8, yb, 90), "R2": (R0603, -2.2, yb, 90),
     "Q2": (SOT23, 1.0, yb, 0), "R3": (R0603, 3.7, yb, 90), "R4": (R0603, 5.3, yb, 90),
     "R5": (R0603, -6.0, yc, 0), "C3": (C1206, -1.5, yc, 0), "D1": (SOD123, 3.5, yc, 180),
+    "D2": (SOD123, 4.6, 6.6, 270),           # buzzer flyback, beside the buzzer
 }
 pinmap = {"R": {"1": "1", "2": "2"}, "C": {"1": "1", "2": "2"}, "Q": {"1": "G", "2": "S", "3": "D"}, "D": {"1": "K", "2": "A"}}
 for ref, (lf, x, y, rot) in small.items():
