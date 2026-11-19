@@ -274,7 +274,8 @@ def gnd_fanout(rt, which):
     n = 0
     for ref_pin, cells in rt.netpads.get("GND", []):
         ref = ref_pin.split(".")[0]
-        if pre is not None and not ref.startswith(pre): continue
+        # entries ending in a digit are exact references (C1), others prefixes (Q)
+        if pre is not None and not any(ref == e if e[-1].isdigit() else ref.startswith(e) for e in pre): continue
         if any(l == 1 for l, _, _ in cells): continue          # through-hole or bottom pad
         free, vok = rt.free_maps(code, hw)
         for l, r, c in cells: free[l, r, c] = True
