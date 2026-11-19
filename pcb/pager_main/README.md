@@ -11,7 +11,8 @@
 
 - **Top:** 16 × TUOZHAN TZ-5050S2RGB-5V-I4-H1 (LCSC C26167850, allowed in JLC Economic PCBA; the XINGLIGHT part was Standard-only), evenly spaced (22.5°) on a 20.5 mm radius,
   ring turned 19.75° so every LED keeps its own 100 nF cap beside it, clear of the cut-out.
-  Buzzer (9 mm, through-hole) and the small parts inside the ring.
+  SMD buzzer MLT-8540H (C95298, 8.5 mm, passive: firmware drives GP12 with 2.7 kHz PWM)
+  with flyback diode D2, and the small parts inside the ring; all JLC-assembled.
 - **Under:** SuperMini flat on castellated pads, antenna end at the right edge (no copper
   there); B+/B− soldered from the top through 1.1 × 1.6 mm plated oval holes; an
   L-shaped cut-out only where the module's underside parts are (measured: 3.0–11.2 mm
@@ -44,6 +45,14 @@ in a pour sliver that the fill then drops (remove it from the file, refill).
 LEDs, caps, resistors, MOSFETs, diode). Hand-soldered: SuperMini, switch, buzzer, XH
 connectors. **Check LED orientation in JLC's placement preview** (XINGLIGHT package
 drawing is an image only; same 5050 4-pin WS2812B pinout).
+
+## Checking before ordering
+- `python3 check_netlist.py` compares every pad's net with `design_main.py` (independent of
+  the generator).
+- `print/top_1to1.pdf` and `print/bottom_1to1_seen_from_below.pdf`: print at 100 % (no
+  "fit to page"), check the board outline measures 54 x 48 mm, then lay the real SuperMini,
+  switch and XH connectors on them (pin rows, B+/B- holes, cut-out, switch legs).
+- In JLC's placement preview: LED pin 1, buzzer +/-, diode stripes, MOSFETs.
 
 ## Still to confirm
 1. Switch end-leg spacing (11.2 mm assumed).
