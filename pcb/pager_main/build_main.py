@@ -175,13 +175,17 @@ for i in range(1, N_LED + 1):
 text("1", *[(R_LED + 3.3) * f(math.radians(a_first)) for f in (math.cos, math.sin)], 0.8)
 
 # ---------------- buzzer (top, SMD, JLC-assembled) ----------------
-# Huaneng MLT-8540H, 8.5 x 8.5 mm, terminals in the corners: seen from the top, + bottom-left,
-# - bottom-right, the two top corners are dummy (mechanical) leads. KiCad's CUI CMT-8504 footprint
-# has the same 8.5 mm square with 2.5 mm corner pads.
+# S&S SMD-0955-05-27 active buzzer: 9 x 9 mm body, two 2 mm-wide terminals on opposite sides,
+# 11.4 mm tip to tip, 5.4 mm between them (datasheet). Terminals along x here; + on the left.
 BZX, BZY = -2.5, 8.0
-bz = place(lib_fp("Buzzer_Beeper", "MagneticBuzzer_CUI_CMT-8504-100-SMT"), "BZ1", BZX, BZY, 0)
-set_nets(bz, "BZ1", {"2": "+", "3": "-"})
-text("+", BZX - 5.6, BZY - 3.5, 0.8)
+bz = new_fp("BZ1"); bz.SetValue(PARTS["BZ1"][0])
+for num, sx in [("1", -1), ("2", 1)]:
+    add_pad(bz, num, BZX + sx * 4.2, BZY, (3.4, 2.4), side="top", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
+fp_rect(bz, BZX - 4.5, BZY - 4.5, BZX + 4.5, BZY + 4.5, pcbnew.F_SilkS)
+fp_rect(bz, BZX - 6.0, BZY - 4.8, BZX + 6.0, BZY + 4.8, pcbnew.F_CrtYd, w=0.05)
+board.Add(bz); set_nets(bz, "BZ1", {"1": "+", "2": "-"})
+bz.Reference().SetVisible(False); bz.Value().SetVisible(False)
+text("+", BZX - 4.2, BZY + 2.1, 0.8)
 
 # ---------------- switch SS12F44 (under): 3 pins 2.5 mm, end legs slotted ----------------
 SWX, SWY, SW_LEG = -2.0, -11.5, 5.6          # leg spacing 11.2 mm is an ESTIMATE - measure
@@ -229,7 +233,6 @@ small = {
     "Q1": (SOT23, -6.5, yb, 0), "R1": (R0603, -3.8, yb, 90), "R2": (R0603, -2.2, yb, 90),
     "Q2": (SOT23, 1.0, yb, 0), "R3": (R0603, 3.7, yb, 90), "R4": (R0603, 5.3, yb, 90),
     "R5": (R0603, -6.0, yc, 0), "C3": (C1206, -1.5, yc, 0), "D1": (SOD123, 3.5, yc, 180),
-    "D2": (SOD123, 4.6, 6.6, 270),           # buzzer flyback, beside the buzzer
 }
 pinmap = {"R": {"1": "1", "2": "2"}, "C": {"1": "1", "2": "2"}, "Q": {"1": "G", "2": "S", "3": "D"}, "D": {"1": "K", "2": "A"}}
 for ref, (lf, x, y, rot) in small.items():
