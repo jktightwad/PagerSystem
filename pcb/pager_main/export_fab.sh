@@ -1,31 +1,44 @@
 #!/bin/sh
-# JLCPCB files for the combined pager board: Gerbers + drill zip, BOM and CPL (top-side assembly).
+# JLCPCB files: Gerbers + drill zip, BOM and CPL.
+#   sh export_fab.sh                      -> main board (Economic PCBA, top side only)   -> fab/
+#   sh export_fab.sh smdconn              -> SMD-connector variant (Standard PCBA, both sides,
+#                                            JLC also fits the connectors + switch) -> fab_smdconn/
 set -e
 cd "$(dirname "$0")"
-rm -rf fab; mkdir -p fab/gerbers
+if [ "$1" = "smdconn" ]; then BOARD=pager_main_smdconn.kicad_pcb; OUTD=fab_smdconn; VARIANT=smdconn
+else BOARD=pager_main.kicad_pcb; OUTD=fab; VARIANT=main; fi
+rm -rf $OUTD; mkdir -p $OUTD/gerbers
 kicad-cli pcb export gerbers --layers F.Cu,B.Cu,F.Paste,B.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts \
-  --subtract-soldermask -o fab/gerbers/ pager_main.kicad_pcb >/dev/null
+  --subtract-soldermask -o $OUTD/gerbers/ $BOARD >/dev/null
 kicad-cli pcb export drill --format excellon --excellon-units mm --excellon-separate-th \
-  --excellon-oval-format route -o fab/gerbers/ pager_main.kicad_pcb >/dev/null
-kicad-cli pcb export pos --format csv --units mm --side front --smd-only -o fab/pos_front.csv pager_main.kicad_pcb >/dev/null
-python3 - <<'PY'
-import csv, re
+  --excellon-oval-format route -o $OUTD/gerbers/ $BOARD >/dev/null
+kicad-cli pcb export pos --format csv --units mm --side both -o $OUTD/pos_all.csv $BOARD >/dev/null
+OUTD=$OUTD VARIANT=$VARIANT python3 - <<'PY'
+import csv, os, re
 from collections import defaultdict
 from design_main import PARTS
-FOOT = {"R": "0603", "C": "0603", "Q": "SOT-23", "D": "SOD-123", "L": "5050"}
+outd, variant = os.environ["OUTD"], os.environ["VARIANT"]
+parts = {r: (v, l) for r, (v, l, n) in PARTS.items()}
+if variant == "smdconn":   # JLC also fits these (Standard PCBA, both sides)
+    parts["J1"] = ("XH-3PWB SMD right angle (DEALON)", "C2905025")
+    parts["J2"] = ("XH-2PWB SMD right angle (DEALON)", "C2905024")
+    parts["SW1"] = ("SS12F44G4 slide switch (through-hole)", "C2887261")
+FOOT = {"R": "0603", "C": "0603", "Q": "SOT-23", "D": "SOD-123", "L": "5050", "B": "SMD 9x9", "J": "XH SMD", "S": "THT"}
 groups = defaultdict(list)
-for ref, (val, lcsc, note) in PARTS.items():
+for ref, (val, lcsc) in parts.items():
     if lcsc: groups[(val, lcsc)].append(ref)
 key = lambda r: (re.sub(r"\d", "", r), int(re.sub(r"\D", "", r) or 0))
-with open("fab/bom_jlc.csv", "w", newline="") as f:
+with open(f"{outd}/bom_jlc.csv", "w", newline="") as f:
     w = csv.writer(f); w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
     for (val, lcsc), refs in sorted(groups.items()):
         refs.sort(key=key); w.writerow([val, ",".join(refs), FOOT.get(refs[0][0], ""), lcsc])
-with open("fab/pos_front.csv") as f, open("fab/cpl_jlc.csv", "w", newline="") as o:
+with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline="") as o:
     w = csv.writer(o); w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
     for row in csv.DictReader(f):
-        if row["Ref"] in PARTS and PARTS[row["Ref"]][1]:
-            w.writerow([row["Ref"], f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', "Top", f'{float(row["Rot"]) % 360:.2f}'])
-print("fab/bom_jlc.csv, fab/cpl_jlc.csv written")
+        ref = row["Ref"]
+        if ref in parts and parts[ref][1]:
+            side = "Bottom" if row["Side"].lower().startswith("b") else "Top"
+            w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', side, f'{float(row["Rot"]) % 360:.2f}'])
+print(f"{outd}/bom_jlc.csv, {outd}/cpl_jlc.csv written")
 PY
-(cd fab/gerbers && zip -q ../pager_main_gerbers.zip *)
+(cd $OUTD/gerbers && zip -q ../$(basename $BOARD .kicad_pcb)_gerbers.zip *)

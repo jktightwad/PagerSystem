@@ -4,11 +4,14 @@ Route afterwards: python3 ../carrier_s3/route_pcb.py pager_main.kicad_pcb
 Design coordinates are mm with the LED ring centre at (0, 0), x right, y UP
 (as in layout_study.py); P() converts to KiCad (origin top-left, y down).
 """
-import json, math
+import json, math, os
 import pcbnew
 from design_main import PARTS, NETS, N_LED
 
-OUT = "pager_main.kicad_pcb"
+# PAGER_SMD_CONN=1 builds the variant with surface-mount touch / dock connectors (DEALON XH-3PWB /
+# XH-2PWB, right angle, under the board) for a JLC Standard (two-sided) assembly quote
+SMD_CONN = os.environ.get("PAGER_SMD_CONN") == "1"
+OUT = "pager_main_smdconn.kicad_pcb" if SMD_CONN else "pager_main.kicad_pcb"
 FPLIB = "/usr/share/kicad/footprints"
 
 # ---------------- geometry (design coords) ----------------
@@ -218,8 +221,30 @@ def xh(ref, pins, x, y, mapping, label):
     set_nets(fp, ref, mapping)
     text(label, x - 6.0, y, 0.8, pcbnew.B_SilkS, rot=90)
     return fp
-xh("J1", 3, -11.5, 7.0, {"1": "1", "2": "2", "3": "3"}, "TOUCH G O V")
-xh("J2", 2, -11.5, -7.0, {"1": "1", "2": "2"}, "DOCK G +")
+def xh_smd(ref, pins, x, y, label):
+    """DEALON XH-nPWB SMD right angle under the board (datasheet land pattern): signal pads 1.3 x 5.0 on
+    2.5 mm pitch along y, centred on x; mounting pads 1.5 x 3.8, 2.8 mm beyond the signal pads towards -x
+    (the plug opening, at the left edge) and 2.9 mm outboard of the end pins. Pin 1 at +y."""
+    fp = new_fp(ref); fp.SetValue(PARTS[ref][0])
+    span = (pins - 1) * 2.5
+    for k in range(pins):
+        add_pad(fp, str(k + 1), x, y + span / 2 - k * 2.5, (5.0, 1.3), side="bottom", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
+    mx = x - 2.5 - 2.8 - 1.9
+    for k, sy in enumerate((1, -1)):
+        add_pad(fp, f"MP{k+1}", mx, y + sy * (span / 2 + 2.9), (3.8, 1.5), side="bottom", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
+    w = span + 7.5                                   # housing width (DIM C)
+    fp_rect(fp, x - 9.7, y - w / 2, x + 2.6, y + w / 2, pcbnew.B_SilkS)
+    fp_rect(fp, x - 10.0, y - w / 2 - 0.3, x + 2.9, y + w / 2 + 0.3, pcbnew.B_CrtYd, w=0.05)
+    board.Add(fp); fp.Reference().SetVisible(False); fp.Value().SetVisible(False)
+    set_nets(fp, ref, {str(k + 1): str(k + 1) for k in range(pins)})
+    text(label, x - 6.0, y, 0.8, pcbnew.B_SilkS, rot=90)
+    return fp
+if SMD_CONN:
+    xh_smd("J1", 3, -11.5, 7.0, "TOUCH G O V")
+    xh_smd("J2", 2, -11.5, -7.0, "DOCK G +")
+else:
+    xh("J1", 3, -11.5, 7.0, {"1": "1", "2": "2", "3": "3"}, "TOUCH G O V")
+    xh("J2", 2, -11.5, -7.0, {"1": "1", "2": "2"}, "DOCK G +")
 
 # ---------------- small parts (top, inside the ring) ----------------
 R0603 = ("Resistor_SMD", "R_0603_1608Metric")
@@ -283,6 +308,8 @@ for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.
               [pcbnew.F_Cu, pcbnew.B_Cu])
 
 text("POOL PAGER", -17.0, 0.0, 0.8, pcbnew.B_SilkS, rot=90)
+from fix_anchors import center_anchors
+center_anchors(board)                # JLC places parts at the footprint anchor: centre the hand-built ones
 board.Save(OUT)
-json.dump({"spares": spares}, open("spares.json", "w"))
+if not SMD_CONN: json.dump({"spares": spares}, open("spares.json", "w"))
 print("saved", OUT, f"{W:.0f} x {H:.0f} mm;", len(list(board.GetFootprints())), "footprints;", len(nets), "nets")
