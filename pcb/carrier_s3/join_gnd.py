@@ -12,7 +12,7 @@ import math, os, sys
 import pcbnew
 
 PCB = sys.argv[1]
-VIA_D, VIA_DRILL, CLR = 0.6, 0.3, 0.25
+VIA_D, VIA_DRILL, CLR = 0.6, 0.3, 0.21   # board rule 0.2 + a little
 
 def mm(v): return pcbnew.FromMM(v)
 def to_mm(v): return pcbnew.ToMM(v)
@@ -148,6 +148,18 @@ if stray or drc_pads:
     for v in main_vias:
         cr, cc = r.cell(to_mm(v.GetPosition().x), to_mm(v.GetPosition().y))
         for l in (0, 1): targets.add((l, cr, cc))
+    # also any spot well inside a main-group pour piece: a track ending there joins it
+    for ly, sp, gid in pcs:
+        if gid != main: continue
+        l = 0 if ly == pcbnew.F_Cu else 1
+        bb = sp.BBox(); yy = to_mm(bb.GetTop())
+        while yy <= to_mm(bb.GetBottom()):
+            xx = to_mm(bb.GetLeft())
+            while xx <= to_mm(bb.GetRight()):
+                if all(sp.Contains(pcbnew.VECTOR2I(mm(xx + dx), mm(yy + dy))) for dx, dy in ((0, 0), (0.3, 0), (-0.3, 0), (0, 0.3), (0, -0.3))):
+                    targets.add((l,) + r.cell(xx, yy))
+                xx += 0.3
+            yy += 0.3
     for ref_pin, cells in r.netpads.get("GND", []):
         lay_cells = list(cells)
         pos = [p for fp in b.GetFootprints() for p in fp.Pads() if f"{fp.GetReference()}.{p.GetNumber()}" == ref_pin][0].GetPosition()

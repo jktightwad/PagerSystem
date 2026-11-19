@@ -264,12 +264,48 @@ class Router:
         return True
 
 
+# ROUTE_GND_FANOUT=prefixes (e.g. "Q,R,C,D") or "all": before any net is routed, every top-only
+# GND pad of those parts gets a short stub and a via to the bottom pour, so later tracks can't wall it in
+FANOUT = os.environ.get("ROUTE_GND_FANOUT", "")
+
+def gnd_fanout(rt, which):
+    net = rt.b.FindNet("GND"); code = net.GetNetCode(); hw = 0.15
+    pre = None if which == "all" else tuple(filter(None, which.split(",")))
+    n = 0
+    for ref_pin, cells in rt.netpads.get("GND", []):
+        ref = ref_pin.split(".")[0]
+        if pre is not None and not ref.startswith(pre): continue
+        if any(l == 1 for l, _, _ in cells): continue          # through-hole or bottom pad
+        free, vok = rt.free_maps(code, hw)
+        for l, r, c in cells: free[l, r, c] = True
+        pr = np.array([(r, c) for _, r, c in cells]).mean(0)
+        found = None
+        for dist in np.arange(0.8, 2.01, 0.1):
+            for k in range(16):
+                a = 2 * math.pi * k / 16
+                vr, vc = int(round(pr[0] + dist / G * math.sin(a))), int(round(pr[1] + dist / G * math.cos(a)))
+                if not (0 <= vr < rt.NY and 0 <= vc < rt.NX) or not vok[vr, vc] or not free[1, vr, vc]: continue
+                steps = max(abs(vr - pr[0]), abs(vc - pr[1]))
+                line = []
+                for t in np.linspace(0, 1, int(steps) + 2):
+                    cr, cc = int(round(pr[0] + t * (vr - pr[0]))), int(round(pr[1] + t * (vc - pr[1])))
+                    if not line or line[-1] != (0, cr, cc): line.append((0, cr, cc))
+                if all(free[p] for p in line):
+                    found = line + [(1, vr, vc)]; break
+            if found: break
+        if found:
+            rt.commit(found, net, hw); n += 1
+        else:
+            print(f"  fanout: no via spot for {ref_pin}")
+    print(f"  fanout: {n} GND vias")
+
 def run(order):
     board = pcbnew.LoadBoard(IN)
     for t in list(board.GetTracks()): board.Remove(t)
     for z in [board.GetArea(i) for i in range(board.GetAreaCount())]:
         if not z.GetIsRuleArea(): board.Remove(z)
     rt = Router(board)
+    if FANOUT: gnd_fanout(rt, FANOUT)
     failed = [n for n in order if not rt.route_net(n)]
     return board, failed
 
