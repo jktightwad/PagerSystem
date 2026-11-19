@@ -8,23 +8,26 @@ bottom pogo 5V --+------------------------------> top pogo 5V   (pass-through to
                  +- 1N5819 --> USB-C plug pigtail VBUS --> LOLIN32 USB-C  (onboard charger -> battery)
 bottom pogo GND -+-------------------------------> top pogo GND, pigtail GND
 
-battery + --> power switch --> LOLIN32 JST (battery in)
-LOLIN32 3V3 --> LED ring 5V/VCC pin, buzzer (+), vibration motor (+)
+battery + --> power switch --> VBAT rail --> LOLIN32 JST +, battery sense divider, LED ring 5V/VCC pin, buzzer (+)
+battery - ------------------------------------> LOLIN32 JST - (stripboard GND rail joins at the LOLIN G pin)
+LOLIN32 3V3 --> vibration motor (+), touch module VCC
                 buzzer and motor switched on their GND side by NPNs (buzzer GPIO 27, motor GPIO 25), diode across the motor
-LED ring DI <-- 330R <-- GPIO 26          (3.3 V supply and 3.3 V data: no level shifter needed)
+LED ring DI <-- 330R <-- GPIO 26          (3.3 V data on a 3.0-4.2 V supply: usually works; not tested here)
 touch module OUT --> GPIO 4
 ```
-- No boost board and no P-MOSFET: the LED ring and the buzzer run from the
-  LOLIN32's 3.3 V regulator, like the motor.
-- **Regulator load:** the ESP32, ring, buzzer and motor all share the 3V3
-  regulator (believed to be an ME6211, ~500 mA; not confirmed on this
-  board). Keep the ring brightness capped (`MAX_BRIGHTNESS`), and avoid
-  driving the motor, buzzer and a bright ring at the same moment if the
-  ESP32 resets. A 470 uF capacitor across 3V3 / GND near the ring helps.
-- **Ring at 3.3 V:** red is fine; blue, green and white can look dimmer at
-  high brightness than they would at 5 V. Check the colours you use.
-- **Buzzer:** the TDB05 is a 5 V part; at 3.3 V it will be quieter. Check it
-  is loud enough; if not, a 3 V buzzer is the fix.
+- No boost board and no P-MOSFET. The LED ring and the buzzer run from the
+  switched battery (VBAT rail, 3.0-4.2 V); the motor runs from the LOLIN32's 3.3 V.
+  Stripboard: `proto/stripboard.png`, LOLIN wires: `proto/lolin_wiring.png`.
+- **Regulator load:** only the ESP32, the motor and the touch module are on the
+  3V3 regulator now; the ring and buzzer draw from the battery directly.
+- **Motor on 3.3 V:** `VIBE_STRENGTH 230` in the firmware assumes 3.3 V. If the
+  motor is moved to VBAT, lower it to about 180.
+- **Ring on VBAT:** the data line is 3.3 V and the ring supply up to 4.2 V; this
+  usually works with WS2812 rings but has not been tested on this build.
+- **Buzzer on VBAT:** the TDB05 is a 5 V part, so it is quieter on 3.0-4.2 V
+  than at 5 V, but louder than it was on 3.3 V.
+- The power switch is between the battery and the VBAT rail, so a
+  switched-off pager does not charge on the dock.
 - Top and bottom pogo connectors are both at 6 o'clock, directly above each
   other, so the pass-through is two short wires.
 - The base's old touch pocket at 4 o'clock holds the GND / 3.3 V / 5 V rails.

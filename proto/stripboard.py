@@ -23,13 +23,13 @@ PARTS = [
 ]
 # off-board wires: (col,row,text)
 WIRES = [
-    (1, 1, "touch VCC"), (4, 1, "buzzer +"), (5, 1, "LOLIN 3V pin"), (6, 1, "ring VCC"), (9, 1, "motor +"),
+    (1, 1, "touch VCC"), (5, 1, "LOLIN 3V pin"), (9, 1, "motor +"),
     (1, 2, "from GPIO 27"), (9, 2, "from GPIO 25"),
     (1, 3, "buzzer -"), (9, 3, "motor -"),
     (1, 5, "pogo GND (top + bottom joined at the pogos)"), (5, 5, "LOLIN G pin (left header, bottom)"), (7, 5, "touch GND"), (9, 5, "ring GND"),
     (1, 6, "to GPIO 34"), (9, 6, "to GPIO 35"),
     (1, 7, "pogo 5V (top + bottom joined at the pogos)"), (9, 7, "USB-C pigtail VBUS"),
-    (1, 8, "battery + via switch"), (2, 8, "LOLIN JST + (male JST pigtail)"),
+    (1, 8, "battery + via switch"), (2, 8, "LOLIN JST +"), (4, 8, "buzzer +"), (6, 8, "ring VCC (5V pin)"),
 ]
 P, X0, Y0 = 56, 270, 120
 img = Image.new("RGB", (max(X0 + COLS * P + 40, 1300), Y0 + ROWS * P + 230), "white")
