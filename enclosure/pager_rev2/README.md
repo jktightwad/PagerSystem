@@ -47,8 +47,9 @@ same for every number).
   the base build-ups are 0.10 taller (ball key pockets 0.10 deeper).
   No crush bumps (`tower_rib_h` removed: the test only fitted without them).
 - Each tower end sits in a collar (5.6 mm tall, 0.9 mm wall; raised 4 mm from 1.6 for alignment) on the base
-  pad and on the ball pad, meant as a force fit: modelled with 0.1 mm interference
-  per side (`tower_fit` = -0.1; 0.1, 0.05 and 0 clearance all printed loose). The snap bead tried before was too small to print
+  pad and on the ball pad, meant as a force fit. The collars are the nominal size
+  (`tower_fit` = 0); the tower is 0.1 mm bigger per side (`tower_oversize` = 0.1),
+  so the fit is tuned by reprinting only the tower (0.1, 0.05 and 0 clearance all printed loose). The snap bead tried before was too small to print
   (`snap_bead` = 0 now; the option is still there).
   The tower's inner channel matches the ball / base oval hole (`tower_channel_clear` = 0;
   it was 0.3 mm per side looser). Wire the two connectors together inside

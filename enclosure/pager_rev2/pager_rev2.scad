@@ -159,7 +159,10 @@ tower_slot_h  = 11.0;   // [2:0.5:13] and height (centred; the solid ends still 
 // optional bead / groove via snap_bead)
 tower_socket_h = 5.6;   // [0.8:0.1:7] collar height (1.6 + 4 for alignment); the wire slot is cut through it
 tower_socket_t = 0.9;   // [0.6:0.1:2] collar wall
-tower_fit      = -0.1;  // [-0.3:0.05:0.4] clearance tower to collar, per side; negative = interference (0.1, 0.05 and 0 all printed loose)
+tower_fit      = 0;     // [-0.3:0.05:0.4] collar opening vs the nominal tower, per side (keep 0: tune the fit on the tower with tower_oversize)
+// the tower's outside is this much bigger per side than the collar opening: the force fit.
+// Only the tower changes, so the fit is tuned by reprinting the tower alone (0.1, 0.05, 0 clearance all printed loose)
+tower_oversize = 0.1;   // [-0.2:0.05:0.4]
 snap_bead      = 0;     // [0:0.05:0.5] bead depth, 0 = plain snug socket (a 0.25 bead was too small to print)
 // groove depth beyond the bead (0 = bead seats in the groove with no play; 0.1 was loose)
 snap_clear     = 0;     // [0:0.05:0.3]
@@ -433,7 +436,7 @@ module tower_collar() {
 module pogo_tower() {
   H = tower_H();
   difference() {
-    linear_extrude(H) stadium_2d(tower_L, tower_W);
+    linear_extrude(H) offset(delta = tower_oversize) stadium_2d(tower_L, tower_W);
     // through channel for the back bodies and wires
     translate([0, 0, -1]) linear_extrude(H + 2) stadium_2d(oval_hole_l + 2 * tower_channel_clear, oval_hole_w + 2 * tower_channel_clear);
     // wire exit, centre side (local -y)
