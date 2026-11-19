@@ -1,36 +1,34 @@
-"""Stripboard layout for the pager driver circuits (same parts/nets as pcb/pager_main/design_main.py).
+"""Stripboard layout for the LOLIN32 Lite pager (docs/pager_wiring.md, current power plan: ring, buzzer, motor on 3V3).
 Draws stripboard.png, seen from the COMPONENT side (strips run left-right underneath).
     python3 stripboard.py
 """
 from PIL import Image, ImageDraw, ImageFont
 
-COLS, ROWS = 28, 8
-ROWNAME = {1: "VBAT rail", 2: "3V3 rail", 3: "DOCK 5V", 4: "DOCK_SENSE | BAT_SENSE",
-           5: "BUZ_IO | MOT_IO", 6: "BUZ- | MOT-", 7: "BUZ_G | MOT_G", 8: "GND rail"}
-CUTS = [(14, r) for r in (3, 4, 5, 6, 7)]          # (column, row) holes where the strip is cut
+COLS, ROWS = 22, 8
+ROWNAME = {1: "VBAT rail (after switch)", 2: "3V3 rail (LOLIN 3V)", 3: "DOCK 5V | USB VBUS", 4: "DOCK_SENSE | BAT_SENSE",
+           5: "GPIO27 | GPIO25", 6: "BUZ- | MOT-", 7: "Q1 base | Q2 base", 8: "GND rail"}
+CUTS = [(11, r) for r in (3, 4, 5, 6, 7)]          # (column, row) holes where the strip is cut
 # parts: (label, value, [(col,row), ...], colour)
 PARTS = [
-    ("R8", "100k", [(3, 3), (3, 4)], "tan"),
-    ("R9", "100k", [(4, 4), (4, 8)], "tan"),
-    ("C2", "100n", [(5, 4), (5, 8)], "gold"),
-    ("R1", "330R", [(9, 5), (9, 7)], "tan"),
-    ("R2", "100k", [(10, 7), (10, 8)], "tan"),
-    ("Q1", "D G S", [(11, 6), (11, 7), (11, 8)], "black"),
-    ("R6", "100k", [(16, 1), (16, 4)], "tan"),
-    ("R7", "100k", [(17, 4), (17, 8)], "tan"),
-    ("C1", "100n", [(18, 4), (18, 8)], "gold"),
-    ("R3", "330R", [(21, 5), (21, 7)], "tan"),
-    ("R4", "100k", [(22, 7), (22, 8)], "tan"),
-    ("Q2", "D G S", [(23, 6), (23, 7), (23, 8)], "black"),
-    ("D1", "B5819 band up", [(24, 1), (24, 6)], "dimgray"),
-    ("C3", "47u + up", [(26, 1), (26, 8)], "steelblue"),
+    ("R1", "100k", [(2, 3), (2, 4)], "tan"),
+    ("R2", "100k", [(3, 4), (3, 8)], "tan"),
+    ("R5", "1k", [(7, 5), (7, 7)], "tan"),
+    ("Q1", "C B E", [(8, 6), (8, 7), (8, 8)], "black"),
+    ("D2", "1N5819 band right", [(10, 3), (12, 3)], "dimgray"),
+    ("R3", "100k", [(13, 1), (13, 4)], "tan"),
+    ("R4", "100k", [(14, 4), (14, 8)], "tan"),
+    ("R6", "330R", [(17, 5), (17, 7)], "tan"),
+    ("Q2", "C B E", [(18, 6), (18, 7), (18, 8)], "black"),
+    ("D1", "1N5819 band up", [(19, 2), (19, 6)], "dimgray"),
 ]
 # off-board wires: (col,row,text)
 WIRES = [
-    (2, 3, "dock J2 5V"), (1, 8, "ESP GND"), (6, 4, "to GP1"), (8, 5, "from GP12"),
-    (13, 1, "buzzer +"), (13, 6, "buzzer -"), (15, 4, "to GP2"), (20, 5, "from GP13"),
-    (25, 1, "motor +"), (25, 6, "motor -"), (27, 1, "VBAT in (switch ON / ESP B+)"),
-    (28, 8, "battery - / ESP B-"), (27, 2, "ESP 3V3"), (28, 2, "touch 3V3"), (2, 8, "touch / dock GND"),
+    (1, 3, "bottom pogo 5V (+ top pogo 5V)"), (1, 8, "pogo GND (both) / USB GND"), (4, 4, "to GPIO 34"),
+    (6, 5, "from GPIO 27"), (1, 2, "touch VCC"), (2, 8, "touch GND"),
+    (10, 2, "buzzer +"), (10, 6, "buzzer -"), (15, 3, "USB-C pigtail VBUS"), (12, 4, "to GPIO 35"),
+    (16, 5, "from GPIO 25"), (20, 2, "motor +"), (20, 6, "motor -"),
+    (21, 1, "battery + via switch (also LOLIN JST +)"), (21, 2, "LOLIN 3V pin"), (21, 8, "LOLIN G / battery -"),
+    (22, 2, "ring VCC"), (22, 8, "ring GND"),
 ]
 P, X0, Y0 = 46, 270, 120
 img = Image.new("RGB", (X0 + COLS * P + 40, Y0 + ROWS * P + 200), "white")
@@ -40,8 +38,8 @@ try:
 except OSError:
     f = fb = fs = ImageFont.load_default()
 def xy(c, r): return X0 + (c - 1) * P, Y0 + (r - 1) * P
-d.text((20, 20), "Pager driver stripboard - COMPONENT side view (strips run left-right underneath)", font=fb, fill="black")
-d.text((20, 45), "X = cut the strip at that hole. Cuts are on the copper side: flip the board left-right, so column 14 counts from the other end.", font=f, fill="black")
+d.text((20, 20), "Pager stripboard, LOLIN32 Lite build - COMPONENT side view (strips run left-right underneath)", font=fb, fill="black")
+d.text((20, 45), "X = cut the strip at that hole. Cuts are on the copper side: flip the board left-right, so column 11 counts from the other end. D2 lies flat along strip 3, across the cut.", font=f, fill="black")
 for c in range(1, COLS + 1):
     d.text((xy(c, 1)[0] - 6, Y0 - 34), str(c), font=fs, fill="gray")
 for r in range(1, ROWS + 1):
@@ -55,7 +53,7 @@ for c, r in CUTS:
     d.line([cx - 13, cy - 13, cx + 13, cy + 13], fill="red", width=4); d.line([cx - 13, cy + 13, cx + 13, cy - 13], fill="red", width=4)
 for lab, val, pins, col in PARTS:
     pts = [xy(c, r) for c, r in pins]
-    d.line([pts[0], pts[-1]], fill=col, width=9 if lab[0] != "Q" else 16)
+    d.line([pts[0], pts[-1]], fill=col, width=16 if lab[0] == "Q" else 9)
     for x, y in pts: d.ellipse([x - 6, y - 6, x + 6, y + 6], fill="silver", outline="black")
     x, y = pts[0]
     if pins[0][1] == 1: d.text((x + 10, (pts[0][1] + pts[-1][1]) / 2 - 10), lab, font=fb, fill="navy")
