@@ -46,14 +46,18 @@ same for every number).
   tower was 0.15 too tall (now -0.15); the screw columns were 0.10 short, so
   the base build-ups are 0.10 taller (ball key pockets 0.10 deeper).
   No crush bumps (`tower_rib_h` removed: the test only fitted without them).
-- Each tower end sits in a collar (1.6 mm tall, 0.9 mm wall) on the base
+- Each tower end sits in a collar (5.6 mm tall, 0.9 mm wall; raised 4 mm from 1.6 for alignment) on the base
   pad and on the ball pad: a plain snug fit, modelled with 0 clearance
   (`tower_fit`; 0.1 and 0.05 printed loose because the slicer's hole
   compensation opens the collar up). The snap bead tried before was too small to print
   (`snap_bead` = 0 now; the option is still there).
   Wire the two connectors together inside
   the tower (5 V and GND pass straight up the stack); a 2-wire lead to the
-  electronics leaves through the slot on the centre side.
+  electronics leaves through the slot on the centre side. The slot is 8 mm wide x
+  11 mm tall (centred on the 14.75 mm tower), wide enough to solder the wires to
+  the connector pins; the solid 1.9 mm at each end still holds the flanges. The
+  same slot is cut through both collars (from 1.9 mm above the pad), because
+  the taller collars would otherwise cover most of it.
 - The support ledge, rim and corner build-up are cut away round the tower
   and collars (1.3 mm clear).
 - Screw columns at 45 and 315 deg as before; the other two at 159.5 and

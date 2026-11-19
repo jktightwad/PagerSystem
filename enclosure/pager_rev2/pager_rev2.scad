@@ -151,11 +151,11 @@ tower_len_adj = -0.15;   // [-1:0.05:1]
 // screw columns: extra length (test print 2: 0.10 short, base not flush).
 // Added to the base build-ups; the ball's key pockets deepen to match.
 col_len_adj = 0.10;      // [-0.5:0.05:0.5]
-tower_slot_w  = 4.0;    // [2:0.5:8] wire exit slot (centre side), width
-tower_slot_h  = 5.0;    // [2:0.5:10] and height
+tower_slot_w  = 8.0;    // [2:0.5:12] wire exit slot (centre side), width (room to solder the pins)
+tower_slot_h  = 11.0;   // [2:0.5:13] and height (centred; the solid ends still hold the flanges)
 // a collar on the base pad and on the ball pad holds each tower end (snug fit;
 // optional bead / groove via snap_bead)
-tower_socket_h = 1.6;   // [0.8:0.1:3] collar height
+tower_socket_h = 5.6;   // [0.8:0.1:7] collar height (1.6 + 4 for alignment); the wire slot is cut through it
 tower_socket_t = 0.9;   // [0.6:0.1:2] collar wall
 tower_fit      = 0;     // [-0.1:0.05:0.4] clearance tower to collar, per side (0.1 and 0.05 printed loose; slicer hole compensation opens it)
 snap_bead      = 0;     // [0:0.05:0.5] bead depth, 0 = plain snug socket (a 0.25 bead was too small to print)
@@ -411,10 +411,17 @@ module snap_ring(d, outside = false) {
   }
 }
 // collar standing on a pad (z = 0 at the pad, growing +z); flip for the ball
+function tower_H() = tower_z1 - tower_z0 + tower_len_adj;
 module tower_collar() {
-  linear_extrude(tower_socket_h) difference() {
-    offset(delta = tower_fit + tower_socket_t) stadium_2d(tower_L, tower_W);
-    offset(delta = tower_fit) stadium_2d(tower_L, tower_W);
+  difference() {
+    linear_extrude(tower_socket_h) difference() {
+      offset(delta = tower_fit + tower_socket_t) stadium_2d(tower_L, tower_W);
+      offset(delta = tower_fit) stadium_2d(tower_L, tower_W);
+    }
+    // the tower's wire slot continues through the collar (same width, from the
+    // slot's lower edge up), so the pins can still be soldered
+    translate([-tower_slot_w / 2, -tower_W, tower_H() / 2 - tower_slot_h / 2])
+      cube([tower_slot_w, tower_W, tower_socket_h]);
   }
   if (snap_bead > 0) translate([0, 0, snap_z()]) snap_ring(snap_bead);
 }
@@ -422,7 +429,7 @@ module tower_collar() {
 // bottom pocket, top connector's in the top pocket; wires inside, the lead
 // to the board out through the slot on the centre side.
 module pogo_tower() {
-  H = tower_z1 - tower_z0 + tower_len_adj;
+  H = tower_H();
   difference() {
     linear_extrude(H) stadium_2d(tower_L, tower_W);
     // through channel for the back bodies and wires
