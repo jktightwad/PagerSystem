@@ -26,7 +26,7 @@ if variant == "smdconn":   # JLC also fits these (Standard PCBA, both sides)
     parts["J2"] = ("XH-2PWB SMD right angle (DEALON)", "C2905024")
     parts["SW1"] = ("SS12F44G4 slide switch (through-hole)", "C2887261")
 BOTTOM = {"J1", "J2", "SW1"}   # parts that sit under the board
-FOOT = {"R": "0603", "C": "0603", "Q": "SOT-23", "D": "SOD-123", "L": "5050", "B": "SMD 9x9", "J": "XH SMD", "S": "THT"}
+FOOT = {"R": "0603", "C": "0603", "Q": "SOT-23", "D": "SOD-123", "L": "5050", "B": "SMD 9x9", "J": "XH SMD", "S": "THT", "U": "SC-70-6"}
 # panel copies are LED1_3 etc.: the part data comes from the base reference
 base = (lambda r: r.rsplit("_", 1)[0]) if variant == "panel" else (lambda r: r)
 with open(f"{outd}/pos_all.csv") as f:
@@ -40,7 +40,7 @@ with open(f"{outd}/bom_jlc.csv", "w", newline="") as f:
     w = csv.writer(f); w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
     for (val, lcsc), refs in sorted(groups.items()):
         refs.sort(key=key)
-        foot = {"C3": "1206"}.get(base(refs[0]), FOOT.get(refs[0][0], ""))
+        foot = {"C3": "1206", "C4": "1206"}.get(base(refs[0]), FOOT.get(refs[0][0], ""))
         w.writerow([val, ",".join(refs), foot, lcsc])
 with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline="") as o:
     w = csv.writer(o); w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])

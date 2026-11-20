@@ -43,27 +43,59 @@ with schemdraw.Drawing(file=os.path.join(OUT, "schematic.svg"), show=False) as d
         d += e.Line().at(getattr(U, p)).right(1.2)
         lab(d, net("U1", p), "right")
 
-    # ---------------- Battery, switch, bulk cap ----------------
-    x0, y0 = -16, 4
+    # ---------------- Battery, P-MOSFET power switch, bulk caps ----------------
+    x0, y0 = -16, 6
+    Q3 = e.Ic(pins=[e.IcPin(name="S", pin="2", side="left"), e.IcPin(name="D", pin="3", side="right"),
+                    e.IcPin(name="G", pin="1", side="bottom")],
+              size=(2.6, 1.6), pinspacing=1.0).label(f"Q3 {val('Q3')}\nP-MOSFET (power switch)", "top", fontsize=10)
+    d += Q3.anchor("S").at((x0 + 4.0, y0))
+    net("Q3", "S"); net("Q3", "D"); net("Q3", "G")
     d.here = (x0, y0)
-    d += e.Dot(open=True).label(f"P1.2 battery + ({net('P1', '2')})", "left")
-    d += e.Line().right(1)
-    d += e.Switch().right().label(f"SW1 {val('SW1')}\nCOM ({net('SW1', 'COM')}) - ON ({net('SW1', 'ON')})", "top")
-    d += e.Line().right(0.5); lab(d, net("SW1", "ON"))
-    d.here = (x0, y0 - 1.5)
+    d += e.Dot(open=True).label("P1.2 battery +", "left")
+    d += e.Line().right(1.5)
+    d += (bp := e.Dot()); net("P1", "2")
+    d += e.Label().at((bp.center[0], bp.center[1] + 0.35)).label(net("P1", "2"), "top", color="#1f4fbf")
+    d += e.Line().at(bp.center).to(Q3.S)
+    d += e.Line().at(Q3.D).right(1.2); lab(d, net("Q3", "D"))
+    d += (r10 := e.Resistor().at(bp.center).down(3.0)); net("R10", "1"); net("R10", "2")
+    d += e.Label().at((r10.center[0] - 0.5, r10.center[1])).label(f"R10\n{val('R10')}", "left", fontsize=11)
+    d += (gn := e.Dot())
+    d += e.Line().at(gn.center).tox(Q3.G[0]); d += e.Line().toy(Q3.G[1])
+    d += e.Label().at((Q3.G[0] + 0.2, gn.center[1] + 0.35)).label(net("Q3", "G"), "right", color="#1f4fbf")
+    d += e.Line().at(gn.center).down(0.6)
+    d += (swe := e.Switch().down())
+    d += e.Label().at((swe.center[0] + 0.7, swe.center[1])).label(f"SW1 {val('SW1')}\nCOM (top) - ON (bottom)\non = gate low = Q3 on", "center", fontsize=11, halign="left")
+    net("SW1", "COM"); net("SW1", "ON")
+    d += e.Ground()
+    d.here = (x0, y0 - 8.5)
     d += e.Dot(open=True).label("P1.1 battery -", "left")
     d += e.Line().right(1); lab(d, net("P1", "1"))
-    d.here = (x0 + 1, y0 - 3)
-    lab(d, net("C3", "1"), "top")
-    d += e.Line().down(0.8)
-    d += e.Capacitor(polar=False).down().label(f"C3 {val('C3')}\nbulk (1206)", "right")
-    d += e.Ground(); net("C3", "2")
+    for k, c in enumerate(("C3", "C4")):
+        d.here = (x0 + 7.5 + 3.6 * k, y0 - 4.0)
+        lab(d, net(c, "1"), "top")
+        d += e.Line().down(1.6)
+        d += (cc := e.Capacitor(polar=False).down())
+        d += e.Label().at((cc.center[0] + 0.9, cc.center[1])).label(f"{c}\n{val(c)}", "right", fontsize=10)
+        d += e.Ground(); net(c, "2")
 
-    # ---------------- Dock J2 + divider ----------------
-    x0, y0 = -16, -4
+    # ---------------- Dock J2, ideal diode U2, divider ----------------
+    x0, y0 = -16, -5.5
     d.here = (x0, y0)
-    d += e.Dot(open=True).label("J2.2 pogo 5V", "left"); d += e.Line().right(1.5); lab(d, net("J2", "2"))
-    d.here = (x0, y0 - 1.2)
+    d += e.Dot(open=True).label("J2.2 pogo 5V", "left"); d += e.Line().right(1.5)
+    d += (pj := e.Dot()); lab(d, net("J2", "2"), "top")
+    U2 = e.Ic(pins=[e.IcPin(name="VIN", pin="1", side="left"), e.IcPin(name="CE", pin="3", side="right", slot="1/2"),
+                    e.IcPin(name="VOUT", pin="6", side="right", slot="2/2"), e.IcPin(name="GND", pin="2", side="bottom", slot="1/3"),
+                    e.IcPin(name="N/C", pin="4", side="bottom", slot="2/3"), e.IcPin(name="ST", pin="5", side="bottom", slot="3/3")],
+              size=(4.2, 2.6), pinspacing=0.9).label(f"U2 {val('U2')}\nideal diode", "top", fontsize=10)
+    d += U2.anchor("VIN").at((pj.center[0] + 1.2, pj.center[1]))
+    d += e.Line().at(pj.center).to(U2.VIN)
+    for pn in ("1", "2", "3", "4", "5", "6"): net("U2", pn)
+    d += e.Line().at(U2.VOUT).right(1.0); d += (vo := e.Dot()); lab(d, net("U2", "6"))
+    d += e.Line().at(U2.CE).right(0.5); d += e.Line().toy(vo.center[1]); d += e.Line().tox(vo.center[0])
+    for pn in ("GND", "N/C", "ST"):
+        d += e.Line().at(getattr(U2, pn.replace("/", ""), None) or U2.absanchors[pn]).down(0.5); d += e.Ground(scale=0.6)
+    d += e.Label().at((x0 - 1.0, U2.VIN[1] - 3.4)).label("CE tied to VOUT: off when VOUT > VIN (backfeed); VIN -6 V abs. max (reversed dock)", "center", fontsize=9, halign="left")
+    d.here = (x0, y0 - 1.5)
     d += e.Dot(open=True).label("J2.1 pogo GND", "left"); d += e.Line().right(1.5); lab(d, net("J2", "1"))
 
     def divider(x, y, rt, rb, c, label):
@@ -79,8 +111,8 @@ with schemdraw.Drawing(file=os.path.join(OUT, "schematic.svg"), show=False) as d
         d += e.Capacitor().at(n.center).down().label(f"{c} {val(c)}", "right"); d += e.Ground(); net(c, "1"); net(c, "2")
         d += e.Line().at(n.center).right(1.2); lab(d, net(rt, "2"))
         d += e.Label().at((x - 0.5, y + 1.2)).label(label, "right", fontsize=10)
-    divider(-16, -7.5, "R8", "R9", "C2", "dock sense (5V/2 -> GP1)")
-    divider(-9.5, -7.5, "R6", "R7", "C1", "battery sense (VBAT/2 -> GP2)")
+    divider(-16, -12.5, "R8", "R9", "C2", "dock sense (pogo 5V/2 -> GP1)")
+    divider(-9.5, -12.5, "R6", "R7", "C1", "battery sense (VBAT/2 -> GP2)")
 
     # ---------------- Touch J1 ----------------
     x0, y0 = 22, 7
@@ -114,13 +146,13 @@ with schemdraw.Drawing(file=os.path.join(OUT, "schematic.svg"), show=False) as d
             d += e.Line().right(1.6)
             net(diode, "A"); net(diode, "K")
         return dn
-    dn = driver(10, -5, "R1", "R2", "Q1", f"BZ1 {val('BZ1')}\nactive buzzer (+ top)", net("BZ1", "+"), net("BZ1", "-"))
+    dn = driver(10, -5, "R1", "R2", "Q1", f"BZ1 {val('BZ1')}\nactive buzzer (+ top)", net("BZ1", "+"), net("BZ1", "-"), diode="D3")
     net("BZ1", "-")
     dn = driver(19, -5, "R3", "R4", "Q2", "P2 vibration motor pads\n(P2.2 +, P2.1 -)", net("P2", "2"), net("P2", "1"), diode="D1")
     net("P2", "1")
 
     # ---------------- LED chain ----------------
-    x0, y0 = -16, -17
+    x0, y0 = -16, -22
     d.here = (x0, y0 + 2.5)
     d += e.Label().label(net("R5", "1"), "left", color="#1f4fbf")
     d += e.Resistor().right().label(f"R5 {val('R5')}", "top")

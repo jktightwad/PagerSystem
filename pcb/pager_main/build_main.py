@@ -322,6 +322,61 @@ for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.
     rule_area([(x + 2.0 * math.cos(2 * math.pi * j / 16), y + 2.0 * math.sin(2 * math.pi * j / 16)) for j in range(16)],
               [pcbnew.F_Cu, pcbnew.B_Cu])
 
+# ---------------- parts added after the design review (top side, auto-placed) ----------------
+# Each goes to the free spot nearest its target (no overlap with any top-side pad or part, inside the
+# board outline, clear of the cut-out and the antenna keep-out, inside the LED ring).
+def _bbox_mm(fp, grow=0.0):
+    bb = fp.GetBoundingBox(False, False)
+    return (pcbnew.ToMM(bb.GetLeft()) - grow, pcbnew.ToMM(bb.GetTop()) - grow,
+            pcbnew.ToMM(bb.GetRight()) + grow, pcbnew.ToMM(bb.GetBottom()) + grow)
+def _obstacles():
+    obs = []
+    for f in board.GetFootprints():
+        big = pcbnew.ToMM(f.GetBoundingBox(False, False).GetWidth()) > 12
+        for pd in f.Pads():
+            if pd.IsOnLayer(pcbnew.F_Cu):
+                bb = pd.GetBoundingBox()
+                obs.append((pcbnew.ToMM(bb.GetLeft()) - 0.3, pcbnew.ToMM(bb.GetTop()) - 0.3,
+                            pcbnew.ToMM(bb.GetRight()) + 0.3, pcbnew.ToMM(bb.GetBottom()) + 0.3))
+        if not big and any(pd.IsOnLayer(pcbnew.F_Cu) and pd.GetAttribute() == pcbnew.PAD_ATTRIB_SMD for pd in f.Pads()):
+            obs.append(_bbox_mm(f, 0.25))
+    return obs
+_outline = pcbnew.SHAPE_POLY_SET()
+board.GetBoardPolygonOutlines(_outline)
+_keepout = [z for z in board.Zones() if z.GetIsRuleArea() and z.GetDoNotAllowTracks() and z.IsOnLayer(pcbnew.F_Cu)]
+def auto_place(ref, lf, pins, tx, ty, rots=(0, 90, 180, 270)):
+    obs = _obstacles(); best = None
+    # footprint outline per rotation, relative to its position (loaded once)
+    rel = {}
+    for rot in rots:
+        fp = lib_fp(*lf); fp.SetPosition(P(0, 0)); fp.SetOrientationDegrees(rot)
+        bx0, by0, bx1, by1 = _bbox_mm(fp, 0.25); ox, oy = pcbnew.ToMM(fp.GetPosition().x), pcbnew.ToMM(fp.GetPosition().y)
+        rel[rot] = (bx0 - ox, by0 - oy, bx1 - ox, by1 - oy)
+    cand = sorted((math.hypot(gx * 0.25, gy * 0.25), gx, gy) for gx in range(-70, 71) for gy in range(-70, 71))
+    for d, gx, gy in cand:
+        if best: break
+        x, y = tx + gx * 0.25, ty + gy * 0.25
+        if math.hypot(x, y) > 17.0: continue
+        kx, ky = pcbnew.ToMM(P(x, y).x), pcbnew.ToMM(P(x, y).y)
+        if True:
+            for rot in rots:
+                r = rel[rot]; x0, y0, x1, y1 = kx + r[0], ky + r[1], kx + r[2], ky + r[3]
+                if any(x0 < o[2] and x1 > o[0] and y0 < o[3] and y1 > o[1] for o in obs): continue
+                corners = [pcbnew.VECTOR2I(pcbnew.FromMM(u), pcbnew.FromMM(v)) for u in (x0 - 0.3, x1 + 0.3) for v in (y0 - 0.3, y1 + 0.3)]
+                if not all(_outline.Contains(c) for c in corners): continue
+                if any(z.Outline().Contains(c) for z in _keepout for c in corners): continue
+                best = (d, x, y, rot); break
+    assert best, f"no room for {ref}"
+    fp = place(lib_fp(*lf), ref, best[1], best[2], best[3]); set_nets(fp, ref, pins)
+    print(f"  {ref} at ({best[1]:.2f}, {best[2]:.2f}) rot {best[3]}, {best[0]:.1f} mm from its target")
+SC70_6 = ("Package_TO_SOT_SMD", "SOT-363_SC-70-6")
+pins6 = {str(k): str(k) for k in range(1, 7)}
+auto_place("U2", SC70_6, pins6, 8.0, -6.0)                       # between the dock line and the module 5V pin
+auto_place("Q3", SOT23, pinmap["Q"], 2.0, -11.5)                 # near the switch / battery pads
+auto_place("R10", R0603, pinmap["R"], 2.0, -13.5)
+auto_place("C4", C1206, pinmap["C"], -1.5, -9.5)                 # next to C3
+auto_place("D3", SOD123, pinmap["D"], -2.5, 12.5)                # above the buzzer, between its pads
+
 text("POOL PAGER", -17.0, 0.0, 0.8, pcbnew.B_SilkS, rot=90)
 from fix_anchors import center_anchors
 center_anchors(board)                # JLC places parts at the footprint anchor: centre the hand-built ones
