@@ -93,7 +93,12 @@ void ringFill(uint32_t c) { ring.fill(c); ring.show(); }
 void allOff() { beeper(false); vibe(false); ringFill(0); }
 uint32_t rgb(uint8_t r, uint8_t g, uint8_t b) { return ring.Color(r, g, b); }
 
-float readVolts(int pin) { return analogReadMilliVolts(pin) * DIVIDER_RATIO / 1000.0f; }
+// average 32 samples: a single reading through the 100k/100k divider jumps by about +-0.05 V
+float readVolts(int pin) {
+  uint32_t sum = 0;
+  for (int i = 0; i < 32; i++) sum += analogReadMilliVolts(pin);
+  return sum / 32.0f * DIVIDER_RATIO / 1000.0f;
+}
 bool onDock() { return readVolts(PIN_DOCK_ADC) > 4.0f; }
 bool touched() { return digitalRead(PIN_TOUCH) == (TOUCH_ACTIVE_HIGH ? HIGH : LOW); }
 int batteryPercent() {
