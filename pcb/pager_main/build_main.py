@@ -170,12 +170,52 @@ for i in range(1, N_LED + 1):
     fp = place(lib_fp(*LED), f"LED{i}", x, y, rot=90 + a)
     set_nets(fp, f"LED{i}", {"1": "VDD", "2": "DOUT", "3": "GND", "4": "DIN"})
     # capacitor beside its LED on the inside; if that is in the cut-out, in the gap away from the module axis
-    rc = R_LED - 2.6 - 0.75 - 0.3
+    rc = R_LED - 2.6 - 0.75 - 0.3 - 0.6        # 0.6 further in than before: room for the VBAT ring (below)
     cx, cy = rc * math.cos(math.radians(a)), rc * math.sin(math.radians(a))
     ca = a
     cp = place(lib_fp(*C0603), f"CL{i}", cx, cy, rot=90 + ca)
     set_nets(cp, f"CL{i}", {"1": "1", "2": "2"})
 text("1", *[(R_LED + 3.3) * f(math.radians(a_first)) for f in (math.cos, math.sin)], 0.8)
+
+# ---------------- VBAT ring (top copper, drawn here; the router keeps it with ROUTE_KEEP=1) ----------------
+# A 1.0 mm circle between the LED capacitors and the LEDs' inner pad row (VDD, DIN), with a short stub to every
+# LED VDD pad and capacitor + pad, so every LED is fed from both sides with ~0.4 mOhm/mm copper. The data hops
+# (outer DOUT -> next inner DIN) stay outside it. It is left open only where it would pass too close to the
+# module cut-out (board-edge clearance).
+from shapely.geometry import Polygon, Point
+R_RING, W_RING, W_STUB = R_LED - 2.85, 1.0, 0.6
+_cutpoly = Polygon(cut)
+def _ring_ok(deg):
+    x, y = R_RING * math.cos(math.radians(deg)), R_RING * math.sin(math.radians(deg))
+    return _cutpoly.exterior.distance(Point(x, y)) >= 0.5 + W_RING / 2 + 0.15 and not _cutpoly.contains(Point(x, y))
+_ok = [_ring_ok(k / 2) for k in range(720)]
+# the open stretch: start the ring just after it, go once round
+_start = next(k for k in range(720) if _ok[k] and not _ok[k - 1])
+_span = []
+for k in range(_start, _start + 720):
+    if not _ok[k % 720]: break
+    _span.append(k / 2)
+def _track(a, b_, w, layer=pcbnew.F_Cu, netname="VBAT"):
+    t = pcbnew.PCB_TRACK(board); t.SetStart(P(*a)); t.SetEnd(P(*b_)); t.SetWidth(mm(w)); t.SetLayer(layer)
+    t.SetNet(net(netname)); board.Add(t)
+_pts = [(R_RING * math.cos(math.radians(d)), R_RING * math.sin(math.radians(d))) for d in _span[::4] + [_span[-1]]]
+for a_, b_ in zip(_pts, _pts[1:]):
+    if math.hypot(a_[0] - b_[0], a_[1] - b_[1]) > 0.01: _track(a_, b_, W_RING)
+def _in_span(deg):
+    deg %= 360
+    return any(abs(((deg - d) + 180) % 360 - 180) < 0.26 for d in _span[::1])
+ring_stubs = 0
+for f in list(board.GetFootprints()):
+    ref = f.GetReference()
+    if not (ref.startswith("LED") or ref.startswith("CL")): continue
+    for pd in f.Pads():
+        if pd.GetNetname() != "VBAT": continue
+        px, py = pcbnew.ToMM(pd.GetPosition().x) + X0, Y1 - pcbnew.ToMM(pd.GetPosition().y)
+        deg = math.degrees(math.atan2(py, px))
+        if not _in_span(deg): continue
+        _track((R_RING * math.cos(math.radians(deg)), R_RING * math.sin(math.radians(deg))), (px, py), W_STUB)
+        ring_stubs += 1
+print(f"  VBAT ring r={R_RING:.2f} mm, {W_RING} mm wide, {len(_span) / 2:.1f} deg of 360, {ring_stubs} stubs")
 
 # ---------------- buzzer (top, SMD, JLC-assembled) ----------------
 # S&S SMD-0955-05-27 active buzzer: 9 x 9 mm body, two 2 mm-wide terminals on opposite sides,
@@ -332,13 +372,13 @@ def _bbox_mm(fp, grow=0.0):
 def _obstacles():
     obs = []
     for f in board.GetFootprints():
-        big = pcbnew.ToMM(f.GetBoundingBox(False, False).GetWidth()) > 12
+        big = f.GetReference() in ("U1", "P3", "TP1")
         for pd in f.Pads():
             if pd.IsOnLayer(pcbnew.F_Cu):
                 bb = pd.GetBoundingBox()
                 obs.append((pcbnew.ToMM(bb.GetLeft()) - 0.3, pcbnew.ToMM(bb.GetTop()) - 0.3,
                             pcbnew.ToMM(bb.GetRight()) + 0.3, pcbnew.ToMM(bb.GetBottom()) + 0.3))
-        if not big and any(pd.IsOnLayer(pcbnew.F_Cu) and pd.GetAttribute() == pcbnew.PAD_ATTRIB_SMD for pd in f.Pads()):
+        if not big and any(pd.IsOnLayer(pcbnew.F_Cu) for pd in f.Pads()):
             obs.append(_bbox_mm(f, 0.25))
     return obs
 _outline = pcbnew.SHAPE_POLY_SET()
@@ -356,7 +396,7 @@ def auto_place(ref, lf, pins, tx, ty, rots=(0, 90, 180, 270)):
     for d, gx, gy in cand:
         if best: break
         x, y = tx + gx * 0.25, ty + gy * 0.25
-        if math.hypot(x, y) > 17.0: continue
+        if math.hypot(x, y) > R_RING - 1.0: continue
         kx, ky = pcbnew.ToMM(P(x, y).x), pcbnew.ToMM(P(x, y).y)
         if True:
             for rot in rots:
@@ -364,6 +404,7 @@ def auto_place(ref, lf, pins, tx, ty, rots=(0, 90, 180, 270)):
                 if any(x0 < o[2] and x1 > o[0] and y0 < o[3] and y1 > o[1] for o in obs): continue
                 corners = [pcbnew.VECTOR2I(pcbnew.FromMM(u), pcbnew.FromMM(v)) for u in (x0 - 0.3, x1 + 0.3) for v in (y0 - 0.3, y1 + 0.3)]
                 if not all(_outline.Contains(c) for c in corners): continue
+                if any(math.hypot(pcbnew.ToMM(c.x) + X0, Y1 - pcbnew.ToMM(c.y)) > R_RING - W_RING / 2 - 0.3 for c in corners): continue
                 if any(z.Outline().Contains(c) for z in _keepout for c in corners): continue
                 best = (d, x, y, rot); break
     assert best, f"no room for {ref}"

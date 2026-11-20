@@ -44,6 +44,7 @@ class Router:
         self.padcells = np.zeros((2, self.NY, self.NX), bool)   # any pad copper (no vias near pads)
         self.holes = np.zeros((self.NY, self.NX), bool)
         self.netpads = {}                                       # net name -> list of (cells set)
+        self.pre = {}                                           # net name -> cells of kept copper (ROUTE_KEEP)
         self._edges()
         self.npth = np.zeros((self.NY, self.NX), bool)
         self._pads()
@@ -239,10 +240,15 @@ class Router:
         net = self.b.FindNet(name); code = net.GetNetCode()
         hw = WIDTH.get(name, SIG_W) / 2
         pads = list(self.netpads.get(name, []))
-        if len(pads) < 2: return True
+        pre = self.pre.get(name, set())
+        if pre:                                       # kept copper: pads touching it are already connected
+            todo = [p for p in pads if not (p[1] & pre)]
+            if not todo: return True
+            tree = set(pre)
+        else:
+            if len(pads) < 2: return True
+            tree = set(pads[0][1]); todo = pads[1:]
         free, vok = self.free_maps(code, hw)
-        # own pad cells are always enterable
-        tree = set(pads[0][1]); todo = pads[1:]
         while todo:
             # nearest pad to the tree (centre distance)
             tr = np.array([(r, c) for _, r, c in tree])
@@ -300,12 +306,29 @@ def gnd_fanout(rt, which):
             print(f"  fanout: no via spot for {ref_pin}")
     print(f"  fanout: {n} GND vias")
 
+# ROUTE_KEEP=1: tracks already on the board (drawn by the build script, e.g. a power ring) stay and
+# count as part of their net: pads they touch are connected, the rest are routed to them
+KEEP = os.environ.get("ROUTE_KEEP") == "1"
+
 def run(order):
     board = pcbnew.LoadBoard(IN)
-    for t in list(board.GetTracks()): board.Remove(t)
+    if not KEEP:
+        for t in list(board.GetTracks()): board.Remove(t)
     for z in [board.GetArea(i) for i in range(board.GetAreaCount())]:
         if not z.GetIsRuleArea(): board.Remove(z)
     rt = Router(board)
+    if KEEP:
+        for t in board.GetTracks():
+            code = t.GetNetCode()
+            if t.Type() == pcbnew.PCB_VIA_T:
+                c = (to_mm(t.GetPosition().x), to_mm(t.GetPosition().y))
+                cells = [x for l in (0, 1) for x in rt.mark_track(c, c, l, to_mm(t.GetWidth()) / 2, code)]
+                rt.holes[rt.cell(*c)] = True
+            else:
+                l = 0 if t.GetLayer() == pcbnew.F_Cu else 1
+                cells = rt.mark_track((to_mm(t.GetStart().x), to_mm(t.GetStart().y)), (to_mm(t.GetEnd().x), to_mm(t.GetEnd().y)),
+                                      l, to_mm(t.GetWidth()) / 2, code)
+            rt.pre.setdefault(t.GetNetname(), set()).update(cells)
     if FANOUT: gnd_fanout(rt, FANOUT)
     failed = [n for n in order if not rt.route_net(n)]
     return board, failed
