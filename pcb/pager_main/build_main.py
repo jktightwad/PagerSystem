@@ -413,6 +413,14 @@ def auto_place(ref, lf, pins, tx, ty, rots=(0, 90, 180, 270)):
 SC70_6 = ("Package_TO_SOT_SMD", "SOT-363_SC-70-6")
 pins6 = {str(k): str(k) for k in range(1, 7)}
 auto_place("U2", SC70_6, pins6, 8.0, -6.0)                       # between the dock line and the module 5V pin
+# U2's own links, drawn here (kept by the router): CE (3) -> N/C (4) under the body -> round the outside of
+# ST (5) -> VOUT (6); ST (5) -> GND (2) under the body. Clearances 0.3+ mm.
+_u2 = [f for f in board.GetFootprints() if f.GetReference() == "U2"][0]
+_pp = {pd.GetNumber(): (pcbnew.ToMM(pd.GetPosition().x) + X0, Y1 - pcbnew.ToMM(pd.GetPosition().y)) for pd in _u2.Pads()}
+_ux = ((_pp["4"][0] - _pp["3"][0]) / 1.9, (_pp["4"][1] - _pp["3"][1]) / 1.9)          # left column -> right column
+_o4 = (_pp["4"][0] + 0.65 * _ux[0], _pp["4"][1] + 0.65 * _ux[1]); _o6 = (_pp["6"][0] + 0.65 * _ux[0], _pp["6"][1] + 0.65 * _ux[1])
+for a_, b_ in [(_pp["3"], _pp["4"]), (_pp["4"], _o4), (_o4, _o6), (_o6, _pp["6"])]: _track(a_, b_, 0.25, netname="MOD5V")
+_track(_pp["5"], _pp["2"], 0.25, netname="GND")
 auto_place("Q3", SOT23, pinmap["Q"], 2.0, -11.5)                 # near the switch / battery pads
 auto_place("R10", R0603, pinmap["R"], 2.0, -13.5)
 auto_place("C4", C1206, pinmap["C"], -1.5, -9.5)                 # next to C3
