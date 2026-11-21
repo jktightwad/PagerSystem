@@ -1,0 +1,30 @@
+Refs,Qty,Value / part,LCSC,Part page (datasheet linked there),Fitted by,Note
+BZ1,1,SMD-0955-05-27,C55014110,https://jlcpcb.com/partdetail/C55014110,JLC (top side),"S&S active SMD buzzer 9x9 mm, 3-6 V, 85 dB@5 V, 30 mA; plain on/off on GP12; JLC-assembled"
+C1,1,100nF,C14663,https://jlcpcb.com/partdetail/C14663,JLC (top side),battery divider filter (same part as the LED caps)
+C2,1,100nF,C14663,https://jlcpcb.com/partdetail/C14663,JLC (top side),dock divider filter (same part as the LED caps)
+C3,1,47uF 10V,C96123,https://jlcpcb.com/partdetail/C96123,JLC (top side),"LED / VBAT bulk cap (Samsung CL31A476MPHNNNE, 1206)"
+C4,1,47uF 10V,C96123,https://jlcpcb.com/partdetail/C96123,JLC (top side),"second VBAT bulk cap, parallel to C3"
+CL1-CL16,16,100nF,C14663,https://jlcpcb.com/partdetail/C14663,JLC (top side),LED decoupling
+D1,1,B5819W,C8598,https://jlcpcb.com/partdetail/C8598,JLC (top side),motor flyback
+D3,1,B5819W,C8598,https://jlcpcb.com/partdetail/C8598,JLC (top side),buzzer flyback
+J1,1,Touch,,,hand,"JST-XH 3 right angle, under: GND, OUT, 3V3"
+J2,1,Dock (pogo),,,hand,"JST-XH 2 right angle, under: GND, 5V"
+LED1-LED16,16,TZ-5050S2RGB-5V-I4-H1,C26167850,https://jlcpcb.com/partdetail/C26167850,JLC (top side),"TUOZHAN TZ2812, WS2812-compatible; JLC Economic + Standard PCBA"
+P1,1,Battery pads,,,hand,"under: GND, BAT+"
+P2,1,Motor pads,,,hand,"under: MOT-, VBAT"
+Q1,1,AO3400A,C20917,https://jlcpcb.com/partdetail/C20917,JLC (top side),buzzer driver
+Q2,1,AO3400A,C20917,https://jlcpcb.com/partdetail/C20917,JLC (top side),motor driver
+Q3,1,AO3401A,C15127,https://jlcpcb.com/partdetail/C15127,JLC (top side),P-MOSFET power switch BAT+ -> VBAT (SW1 pulls its gate low = on)
+R1,1,330R,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),Q1 gate
+R2,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q1 gate pull-down
+R3,1,330R,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),Q2 gate
+R4,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q2 gate pull-down
+R5,1,330R,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),LED data
+R6,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),battery divider top
+R7,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),battery divider bottom
+R8,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),dock divider top
+R9,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),dock divider bottom
+R10,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q3 gate pull-up to BAT+ (off when SW1 is open)
+SW1,1,SS12F44-G3 slide switch,,,hand,SS12F44 slide switch (rated 300 mA): switches Q3's gate only
+U1,1,ESP32-S3 SuperMini,,,hand,ESP32-S3 SuperMini module; B+/B- battery pads on its back (see brief)
+U2,1,LM66100DCKR,C2869734,https://jlcpcb.com/partdetail/C2869734,JLC (top side),"ideal diode, dock 5 V -> module 5 V: blocks backfeed (CE = VOUT) and reverse polarity"
