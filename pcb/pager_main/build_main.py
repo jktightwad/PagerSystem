@@ -327,7 +327,16 @@ top_names = [n for n in ROW_POS if n in spares] + ["3V3", "GND"]
 bot_names = [n for n in ROW_NEG if n in spares] + ["VBAT", "3V3", "GND"]
 def arc_holes(names, a0, direction):
     return [(n, a0 + direction * k * STEP) for k, n in enumerate(names)]
-holes = arc_holes(top_names, 120.1, +1) + arc_holes(bot_names, 239.9, -1)
+# PAGER_SPARES=left: the two left corners (original); default: the two right corners, beside the module's pin
+# rows (short traces). Order along each arc follows the module pins so the traces don't cross.
+if os.environ.get("PAGER_SPARES") == "left":
+    holes = arc_holes(top_names, 120.1, +1) + arc_holes(bot_names, 239.9, -1)
+else:
+    R_SPARE = 26.5
+    STEP = math.degrees(PITCH_ARC / R_SPARE)
+    top_r = [n for n in ["GP7", "GP6", "GP5", "GP4", "GP3", "GP2", "GP1", "RX", "TX"] if n in spares] + ["3V3", "GND"]
+    bot_r = [n for n in ["GP8", "GP9", "GP10", "GP11", "GP12", "GP13"] if n in spares] + ["VBAT", "3V3", "GND"]
+    holes = arc_holes(top_r, 31.0, +1) + arc_holes(bot_r, -31.0, -1)
 sp = new_fp("P3"); sp.SetValue("spare pins / power")
 for k, (name, a) in enumerate(holes):
     px, py = R_SPARE * math.cos(math.radians(a)), R_SPARE * math.sin(math.radians(a))
@@ -352,13 +361,14 @@ for k, pad in enumerate(sorted(sp.Pads(), key=lambda p: int(p.GetNumber()))):
 TPS = [("GP1", "DOCK_SENSE"), ("GP2", "BAT_SENSE"), ("GP4", "TOUCH"), ("GP5", "RING_IO"), ("GP12", "BUZ_IO"), ("GP13", "MOT_IO")]
 tp = new_fp("TP1"); tp.SetValue("GPIO test points")
 for k, (lab, n) in enumerate(TPS):
-    x = 6.0 + k * 2.6
-    pd = add_pad(tp, str(k + 1), x, -20.0, (1.5, 1.5), side="bottom", shape=pcbnew.PAD_SHAPE_CIRCLE)
-    text(lab.replace("GP", ""), x, -22.0, 0.8, pcbnew.B_SilkS)
+    TPX, TPY = (6.0, -20.0) if os.environ.get("PAGER_SPARES") == "left" else (5.5, -15.0)   # out of the right-corner arc
+    x = TPX + k * 2.6
+    pd = add_pad(tp, str(k + 1), x, TPY, (1.5, 1.5), side="bottom", shape=pcbnew.PAD_SHAPE_CIRCLE)
+    text(lab.replace("GP", ""), x, TPY - 1.8, 0.8, pcbnew.B_SilkS)
 board.Add(tp); tp.Reference().SetVisible(False); tp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(tp.Pads(), key=lambda p: int(p.GetNumber()))):
     pad.SetNet(net(TPS[k][1]))
-text("GPIO TEST", 12.5, -17.6, 0.8, pcbnew.B_SilkS)
+text("GPIO TEST", 12.5, -17.6 if os.environ.get("PAGER_SPARES") == "left" else -18.6, 0.8, pcbnew.B_SilkS)
 
 # ---------------- mounting holes (4 corners) ----------------
 for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.2, Y0 + 2.2), (X1 - 2.2, Y0 + 2.2)]):
