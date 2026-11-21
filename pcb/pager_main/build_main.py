@@ -11,7 +11,9 @@ from design_main import PARTS, NETS, N_LED
 # PAGER_SMD_CONN=1 builds the variant with surface-mount touch / dock connectors (DEALON XH-3PWB /
 # XH-2PWB, right angle, under the board) for a JLC Standard (two-sided) assembly quote
 SMD_CONN = os.environ.get("PAGER_SMD_CONN") == "1"
-OUT = "pager_main_smdconn.kicad_pcb" if SMD_CONN else "pager_main.kicad_pcb"
+# PAGER_4L=1: 4-layer variant (In1 = GND plane, In2 = VBAT plane, added by the router via ROUTE_PLANES); no VBAT ring
+FOUR = os.environ.get("PAGER_4L") == "1"
+OUT = "pager_main_smdconn.kicad_pcb" if SMD_CONN else ("pager_main_4l.kicad_pcb" if FOUR else "pager_main.kicad_pcb")
 FPLIB = "/usr/share/kicad/footprints"
 
 # ---------------- geometry (design coords) ----------------
@@ -36,7 +38,7 @@ def mm(v): return pcbnew.FromMM(v)
 def P(x, y): return pcbnew.VECTOR2I(mm(x - X0), mm(Y1 - y))
 W, H = X1 - X0, Y1 - Y0
 
-board = pcbnew.BOARD(); board.SetCopperLayerCount(2)
+board = pcbnew.BOARD(); board.SetCopperLayerCount(4 if FOUR else 2)
 ds = board.GetDesignSettings()
 ds.m_TrackMinWidth = mm(0.2); ds.m_MinClearance = mm(0.2); ds.m_ViasMinSize = mm(0.6)
 ds.m_MinThroughDrill = mm(0.3); ds.m_CopperEdgeClearance = mm(0.3)
@@ -80,6 +82,8 @@ def text(t, x, y, size=0.8, layer=pcbnew.F_SilkS, rot=0):
     board.Add(s)
 
 def rule_area(poly, lays, pour=True, tracks=True, vias=True):
+    if FOUR and pour and pcbnew.F_Cu in lays:          # copper-free areas (antenna, screw heads) on the planes too
+        lays = list(lays) + [pcbnew.In1_Cu, pcbnew.In2_Cu]
     for lay in lays:
         z = pcbnew.ZONE(board); z.SetIsRuleArea(True); z.SetDoNotAllowCopperPour(pour); z.SetDoNotAllowTracks(tracks)
         z.SetDoNotAllowVias(vias); z.SetDoNotAllowPads(False); z.SetDoNotAllowFootprints(False); z.SetLayer(lay)
@@ -198,7 +202,7 @@ for k in range(_start, _start + 720):
 def _track(a, b_, w, layer=pcbnew.F_Cu, netname="VBAT"):
     t = pcbnew.PCB_TRACK(board); t.SetStart(P(*a)); t.SetEnd(P(*b_)); t.SetWidth(mm(w)); t.SetLayer(layer)
     t.SetNet(net(netname)); board.Add(t)
-_pts = [(R_RING * math.cos(math.radians(d)), R_RING * math.sin(math.radians(d))) for d in _span[::4] + [_span[-1]]]
+_pts = [] if FOUR else [(R_RING * math.cos(math.radians(d)), R_RING * math.sin(math.radians(d))) for d in _span[::4] + [_span[-1]]]
 for a_, b_ in zip(_pts, _pts[1:]):
     if math.hypot(a_[0] - b_[0], a_[1] - b_[1]) > 0.01: _track(a_, b_, W_RING)
 def _in_span(deg):
@@ -212,10 +216,10 @@ for f in list(board.GetFootprints()):
         if pd.GetNetname() != "VBAT": continue
         px, py = pcbnew.ToMM(pd.GetPosition().x) + X0, Y1 - pcbnew.ToMM(pd.GetPosition().y)
         deg = math.degrees(math.atan2(py, px))
-        if not _in_span(deg): continue
+        if FOUR or not _in_span(deg): continue
         _track((R_RING * math.cos(math.radians(deg)), R_RING * math.sin(math.radians(deg))), (px, py), W_STUB)
         ring_stubs += 1
-print(f"  VBAT ring r={R_RING:.2f} mm, {W_RING} mm wide, {len(_span) / 2:.1f} deg of 360, {ring_stubs} stubs")
+if not FOUR: print(f"  VBAT ring r={R_RING:.2f} mm, {W_RING} mm wide, {len(_span) / 2:.1f} deg of 360, {ring_stubs} stubs")
 
 # ---------------- buzzer (top, SMD, JLC-assembled) ----------------
 # S&S SMD-0955-05-27 active buzzer: 9 x 9 mm body, two 2 mm-wide terminals on opposite sides,

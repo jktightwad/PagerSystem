@@ -274,15 +274,19 @@ class Router:
 # GND pad of those parts gets a short stub and a via to the bottom pour, so later tracks can't wall it in
 FANOUT = os.environ.get("ROUTE_GND_FANOUT", "")
 
-def gnd_fanout(rt, which):
-    net = rt.b.FindNet("GND"); code = net.GetNetCode(); hw = 0.15
+def gnd_fanout(rt, which, netname="GND"):
+    """stub + via for every single-layer pad of `netname` (top pads drop to the bottom, bottom pads rise to
+    the top); on 4 layers the via also reaches that net's inner plane"""
+    net = rt.b.FindNet(netname); code = net.GetNetCode(); hw = 0.15
     pre = None if which == "all" else tuple(filter(None, which.split(",")))
     n = 0
-    for ref_pin, cells in rt.netpads.get("GND", []):
+    for ref_pin, cells in rt.netpads.get(netname, []):
         ref = ref_pin.split(".")[0]
         # entries ending in a digit are exact references (C1), others prefixes (Q)
         if pre is not None and not any(ref == e if e[-1].isdigit() else ref.startswith(e) for e in pre): continue
-        if any(l == 1 for l, _, _ in cells): continue          # through-hole or bottom pad
+        lays = {l for l, _, _ in cells}
+        if len(lays) == 2: continue                            # through-hole: reaches every layer already
+        L = lays.pop(); O = 1 - L
         free, vok = rt.free_maps(code, hw)
         for l, r, c in cells: free[l, r, c] = True
         pr = np.array([(r, c) for _, r, c in cells]).mean(0)
@@ -291,20 +295,20 @@ def gnd_fanout(rt, which):
             for k in range(16):
                 a = 2 * math.pi * k / 16
                 vr, vc = int(round(pr[0] + dist / G * math.sin(a))), int(round(pr[1] + dist / G * math.cos(a)))
-                if not (0 <= vr < rt.NY and 0 <= vc < rt.NX) or not vok[vr, vc] or not free[1, vr, vc]: continue
+                if not (0 <= vr < rt.NY and 0 <= vc < rt.NX) or not vok[vr, vc] or not free[O, vr, vc]: continue
                 steps = max(abs(vr - pr[0]), abs(vc - pr[1]))
                 line = []
                 for t in np.linspace(0, 1, int(steps) + 2):
                     cr, cc = int(round(pr[0] + t * (vr - pr[0]))), int(round(pr[1] + t * (vc - pr[1])))
-                    if not line or line[-1] != (0, cr, cc): line.append((0, cr, cc))
+                    if not line or line[-1] != (L, cr, cc): line.append((L, cr, cc))
                 if all(free[p] for p in line):
-                    found = line + [(1, vr, vc)]; break
+                    found = line + [(O, vr, vc)]; break
             if found: break
         if found:
             rt.commit(found, net, hw); n += 1
         else:
             print(f"  fanout: no via spot for {ref_pin}")
-    print(f"  fanout: {n} GND vias")
+    print(f"  fanout: {n} {netname} vias")
 
 # ROUTE_KEEP=1: tracks already on the board (drawn by the build script, e.g. a power ring) stay and
 # count as part of their net: pads they touch are connected, the rest are routed to them
@@ -329,7 +333,8 @@ def run(order):
                 cells = rt.mark_track((to_mm(t.GetStart().x), to_mm(t.GetStart().y)), (to_mm(t.GetEnd().x), to_mm(t.GetEnd().y)),
                                       l, to_mm(t.GetWidth()) / 2, code)
             rt.pre.setdefault(t.GetNetname(), set()).update(cells)
-    if FANOUT: gnd_fanout(rt, FANOUT)
+    if FANOUT:
+        for nn in os.environ.get("ROUTE_FANOUT_NETS", "GND").split(","): gnd_fanout(rt, FANOUT, nn)
     failed = [n for n in order if not rt.route_net(n)]
     return board, failed
 
@@ -339,6 +344,19 @@ def add_zones(board):
     bb = board.GetBoardEdgesBoundingBox()
     for lay in (pcbnew.F_Cu, pcbnew.B_Cu):
         z = pcbnew.ZONE(board); z.SetLayer(lay); z.SetNet(net)
+        z.SetLocalClearance(mm(0.25)); z.SetMinThickness(mm(0.25))
+        z.SetPadConnection(pcbnew.ZONE_CONNECTION_THERMAL)
+        z.SetThermalReliefGap(mm(0.3)); z.SetThermalReliefSpokeWidth(mm(0.4))
+        z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
+        ol = z.Outline(); ol.NewOutline()
+        for x, y in [(bb.GetLeft(), bb.GetTop()), (bb.GetRight(), bb.GetTop()),
+                     (bb.GetRight(), bb.GetBottom()), (bb.GetLeft(), bb.GetBottom())]:
+            ol.Append(x, y)
+        board.Add(z)
+    # ROUTE_PLANES="In1.Cu:GND,In2.Cu:VBAT": solid planes on inner layers (4-layer boards)
+    for spec in filter(None, os.environ.get("ROUTE_PLANES", "").split(",")):
+        lname, nname = spec.split(":")
+        z = pcbnew.ZONE(board); z.SetLayer(board.GetLayerID(lname)); z.SetNet(board.FindNet(nname))
         z.SetLocalClearance(mm(0.25)); z.SetMinThickness(mm(0.25))
         z.SetPadConnection(pcbnew.ZONE_CONNECTION_THERMAL)
         z.SetThermalReliefGap(mm(0.3)); z.SetThermalReliefSpokeWidth(mm(0.4))
