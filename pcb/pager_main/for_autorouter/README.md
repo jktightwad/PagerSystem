@@ -2,6 +2,7 @@
 
 | File | What |
 |---|---|
+| `pager_unrouted_v2.kicad_pcb` / `.dsn` | **use this one**: spares right, J1 1 mm lower (solder room from CL8), ground vias pre-drawn for U2 and CL1 |
 | `pager_unrouted_spares_right.kicad_pcb` / `.dsn` | spare-pin through-holes in the two right corners (beside the module pins) |
 | `pager_unrouted_spares_left.kicad_pcb` / `.dsn` | spare-pin through-holes in the two left corners (earlier layout) |
 

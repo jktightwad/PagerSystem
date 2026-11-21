@@ -287,7 +287,7 @@ if SMD_CONN:
     xh_smd("J1", 3, -11.5, 7.0, "TOUCH G O V")
     xh_smd("J2", 2, -11.5, -7.0, "DOCK G +")
 else:
-    xh("J1", 3, -11.5, 7.0, {"1": "1", "2": "2", "3": "3"}, "TOUCH G O V")
+    xh("J1", 3, -11.5, 6.0, {"1": "1", "2": "2", "3": "3"}, "TOUCH G O V")
     xh("J2", 2, -11.5, -7.0, {"1": "1", "2": "2"}, "DOCK G +")
 
 # ---------------- small parts (top, inside the ring) ----------------
@@ -439,6 +439,21 @@ auto_place("Q3", SOT23, pinmap["Q"], 2.0, -11.5)                 # near the swit
 auto_place("R10", R0603, pinmap["R"], 2.0, -13.5)
 auto_place("C4", C1206, pinmap["C"], -1.5, -9.5)                 # next to C3
 auto_place("D3", SOD123, pinmap["D"], -2.5, 12.5)                # above the buzzer, between its pads
+
+# ground vias drawn here so an autorouter routes around them (both pads were boxed in otherwise):
+# U2 pin 2 straight out (away from the body) to a via; CL1's GND pad inward to a via
+def _gnd_stub_via(ref, pin, length, away_from=None, toward=None):
+    f = [x for x in board.GetFootprints() if x.GetReference() == ref][0]
+    pd = [q for q in f.Pads() if q.GetNumber() == pin][0]
+    px, py = pcbnew.ToMM(pd.GetPosition().x) + X0, Y1 - pcbnew.ToMM(pd.GetPosition().y)
+    if away_from: ox, oy = away_from; dx, dy = px - ox, py - oy
+    else: ox, oy = toward; dx, dy = ox - px, oy - py
+    L = math.hypot(dx, dy); vx, vy = px + dx / L * length, py + dy / L * length
+    _track((px, py), (vx, vy), 0.3, netname="GND")
+    v = pcbnew.PCB_VIA(board); v.SetPosition(P(vx, vy)); v.SetWidth(mm(0.6)); v.SetDrill(mm(0.3)); v.SetNet(net("GND")); board.Add(v)
+_u2c = [x for x in board.GetFootprints() if x.GetReference() == "U2"][0].GetPosition()
+_gnd_stub_via("U2", "2", 1.5, away_from=(pcbnew.ToMM(_u2c.x) + X0, Y1 - pcbnew.ToMM(_u2c.y)))
+_gnd_stub_via("CL1", "2", 1.3, toward=(6.22, 0.0))      # straight up: clear of the test pads below
 
 text("POOL PAGER", -17.0, 0.0, 0.8, pcbnew.B_SilkS, rot=90)
 from fix_anchors import center_anchors
