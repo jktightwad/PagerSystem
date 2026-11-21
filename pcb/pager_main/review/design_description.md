@@ -1,9 +1,8 @@
 # Pager board: design description for review
 
 **Board:** `pager_main`. 54 x 48 mm, 2-layer FR4 (thickness as ordered; JLC default 1.6 mm). JLC Economic PCBA, top side only.
-**Status:** not yet built. DRC is clean (2 starved-thermal warnings). An independent script checks
-that every pad sits on the net the design says (0 differences). Nothing has been measured on
-hardware yet.
+**Status:** design revised after a first review (power switch, ideal diode, VBAT ring, bulk cap, buzzer
+diode). Re-routing is in progress; see `routing/ROUTING_BRIEF.md`. Nothing has been measured on this board yet.
 
 ## What it does
 This is a table-queue pager. A ring of 16 addressable RGB LEDs shows status. An active buzzer and a
@@ -12,20 +11,28 @@ through spring (pogo) contacts. The ESP32-S3 handles Wi-Fi to the queue server.
 
 ## Power
 ```
-LiPo + --- P1.2 (BAT+) --- SW1 (storage switch) --- VBAT --+-- U1 B+ (module's battery input / charger)
-LiPo - --- P1.1 ------------------------------------ GND   +-- LED1-16 VDD (+ CL1-16 100 nF each, C3 47 uF bulk)
-                                                            +-- BZ1 + (active buzzer, switched low side by Q1)
-                                                            +-- motor + (P2.2, switched low side by Q2, D1 flyback)
-                                                            +-- R6/R7 divider -> GP2 (battery voltage)
-Dock pogo 5V --- J2.2 --- POGO5V --+-- U1 5V pin (module charges the LiPo from it)
-                                   +-- R8/R9 divider -> GP1 (docked / not docked)
+LiPo + -- P1.2 (BAT+) -- Q3 AO3401A P-MOSFET (S -> D) -- VBAT --+-- U1 B+ (module's battery input / charger)
+            |                 gate (SW_G)                         +-- VBAT ring (1.0 mm copper circle inside the LEDs)
+            +-- R10 100k -----+                                   |     -> LED1-16 VDD, CL1-16 100 nF each
+                              SW1 (slide switch) -- GND           +-- C3, C4 47 uF bulk
+LiPo - -- P1.1 -------------------------------------- GND         +-- BZ1 + (active buzzer, low side Q1, D3 across it)
+                                                                  +-- motor + (P2.2, low side Q2, D1 across it)
+                                                                  +-- R6/R7 divider -> GP2 (battery voltage)
+Dock pogo 5V -- J2.2 -- POGO5V --+-- U2 LM66100 ideal diode (VIN -> VOUT, CE = VOUT) -- MOD5V -- U1 5V pin
+                                 +-- R8/R9 divider -> GP1 (docked / not docked)
 U1 3V3 (module regulator) --- J1.3 touch module VCC
 ```
-- Single 1S LiPo, 3.0 to 4.2 V. The LEDs, buzzer and motor run straight from VBAT. Only the touch
-  module uses the module's 3.3 V.
-- Charging is done by the charger on the SuperMini module (U1), fed from the dock's 5 V through U1's
-  5 V pin. The board itself has no charger.
-- SW1 is a storage switch. It is normally on, so a switched-off pager does not charge.
+- Single 1S LiPo, 3.0 to 4.2 V. The LEDs, buzzer and motor run straight from VBAT. Only the touch module
+  uses the module's 3.3 V.
+- **Power switch:** SW1 (an SS12F44, rated 300 mA per JLC listings) only switches Q3's gate, so the board
+  current (up to about 1.3 A) flows through Q3, not the switch. With the switch off, the module's charger can
+  still partly charge the battery through Q3's body diode, to roughly 3.5 V.
+- **Dock input:** U2 blocks backfeed (a SuperMini puts about 3.2 V out of its 5 V pin with real current
+  behind it; measured: 3.24 V into 1 kOhm). It also blocks a reversed dock connection (VIN rated to -6 V)
+  and drops about 0.05 V. Measured charging through a 1N5819 instead: a 0.44 V drop. The SuperMini still
+  charged with 4.45 V at its 5 V pin.
+- **VBAT copper:** a 1.0 mm ring fed from both ends. From Q3: module B+ 9.6 mOhm, motor 12 mOhm, worst LED
+  47 mOhm (single shortest path; parallel paths make it lower).
 
 ## Signals (ESP32-S3 GPIO)
 | GPIO | Net | Use |
@@ -46,25 +53,23 @@ U1 3V3 (module regulator) --- J1.3 touch module VCC
 - **ESP32-S3:** Wi-Fi transmit peaks of a few hundred mA, drawn through the module's regulator.
 
 ## Please check in particular
-1. **LED supply range.** The TZ-5050S2RGB-5V-I4-H1 (C26167850) listing / datasheet I read gives 3.5 to
-   7.5 V operating, with 3.0 V as an absolute figure. The battery runs down to 3.0 V. Is that
-   acceptable, and what happens to the LEDs between 3.0 and 3.5 V?
-2. **LED data level.** The data line is 3.3 V and VDD is up to 4.2 V. That is within spec if the input
-   threshold is 0.7 x VDD (as on the WS2812B), but the TZ2812 datasheet value has not been checked.
-3. **Dock input protection.** POGO5V goes straight to U1's 5 V pin, with no reverse-polarity
-   protection and nothing to stop a charged pager feeding the other pagers on the stack through the
-   pogo bus. A series Schottky (B5819W) or an ideal-diode IC was considered and not added. One worry
-   is that a 0.3 to 0.45 V drop could stop U1's charger working properly; its charger IC is unknown.
-4. **Buzzer.** It is an active buzzer with no diode across it. Is one needed? The datasheet does not say
-   whether it is magnetic or piezo inside.
-5. **MOSFET drive.** AO3400A gates are driven at 3.3 V through 330R with 100k pull-downs. Is that
-   adequate for the motor current? The motor is PWM'd at about 20 kHz in firmware.
-6. **Battery-sense drain.** The R6/R7 divider draws about 21 uA continuously whenever SW1 is on.
-7. **Decoupling and bulk capacitance.** Is 47 uF (C3) plus 100 nF per LED enough for VBAT, given the
-   LED, motor and Wi-Fi current steps?
-8. **Layout.** The module is mounted underneath on castellated pads. Its antenna sits at the board's
-   right edge over a copper keep-out on both layers. The ground pours on both layers are stitched
-   with about 190 vias.
+1. **LED supply range.** The TZ-5050S2RGB-5V-I4-H1 (C26167850) listing / datasheet gives 3.5 to 7.5 V
+   operating (3.0 V absolute); the battery runs down to 3.0 V. The plan is a firmware low-battery limit of
+   about 3.5 V for the LEDs. Is that enough?
+2. **LED data level.** 3.3 V data with VDD up to 4.2 V: in spec if the input threshold is 0.7 x VDD, as on
+   the WS2812B. The TZ2812 value has not been checked.
+3. **Q3 power switch.** AO3401A with the gate pulled to BAT+ by 100k and switched to GND by SW1. Is the gate
+   drive at 3.0 V battery adequate for about 1.3 A peak? Is the body-diode charging path acceptable?
+4. **U2 (LM66100) wiring:** CE tied to VOUT (datasheet 8.3.2), pin 4 (N/C) used as a stepping stone for that
+   link, and ST tied to GND.
+5. **MOSFET drive (Q1, Q2).** AO3400A gates driven at 3.3 V through 330R, with 100k pull-downs. The motor is
+   PWM'd at about 20 kHz.
+6. **Decoupling and bulk.** 2 x 47 uF (C3, C4) plus 100 nF per LED on VBAT. Enough for the LED, motor and
+   Wi-Fi current steps from a 500 mAh cell?
+7. **Layout.**
+   - The module is mounted underneath on castellated pads, with its antenna at the board edge and copper
+     keep-outs on both layers.
+   - The ground pours on both layers are stitched with vias.
    - Is the antenna keep-out sufficient?
    - Does any part of the LED or driver layout look like a return-path problem?
 
