@@ -327,7 +327,7 @@ for ref, (lf, x, y, rot) in small.items():
     set_nets(fp, ref, pinmap[ref[0]])
 
 # ---------------- wire pads (under) ----------------
-def wire_pads(ref, x, y, labels, pitch=2.8, size=(1.8, 2.6)):
+def wire_pads(ref, x, y, labels, pitch=4.5, size=(2.5, 2.6)):   # 2.5 mm pads, 2.0 mm gap (bare wires)
     fp = new_fp(ref); fp.SetValue(PARTS.get(ref, (ref,))[0])
     for k in range(len(labels)):
         add_pad(fp, str(k + 1), x + (k - (len(labels) - 1) / 2) * pitch, y, size, side="bottom", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
@@ -337,15 +337,16 @@ def wire_pads(ref, x, y, labels, pitch=2.8, size=(1.8, 2.6)):
 # battery pads in the bottom-left corner (Q3 / R10 placed just inside the ring beside them), motor pads in
 # the top-left corner by J1's 3V3 pin (Q2 / R3 / R4 / D1 beside them): easy to reach with an iron
 CX, CY = -17.6, 18.4
-p1 = wire_pads("P1", CX, -CY, ["-", "+"]); set_nets(p1, "P1", {"1": "1", "2": "2"})
-def pad_labels(name, x, y, dy, labels, pitch=2.8):
+WP_DX = 0.5            # wide pads: pair moved 0.5 mm right, clear of Q2's gate via
+p1 = wire_pads("P1", CX + WP_DX, -CY, ["-", "+"]); set_nets(p1, "P1", {"1": "1", "2": "2"})
+def pad_labels(name, x, y, dy, labels, pitch=4.5):
     """two lines beside a wire-pad pair: the signs right next to their own pads, the name one line further"""
     for k, lab in enumerate(labels):
         text(lab, x + (k - (len(labels) - 1) / 2) * pitch, y + dy, 1.0, pcbnew.B_SilkS)
     text(name, x, y + dy + (1.4 if dy > 0 else -1.4), 0.8, pcbnew.B_SilkS)
-pad_labels("BATTERY", CX, -CY, 2.3, ["-", "+"])
-p2 = wire_pads("P2", CX, CY, ["-", "+"]); set_nets(p2, "P2", {"1": "1", "2": "2"})
-pad_labels("MOTOR", CX, CY, -2.3, ["-", "+"])
+pad_labels("BATTERY", CX + WP_DX, -CY, 2.3, ["-", "+"])
+p2 = wire_pads("P2", CX + WP_DX, CY, ["-", "+"]); set_nets(p2, "P2", {"1": "1", "2": "2"})
+pad_labels("MOTOR", CX + WP_DX, CY, -2.3, ["-", "+"])
 # spare pins + power: through-holes on an arc just outside the LED ring, in the two left corners.
 # Each corner takes the spares from the module row on its side (the 5V/GND/3V3 row faces -y),
 # plus 3V3 and GND (and VBAT at the bottom) for future additions.

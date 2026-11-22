@@ -1,7 +1,7 @@
 ** Drc report for pager_main.kicad_pcb **
-** Created on 2026-11-22 03:17:51 **
+** Created on 2026-11-22 03:22:14 **
 
-** Found 122 DRC violations **
+** Found 123 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(38.4971 mm, 34.8729 mm): Line on F.Silkscreen
@@ -68,12 +68,12 @@
     @(14.7673 mm, 8.4070 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
     @(3.8000 mm, 32.0000 mm): Line on B.Silkscreen
+    @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
     @(9.3000 mm, 30.0000 mm): Line on B.Silkscreen
+    @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(3.1900 mm, 27.1900 mm): Line on B.Silkscreen
@@ -92,8 +92,8 @@
     @(9.3000 mm, 15.7500 mm): Line on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
     @(3.8000 mm, 17.7500 mm): Line on B.Silkscreen
+    @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
@@ -190,6 +190,10 @@
     Local override; Severity: error
     @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
     @(40.7065 mm, 38.7485 mm): Pad 3 [GND] of LED4 on F.Cu
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: error
+    @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
+    @(40.2584 mm, 24.5733 mm): Pad 2 [GND] of CL2 on F.Cu
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
     @(49.0006 mm, 11.3816 mm): Footprint R5
