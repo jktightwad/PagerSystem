@@ -1,7 +1,7 @@
-** Drc report for pager_main.kicad_pcb **
-** Created on 2026-11-22 03:22:14 **
+** Drc report for /tmp/claude-0/-home-user/fedc4b7f-c073-5b5d-9e79-ee06ede47f90/scratchpad/bz/th.kicad_pcb **
+** Created on 2026-11-22 03:24:39 **
 
-** Found 123 DRC violations **
+** Found 118 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(38.4971 mm, 34.8729 mm): Line on F.Silkscreen
@@ -178,22 +178,6 @@
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(12.1844 mm, 39.3239 mm): Footprint Text '1' of LED7
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(24.1000 mm, 22.1750 mm): Pad 2 [GND] of R9 on F.Cu
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(35.4996 mm, 35.5075 mm): Pad 2 [GND] of CL4 on F.Cu
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(40.7065 mm, 38.7485 mm): Pad 3 [GND] of LED4 on F.Cu
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(-0.0500 mm, -0.0500 mm): Zone [GND] on F.Cu
-    @(40.2584 mm, 24.5733 mm): Pad 2 [GND] of CL2 on F.Cu
 [lib_footprint_issues]: The current configuration does not include the library ''.
     Local override; Severity: warning
     @(49.0006 mm, 11.3816 mm): Footprint R5
@@ -401,9 +385,6 @@
     Rule: board setup constraints silk; Severity: warning
     @(54.0000 mm, 1.5000 mm): Line on Edge.Cuts
     @(54.0000 mm, 33.0000 mm): Line on B.Silkscreen
-[track_dangling]: Track has unconnected end
-    Local override; Severity: warning
-    @(41.6258 mm, 24.9238 mm): Track [VBAT] on F.Cu, length 0.6161 mm
 
 ** Found 0 unconnected pads **
 
