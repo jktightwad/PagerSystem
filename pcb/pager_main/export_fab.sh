@@ -51,10 +51,11 @@ with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline=
             # hand-built footprints mounted under the board (pads on B.Cu / body below) are recorded by
             # KiCad as top-side footprints: list them as Bottom for JLC
             if base(ref) in BOTTOM: side = "Bottom"
-            # JLC's library footprint differs in orientation from ours for some parts: BZ1 (S&S SMD-0955-05-27,
-            # C55014110) has its pads top/bottom with + on top in JLC's footprint; ours has them left/right with + on
-            # the left, so JLC needs +90 (counter-clockwise) to put its + terminal on our + pad
-            rot = (float(row["Rot"]) + {"BZ1": 90.0}.get(base(ref), 0.0)) % 360
+            # JLC's library footprints differ in orientation from ours for some parts (checked against JLC's
+            # footprint views): BZ1 (C55014110) has its pads top/bottom with + on top, ours left/right with + on the
+            # left -> +90. AO3400A (C20917, Q1, Q2) has pin 3 left and 1/2 right, KiCad's SOT-23 the opposite -> +180.
+            ROT_FIX = {"BZ1": 90.0, "Q1": 180.0, "Q2": 180.0}
+            rot = (float(row["Rot"]) + ROT_FIX.get(base(ref), 0.0)) % 360
             w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', side, f'{rot:.2f}'])
 print(f"{outd}/bom_jlc.csv, {outd}/cpl_jlc.csv written")
 PY
