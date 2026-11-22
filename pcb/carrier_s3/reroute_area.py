@@ -23,7 +23,10 @@ random.seed(int(os.environ.get("ROUTE_SEED", "1")))
 def inside(p): return x0 <= to_mm(p.x) <= x1 and y0 <= to_mm(p.y) <= y1
 
 b0 = pcbnew.LoadBoard(PCB)
-rip = sorted({t.GetNetname() for t in b0.GetTracks() if inside(t.GetStart()) or inside(t.GetEnd())})
+KEEP_NETS = set(filter(None, os.environ.get("REROUTE_KEEP_NETS", "").split(",")))   # never ripped (e.g. a drawn ring)
+ONLY = set(filter(None, os.environ.get("REROUTE_ONLY", "").split(",")))              # if set: rip just these nets
+rip = sorted({t.GetNetname() for t in b0.GetTracks() if inside(t.GetStart()) or inside(t.GetEnd())} - KEEP_NETS)
+if ONLY: rip = sorted(set(rip) & ONLY | ONLY)
 print("ripping up:", " ".join(rip))
 
 def attempt(order):

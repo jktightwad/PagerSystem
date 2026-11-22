@@ -32,8 +32,8 @@ PARTS = {
     "D1":  ("B5819W", "C8598", "motor flyback"),
     "J1":  ("Touch", None, "JST-XH 3 right angle, under: GND, OUT, 3V3"),
     "J2":  ("Dock (pogo)", None, "JST-XH 2 right angle, under: GND, 5V"),
-    "P1":  ("Battery pads", None, "under: GND, BAT+"),
-    "P2":  ("Motor pads", None, "under: MOT-, VBAT"),
+    "P1":  ("Battery pads", None, "under, right below Q3: GND, BAT+"),
+    "P2":  ("Motor pads", None, "under, beside the module's 3V3 pin: MOT-, 3V3 (3 V motor)"),
 }
 NO_CAP = ()           # every LED has its own capacitor
 for i in range(1, N_LED + 1):
@@ -48,14 +48,14 @@ NETS = {
                ("U2", "2"), ("U2", "5")],
     "BAT+":   [("P1", "2"), ("Q3", "S"), ("R10", "1")],
     "SW_G":   [("Q3", "G"), ("R10", "2"), ("SW1", "COM")],
-    "VBAT":   [("Q3", "D"), ("U1", "B+"), ("BZ1", "+"), ("P2", "2"), ("D1", "K"), ("D3", "K"),
+    "VBAT":   [("Q3", "D"), ("U1", "B+"), ("BZ1", "+"), ("D3", "K"),
                ("R6", "1"), ("C3", "1"), ("C4", "1")],
     # U2 LM66100 (SC-70-6): 1 VIN, 2 GND, 3 CE, 4 N/C, 5 ST, 6 VOUT (TI datasheet SLVSEZ8A pin table).
     # CE tied to VOUT = "always-on reverse current blocking" (datasheet 8.3.2); ST to GND (pin table).
     # Pin 4 is "not internally connected": used as the stepping stone for the CE-VOUT link (3 -> 4 -> 6).
     "POGO5V": [("J2", "2"), ("R8", "1"), ("U2", "1")],
     "MOD5V":  [("U2", "6"), ("U2", "3"), ("U2", "4"), ("U1", "5V")],
-    "3V3":    [("U1", "3V3"), ("J1", "3")],
+    "3V3":    [("U1", "3V3"), ("J1", "3"), ("P2", "2"), ("D1", "K")],     # 3 V vibration motor on the module's 3.3 V
     "DOCK_SENSE": [("R8", "2"), ("R9", "1"), ("C2", "1"), ("U1", "GP1")],
     "BAT_SENSE":  [("R6", "2"), ("R7", "1"), ("C1", "1"), ("U1", "GP2")],
     "TOUCH":      [("J1", "2"), ("U1", "GP4")],

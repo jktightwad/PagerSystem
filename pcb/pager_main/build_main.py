@@ -163,6 +163,11 @@ rule_area([(ax - 1, SM_W / 2 + 3), (X1 + 1, SM_W / 2 + 3), (X1 + 1, -SM_W / 2 - 
           [pcbnew.F_Cu, pcbnew.B_Cu], pour=True, tracks=False, vias=False)          # no pour near the antenna
 
 # ---------------- LEDs + their capacitors (top) ----------------
+def _ring_hits(deg):
+    """True where the VBAT ring (drawn later, r = R_LED - 2.85) runs, i.e. where it is not open near the cut-out"""
+    from shapely.geometry import Polygon as _P2, Point as _Q2
+    r = R_LED - 2.85; x, y = r * math.cos(math.radians(deg)), r * math.sin(math.radians(deg))
+    return _P2(cut).exterior.distance(_Q2(x, y)) >= 0.5 + 0.5 + 0.15 and not _P2(cut).contains(_Q2(x, y))
 LED = ("LED_SMD", "LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm")      # pins 1 VDD, 2 DOUT, 3 GND, 4 DIN
 C0603 = ("Capacitor_SMD", "C_0603_1608Metric")
 # ring turned so every LED's capacitor clears the cut-out (spacing stays 22.5 deg; offset 19.75 deg found by search,
@@ -179,6 +184,20 @@ for i in range(1, N_LED + 1):
     ca = a
     cp = place(lib_fp(*C0603), f"CL{i}", cx, cy, rot=90 + ca)
     set_nets(cp, f"CL{i}", {"1": "1", "2": "2"})
+    # keep 0.5 mm + pad from the module cut-out: try the old radius (fine where the VBAT ring is open), then
+    # small steps along the ring (towards the side away from the cut-out), until clear
+    from shapely.geometry import Polygon as _Poly, Point as _Pt
+    def _cut_gap(f):
+        cp_ = _Poly(cut)
+        return min(cp_.exterior.distance(_Pt(pcbnew.ToMM(q.GetPosition().x) + X0, Y1 - pcbnew.ToMM(q.GetPosition().y))) - 0.55
+                   for q in f.Pads())
+    if _cut_gap(cp) < 0.55:
+        tries = [(rc + 0.6, 0.0)] + [(rc, d * sgn) for d in (2, 3, 4, 5, 6) for sgn in ((1, -1) if a % 360 < 180 else (-1, 1))]
+        for rr, da in tries:
+            aa = a + da
+            cp.SetPosition(P(rr * math.cos(math.radians(aa)), rr * math.sin(math.radians(aa)))); cp.SetOrientationDegrees(90 + aa)
+            if _cut_gap(cp) >= 0.55 and not (rr > rc and FOUR is False and _ring_hits(aa)):
+                print(f"  CL{i} moved clear of the cut-out (r {rr:.2f}, {da:+.0f} deg)"); break
 text("1", *[(R_LED + 3.3) * f(math.radians(a_first)) for f in (math.cos, math.sin)], 0.8)
 
 # ---------------- VBAT ring (top copper, drawn here; the router keeps it with ROUTE_KEEP=1) ----------------
@@ -314,10 +333,13 @@ def wire_pads(ref, x, y, labels, pitch=2.8, size=(1.8, 2.6)):
     for k in range(len(labels)):
         add_pad(fp, str(k + 1), x + (k - (len(labels) - 1) / 2) * pitch, y, size, side="bottom", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
     board.Add(fp); fp.Reference().SetVisible(False); fp.Value().SetVisible(False); return fp
-p1 = wire_pads("P1", -6.0, -19.5, ["-", "+"]); set_nets(p1, "P1", {"1": "1", "2": "2"})
-text("BAT - +", -6.0, -22.0, 0.8, pcbnew.B_SilkS)
-p2 = wire_pads("P2", 1.0, -19.5, ["-", "+"]); set_nets(p2, "P2", {"1": "1", "2": "2"})
-text("MOT - +", 1.0, -22.0, 0.8, pcbnew.B_SilkS)
+# battery pads right below Q3 (BAT+ goes straight to its source), motor pads beside the module's 3V3 pin
+# (motor + is 3V3): both in the bottom strip between the module's 5V/GND/3V3 pin row and the test pads
+P1X, P2X, PY = 7.4, 12.9, -12.35
+p1 = wire_pads("P1", P1X, PY, ["-", "+"], size=(1.8, 2.4)); set_nets(p1, "P1", {"1": "1", "2": "2"})
+text("BAT - +", P1X, PY - 1.95, 0.8, pcbnew.B_SilkS)
+p2 = wire_pads("P2", P2X, PY, ["-", "+"], size=(1.8, 2.4)); set_nets(p2, "P2", {"1": "1", "2": "2"})
+text("MOT - +", P2X, PY - 1.95, 0.8, pcbnew.B_SilkS)
 # spare pins + power: through-holes on an arc just outside the LED ring, in the two left corners.
 # Each corner takes the spares from the module row on its side (the 5V/GND/3V3 row faces -y),
 # plus 3V3 and GND (and VBAT at the bottom) for future additions.
@@ -368,7 +390,7 @@ for k, (lab, n) in enumerate(TPS):
 board.Add(tp); tp.Reference().SetVisible(False); tp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(tp.Pads(), key=lambda p: int(p.GetNumber()))):
     pad.SetNet(net(TPS[k][1]))
-text("GPIO TEST", 12.5, -17.6 if os.environ.get("PAGER_SPARES") == "left" else -18.6, 0.8, pcbnew.B_SilkS)
+text("GPIO TEST", 12.5 if os.environ.get("PAGER_SPARES") == "left" else 8.0, -17.6 if os.environ.get("PAGER_SPARES") == "left" else -18.6, 0.8, pcbnew.B_SilkS)
 
 # ---------------- mounting holes (4 corners) ----------------
 for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.2, Y0 + 2.2), (X1 - 2.2, Y0 + 2.2)]):
