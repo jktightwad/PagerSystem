@@ -344,7 +344,7 @@ def add_zones(board):
     bb = board.GetBoardEdgesBoundingBox()
     for lay in (pcbnew.F_Cu, pcbnew.B_Cu):
         z = pcbnew.ZONE(board); z.SetLayer(lay); z.SetNet(net)
-        z.SetLocalClearance(mm(0.25)); z.SetMinThickness(mm(0.25))
+        z.SetLocalClearance(mm(0.3)); z.SetMinThickness(mm(0.25))   # 0.3: clears EasyEDA's 10 mil pour rule
         z.SetPadConnection(pcbnew.ZONE_CONNECTION_THERMAL)
         z.SetThermalReliefGap(mm(0.3)); z.SetThermalReliefSpokeWidth(mm(0.4))
         z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
@@ -357,7 +357,7 @@ def add_zones(board):
     for spec in filter(None, os.environ.get("ROUTE_PLANES", "").split(",")):
         lname, nname = spec.split(":")
         z = pcbnew.ZONE(board); z.SetLayer(board.GetLayerID(lname)); z.SetNet(board.FindNet(nname))
-        z.SetLocalClearance(mm(0.25)); z.SetMinThickness(mm(0.25))
+        z.SetLocalClearance(mm(0.3)); z.SetMinThickness(mm(0.25))   # 0.3: clears EasyEDA's 10 mil pour rule
         z.SetPadConnection(pcbnew.ZONE_CONNECTION_THERMAL)
         z.SetThermalReliefGap(mm(0.3)); z.SetThermalReliefSpokeWidth(mm(0.4))
         z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)

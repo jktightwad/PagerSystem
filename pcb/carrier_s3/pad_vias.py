@@ -4,7 +4,7 @@
 
 For each pad it tries directions every 15 degrees and stub lengths 0.9-3.0 mm, and keeps the shortest
 candidate whose stub and via clear (by the board's 0.2 mm copper clearance + 0.02) every copper item of
-another net on the layers they touch, every hole by 0.25 mm drill-to-drill, the board edge / cut-outs
+another net on the layers they touch, every hole by 0.3 mm drill-to-drill, the board edge / cut-outs
 by 0.5 mm, and rule areas that forbid vias or tracks. Clearance is checked with exact geometry (pad
 polygons, track capsules, via circles). Saves in place; refill zones and run DRC afterwards.
 """
@@ -76,7 +76,7 @@ for refpin in args:
             if not BOARD.contains(via) or not BOARD.contains(stub): continue
             if via.intersects(NOVIA) or stub.intersects(NOTRK[L]) or via.intersects(NOTRK[L]): continue
             if FG[L].distance(via) < CLR or FG[O].distance(via) < CLR or FG[L].distance(stub) < CLR: continue
-            if HOLES.distance(Point(vx, vy).buffer(VIA_DRILL / 2)) < 0.25: continue
+            if HOLES.distance(Point(vx, vy).buffer(VIA_DRILL / 2)) < 0.3: continue
             best = (vx, vy); break
         if best: break
     if not best:

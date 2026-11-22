@@ -31,7 +31,7 @@ def obstacles():
     for t in b.GetTracks():
         if t.GetNetCode() == g and t.Type() != pcbnew.PCB_VIA_T: continue
         if t.Type() == pcbnew.PCB_VIA_T:
-            obst.append(("pt", to_mm(t.GetPosition().x), to_mm(t.GetPosition().y), to_mm(t.GetWidth()) / 2 + 0.2))   # keeps drills >= 0.25 mm apart
+            obst.append(("pt", to_mm(t.GetPosition().x), to_mm(t.GetPosition().y), to_mm(t.GetWidth()) / 2 + 0.25))   # keeps drills >= 0.3 mm apart
         else:
             obst.append(("seg", to_mm(t.GetStart().x), to_mm(t.GetStart().y), to_mm(t.GetEnd().x), to_mm(t.GetEnd().y), to_mm(t.GetWidth()) / 2))
     return obst
