@@ -41,7 +41,7 @@ W, H = X1 - X0, Y1 - Y0
 board = pcbnew.BOARD(); board.SetCopperLayerCount(4 if FOUR else 2)
 ds = board.GetDesignSettings()
 ds.m_TrackMinWidth = mm(0.2); ds.m_MinClearance = mm(0.2); ds.m_ViasMinSize = mm(0.6)
-ds.m_MinThroughDrill = mm(0.3); ds.m_CopperEdgeClearance = mm(0.3)
+ds.m_MinThroughDrill = mm(0.3); ds.m_CopperEdgeClearance = mm(0.5)   # 0.5: EasyEDA board-outline rule (also for the pour)
 ds.m_HoleToHoleMin = mm(0.3)          # EasyEDA's default (11.8 mil); JLC's own minimum is lower
 nc = ds.m_NetSettings.m_DefaultNetClass
 nc.SetTrackWidth(mm(0.25)); nc.SetClearance(mm(0.2)); nc.SetViaDiameter(mm(0.6)); nc.SetViaDrill(mm(0.3))
