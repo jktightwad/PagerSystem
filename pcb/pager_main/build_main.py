@@ -161,6 +161,8 @@ ax = SM_X + SM_L - ANT
 rule_area([(ax, SM_W / 2), (X1 + 1, SM_W / 2), (X1 + 1, -SM_W / 2), (ax, -SM_W / 2)], [pcbnew.F_Cu])
 rule_area([(ax - 1, SM_W / 2 + 3), (X1 + 1, SM_W / 2 + 3), (X1 + 1, -SM_W / 2 - 3), (ax - 1, -SM_W / 2 - 3)],
           [pcbnew.F_Cu, pcbnew.B_Cu], pour=True, tracks=False, vias=False)          # no pour near the antenna
+# board name on the top, in the copper-free strip over the antenna end (silkscreen ink only, no copper)
+text("Reservation Pager", (ax - 1 + X1) / 2 - 0.25, 0.0, 1.5, rot=90)
 
 # ---------------- LEDs + their capacitors (top) ----------------
 def _ring_hits(deg):
