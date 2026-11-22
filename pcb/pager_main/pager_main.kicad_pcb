@@ -3645,7 +3645,7 @@
   (gr_text "POOL PAGER" (at 7 24 90) (layer "B.SilkS") (tstamp f2242206-fa67-47a3-97e7-8b16507091a3)
     (effects (font (size 0.8 0.8) (thickness 0.12)) (justify mirror))
   )
-  (gr_text "ESP32-S3 SuperMini (under)" (at 42 24) (layer "B.SilkS") (tstamp f862f7e6-793b-4bd4-ba21-7f440896f250)
+  (gr_text "ESP32-S3FH4R2" (at 42 24) (layer "B.SilkS") (tstamp f862f7e6-793b-4bd4-ba21-7f440896f250)
     (effects (font (size 0.8 0.8) (thickness 0.12)) (justify mirror))
   )
   (gr_text "RX" (at 44.366705 4.350895 133.9726293) (layer "F.SilkS") (tstamp 094c9b07-d9f3-4223-9699-d30a00d3f573)

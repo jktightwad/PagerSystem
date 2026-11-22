@@ -148,7 +148,7 @@ for pad in u1.Pads():
     nm = pad.GetNumber()
     pad.SetNet(net(pin_net[("U1", nm)]) if ("U1", nm) in pin_net else net("SPARE_" + nm))
 u1.Reference().SetVisible(False); u1.Value().SetVisible(False)
-text("ESP32-S3 SuperMini (under)", SM_X + 12, 0, 0.8, pcbnew.B_SilkS)
+text("ESP32-S3FH4R2", SM_X + 12, 0, 0.8, pcbnew.B_SilkS)
 text("B+", SM_X + BHOLE_X, -BHOLE_DY - 1.6, 0.8); text("B-", SM_X + BHOLE_X, BHOLE_DY + 1.6, 0.8)
 
 # no bottom tracks under the module body (between the castellation pads); GND pour + stitching vias are
