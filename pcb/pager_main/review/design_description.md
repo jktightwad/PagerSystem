@@ -82,7 +82,6 @@ U1 3V3 (module regulator) --+-- J1.3 touch module VCC
 ## Not checked yet / estimates
 - The buzzer's VBAT path resistance was not recalculated after the buzzer change (it is now fed from D3's VBAT pad
   with a 0.5 mm track).
-- BZ1 rotation for JLC (C49246948) is not checked yet against JLC's footprint.
 - The SS12F44 switch's end-leg spacing (11.2 mm) and the module antenna length (5 mm) are estimates.
 - The orientation of the LEDs, buzzer and diode will be checked in JLC's placement preview before
   ordering.

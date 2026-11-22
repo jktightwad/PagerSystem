@@ -52,11 +52,12 @@ with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline=
             # KiCad as top-side footprints: list them as Bottom for JLC
             if base(ref) in BOTTOM: side = "Bottom"
             # JLC's library footprints differ in orientation from ours for some parts (checked against JLC's
-            # footprint views): BZ1 (C49246948) not checked yet -> 0 until JLC's preview is compared. AO3400A (C20917, Q1, Q2) has pin 3 left and 1/2 right, KiCad's SOT-23 the opposite -> +180.
+            # footprint views): BZ1 (C49246948) has + bottom-left and - bottom-right (polarity pads along the bottom),
+            # ours + bottom-right and - top-right (polarity pads on the right) -> +90. AO3400A (C20917, Q1, Q2) has pin 3 left and 1/2 right, KiCad's SOT-23 the opposite -> +180.
             # LM66100 (C2869734, U2) has pins in rows (1-2-3 along the bottom, pin 1 bottom-left), KiCad's SC-70-6 in
             # columns (1-2-3 down the left) = ours turned 90 deg counter-clockwise -> -90.
             # B5819W (C8598) and the LED (C26167850) match KiCad's footprints (no change).
-            ROT_FIX = {"BZ1": 0.0, "Q1": 180.0, "Q2": 180.0, "Q3": 180.0, "U2": -90.0}   # AO3401A (C15127, Q3): same as the AO3400A
+            ROT_FIX = {"BZ1": 90.0, "Q1": 180.0, "Q2": 180.0, "Q3": 180.0, "U2": -90.0}   # AO3401A (C15127, Q3): same as the AO3400A
             rot = (float(row["Rot"]) + ROT_FIX.get(base(ref), 0.0)) % 360
             w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', side, f'{rot:.2f}'])
 print(f"{outd}/bom_jlc.csv, {outd}/cpl_jlc.csv written")
