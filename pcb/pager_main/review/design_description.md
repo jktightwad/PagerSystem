@@ -2,8 +2,7 @@
 
 **Board:** `pager_main`. 54 x 48 mm, 2-layer FR4 (thickness as ordered; JLC default 1.6 mm). JLC Economic PCBA, top side only.
 **Status:** revised after a first review (power switch, ideal diode, VBAT ring, bulk cap, buzzer diode,
-motor on 3.3 V, then a lower passive buzzer) and routed (EasyEDA autorouter + local fixes). DRC: 0 errors, 0 connection warnings
-(silkscreen-only warnings remain); every pad is on the net the design says. Nothing has been measured on this board yet.
+motor on 3.3 V, then a lower passive buzzer) and routed (EasyEDA autorouter + local fixes). DRC: 0 violations; every pad is on the net the design says. Nothing has been measured on this board yet.
 
 ## What it does
 This is a table-queue pager. A ring of 16 addressable RGB LEDs shows status. A passive (magnetic) buzzer and a

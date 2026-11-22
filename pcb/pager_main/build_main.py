@@ -142,13 +142,23 @@ for sgn, row in [(-1, ROW_NEG), (1, ROW_POS)]:
 for name, dy in [("B+", -BHOLE_DY), ("B-", BHOLE_DY)]:     # B+ on the 5V-row side (seen from the top)
     # as big as the 2 x 2 mm module pad allows: oval 1.1 x 1.6 mm hole, 1.5 x 2.0 mm copper
     add_pad(u1, name, SM_X + BHOLE_X, dy, (1.5, 2.0), kind="pth", shape=pcbnew.PAD_SHAPE_OVAL, oval_drill=(1.1, 1.6))
-fp_rect(u1, SM_X, -SM_W / 2, SM_X + SM_L, SM_W / 2, pcbnew.B_SilkS)
+# module outline drawn inside the pad rows (clear of the pads and the board edge), plus the USB-C receptacle
+# where it sticks out past the module's end (1.45 mm, measured; 8.94 mm is the usual USB-C receptacle width
+# and it is drawn centred on the module, which is assumed) to check the module's position when fitting it
+SM_IN = SM_W / 2 - SM_PAD_IN - 0.25
+fp_rect(u1, SM_X, -SM_IN, X1 - 0.6, SM_IN, pcbnew.B_SilkS)
+fp_rect(u1, SM_X - 1.45, -4.47, SM_X, 4.47, pcbnew.B_SilkS)
 board.Add(u1)
 for pad in u1.Pads():
     nm = pad.GetNumber()
     pad.SetNet(net(pin_net[("U1", nm)]) if ("U1", nm) in pin_net else net("SPARE_" + nm))
 u1.Reference().SetVisible(False); u1.Value().SetVisible(False)
 text("ESP32-S3FH4R2", SM_X + 8, -3.8, 0.8, pcbnew.B_SilkS)          # between the cut-out and the lower pin row
+text("USB", SM_X - 2.5, 0.0, 0.8, pcbnew.B_SilkS, rot=90)
+# names of the four corner pins, just outside their pads
+for sgn, row in [(-1, ROW_NEG), (1, ROW_POS)]:
+    for k in (0, len(row) - 1):
+        text(row[k].replace("GP", ""), SM_X + PIN_X0 + k * PITCH, sgn * (SM_W / 2 + SM_PAD_OUT + 0.9), 0.8, pcbnew.B_SilkS)
 text("B+", SM_X + BHOLE_X, -BHOLE_DY - 1.6, 0.8); text("B-", SM_X + BHOLE_X, BHOLE_DY + 1.6, 0.8)
 
 # no bottom tracks under the module body (between the castellation pads); GND pour + stitching vias are
@@ -180,6 +190,7 @@ for i in range(1, N_LED + 1):
     x, y = R_LED * math.cos(math.radians(a)), R_LED * math.sin(math.radians(a))
     fp = place(lib_fp(*LED), f"LED{i}", x, y, rot=90 + a)
     set_nets(fp, f"LED{i}", {"1": "VDD", "2": "DOUT", "3": "GND", "4": "DIN"})
+    for g in [g for g in fp.GraphicalItems() if g.GetLayer() == pcbnew.F_SilkS]: fp.Remove(g)   # JLC-fitted: no outline / pin-1 marks
     # capacitor beside its LED on the inside; if that is in the cut-out, in the gap away from the module axis
     rc = R_LED - 2.6 - 0.75 - 0.3 - 0.6        # 0.6 further in than before: room for the VBAT ring (below)
     cx, cy = rc * math.cos(math.radians(a)), rc * math.sin(math.radians(a))
@@ -200,7 +211,7 @@ for i in range(1, N_LED + 1):
             cp.SetPosition(P(rr * math.cos(math.radians(aa)), rr * math.sin(math.radians(aa)))); cp.SetOrientationDegrees(90 + aa)
             if _cut_gap(cp) >= 0.55 and not (rr > rc and FOUR is False and _ring_hits(aa)):
                 print(f"  CL{i} moved clear of the cut-out (r {rr:.2f}, {da:+.0f} deg)"); break
-text("1", *[(R_LED + 3.3) * f(math.radians(a_first)) for f in (math.cos, math.sin)], 0.8)
+# (no LED1 marker: the LEDs are JLC-fitted)
 
 # ---------------- VBAT ring (top copper, drawn here; the router keeps it with ROUTE_KEEP=1) ----------------
 # A 1.0 mm circle between the LED capacitors and the LEDs' inner pad row (VDD, DIN), with a short stub to every
@@ -251,7 +262,6 @@ BZX, BZY = -2.5, 8.0
 bz = new_fp("BZ1"); bz.SetValue(PARTS["BZ1"][0])
 for num, sx, sy in [("1", 1, -1), ("2", 1, 1), ("3", -1, 1), ("4", -1, -1)]:
     add_pad(bz, num, BZX + sx * 3.75, BZY + sy * 3.75, (2.0, 2.0), side="top", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
-fp_rect(bz, BZX - 4.25, BZY - 4.25, BZX + 4.25, BZY + 4.25, pcbnew.F_SilkS)
 fp_rect(bz, BZX - 5.0, BZY - 5.0, BZX + 5.0, BZY + 5.0, pcbnew.F_CrtYd, w=0.05)
 board.Add(bz); set_nets(bz, "BZ1", {"1": "+", "2": "-"})
 bz.Reference().SetVisible(False); bz.Value().SetVisible(False)
@@ -264,7 +274,12 @@ for num, dx in [("1", -2.5), ("2", 0.0), ("3", 2.5)]:
     add_pad(sw, num, SWX + dx, SWY, (1.7, 1.7), kind="pth", drill=1.1, shape=pcbnew.PAD_SHAPE_CIRCLE if num != "1" else pcbnew.PAD_SHAPE_RECT)
 for num, dx in [("4", -SW_LEG), ("5", SW_LEG)]:
     add_pad(sw, num, SWX + dx, SWY, (1.6, 2.8), kind="pth", shape=pcbnew.PAD_SHAPE_OVAL, oval_drill=(1.0, 2.2))
-fp_rect(sw, SWX - 6.0, SWY - 2.85, SWX + 6.0, SWY + 2.85, pcbnew.B_SilkS)
+# body outline; its end lines stop short of the slotted leg pads (1.4 mm + clearance either side of the row)
+for (ax_, ay_), (bx_, by_) in [((-6.0, -2.85), (6.0, -2.85)), ((-6.0, 2.85), (6.0, 2.85)), ((-6.0, -2.85), (-6.0, -1.7)),
+                              ((-6.0, 1.7), (-6.0, 2.85)), ((6.0, -2.85), (6.0, -1.7)), ((6.0, 1.7), (6.0, 2.85))]:
+    s_ = pcbnew.FP_SHAPE(sw); s_.SetShape(pcbnew.SHAPE_T_SEGMENT); s_.SetLayer(pcbnew.B_SilkS); s_.SetWidth(mm(0.12))
+    for f_, (u, v) in ((s_.SetStart, (ax_, ay_)), (s_.SetEnd, (bx_, by_))): f_(P(SWX + u, SWY + v))
+    s_.SetStart0(P(SWX + ax_, SWY + ay_)); s_.SetEnd0(P(SWX + bx_, SWY + by_)); sw.Add(s_)
 board.Add(sw); set_nets(sw, "SW1", {"1": "ON", "2": "COM"})
 sw.Reference().SetVisible(False); sw.Value().SetVisible(False)
 text("SWITCH", SWX, SWY - 4.0, 0.8, pcbnew.B_SilkS)
