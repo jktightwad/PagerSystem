@@ -51,7 +51,11 @@ with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline=
             # hand-built footprints mounted under the board (pads on B.Cu / body below) are recorded by
             # KiCad as top-side footprints: list them as Bottom for JLC
             if base(ref) in BOTTOM: side = "Bottom"
-            w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', side, f'{float(row["Rot"]) % 360:.2f}'])
+            # JLC's library footprint differs in orientation from ours for some parts: BZ1 (S&S SMD-0955-05-27,
+            # C55014110) has its pads top/bottom with + on top in JLC's footprint; ours has them left/right with + on
+            # the left, so JLC needs +90 (counter-clockwise) to put its + terminal on our + pad
+            rot = (float(row["Rot"]) + {"BZ1": 90.0}.get(base(ref), 0.0)) % 360
+            w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', side, f'{rot:.2f}'])
 print(f"{outd}/bom_jlc.csv, {outd}/cpl_jlc.csv written")
 PY
 (cd $OUTD/gerbers && zip -q ../$(basename $BOARD .kicad_pcb)_gerbers.zip *)
