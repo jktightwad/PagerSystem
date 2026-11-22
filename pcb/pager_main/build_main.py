@@ -343,9 +343,9 @@ def pad_labels(name, x, y, dy, labels, pitch=2.8):
     for k, lab in enumerate(labels):
         text(lab, x + (k - (len(labels) - 1) / 2) * pitch, y + dy, 1.0, pcbnew.B_SilkS)
     text(name, x, y + dy + (1.4 if dy > 0 else -1.4), 0.8, pcbnew.B_SilkS)
-pad_labels("BAT", CX, -CY, 2.3, ["-", "+"])
+pad_labels("BATTERY", CX, -CY, 2.3, ["-", "+"])
 p2 = wire_pads("P2", CX, CY, ["-", "+"]); set_nets(p2, "P2", {"1": "1", "2": "2"})
-pad_labels("MOT", CX, CY, -2.3, ["-", "+"])
+pad_labels("MOTOR", CX, CY, -2.3, ["-", "+"])
 # spare pins + power: through-holes on an arc just outside the LED ring, in the two left corners.
 # Each corner takes the spares from the module row on its side (the 5V/GND/3V3 row faces -y),
 # plus 3V3 and GND (and VBAT at the bottom) for future additions.

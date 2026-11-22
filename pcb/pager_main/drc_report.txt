@@ -1,5 +1,5 @@
 ** Drc report for pager_main.kicad_pcb **
-** Created on 2026-11-22 03:17:24 **
+** Created on 2026-11-22 03:17:51 **
 
 ** Found 122 DRC violations **
 [silk_overlap]: Silkscreen overlap
@@ -68,16 +68,20 @@
     @(14.7673 mm, 8.4070 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(3.1900 mm, 27.1900 mm): Line on B.Silkscreen
-    @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(3.8000 mm, 32.0000 mm): Line on B.Silkscreen
     @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
+    @(3.8000 mm, 32.0000 mm): Line on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
     @(9.3000 mm, 30.0000 mm): Line on B.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(3.1900 mm, 27.1900 mm): Line on B.Silkscreen
+    @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(3.1900 mm, 23.0600 mm): Line on B.Silkscreen
+    @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
@@ -96,16 +100,12 @@
     @(3.8000 mm, 20.2500 mm): Line on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
     @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
+    @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
     @(9.3000 mm, 20.7500 mm): Line on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
-    @(3.1900 mm, 23.0600 mm): Line on B.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(18.9480 mm, 42.6791 mm): Footprint Text '1' of LED6
