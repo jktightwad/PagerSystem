@@ -54,7 +54,10 @@ with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline=
             # JLC's library footprints differ in orientation from ours for some parts (checked against JLC's
             # footprint views): BZ1 (C55014110) has its pads top/bottom with + on top, ours left/right with + on the
             # left -> +90. AO3400A (C20917, Q1, Q2) has pin 3 left and 1/2 right, KiCad's SOT-23 the opposite -> +180.
-            ROT_FIX = {"BZ1": 90.0, "Q1": 180.0, "Q2": 180.0}
+            # LM66100 (C2869734, U2) has pins in rows (1-2-3 along the bottom, pin 1 bottom-left), KiCad's SC-70-6 in
+            # columns (1-2-3 down the left) = ours turned 90 deg counter-clockwise -> -90.
+            # B5819W (C8598) and the LED (C26167850) match KiCad's footprints (no change).
+            ROT_FIX = {"BZ1": 90.0, "Q1": 180.0, "Q2": 180.0, "U2": -90.0}
             rot = (float(row["Rot"]) + ROT_FIX.get(base(ref), 0.0)) % 360
             w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', side, f'{rot:.2f}'])
 print(f"{outd}/bom_jlc.csv, {outd}/cpl_jlc.csv written")
