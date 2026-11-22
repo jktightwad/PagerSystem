@@ -36,6 +36,7 @@ python3 ../carrier_s3/stitch_gnd.py pager_main.kicad_pcb 2.0
 python3 ../carrier_s3/join_gnd.py pager_main.kicad_pcb
 python3 ../carrier_s3/remove_dangling.py pager_main.kicad_pcb
 python3 fix_anchors.py pager_main.kicad_pcb && python3 check_netlist.py
+python3 easyeda_prep.py pager_main.kicad_pcb     # before importing into EasyEDA (and after any refill)
 sh export_fab.sh && sh render.sh pcb_top.png pcb_bottom.png
 ```
 Routing takes a while (randomised retries; `ROUTE_SEED` picks the sequence). GND gets tracks
