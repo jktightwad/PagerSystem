@@ -51,6 +51,13 @@ A two-sided variant with SMD connectors (DEALON XH-3PWB / XH-2PWB) can still be 
 `PAGER_SMD_CONN=1 python3 build_main.py` and exported with `sh export_fab.sh smdconn` (Standard PCBA);
 its files were removed to avoid uploading the wrong set.
 
+## Current board (v4)
+Placement from `build_main.py` (VBAT ring + U2 links pre-drawn). Routed in EasyEDA Pro (autorouter, GND
+ignored) and imported with `../carrier_s3/import_dsn_wiring.py`; then: 3V3 link and a 0.4 mm module-B+ feed
+(`add_links.py`), GND stubs + vias for boxed-in pads (`pad_vias.py`, local re-route of the nets around R4 / Q1),
+ground pours + stitching (`stitch_gnd.py`, `join_gnd.py`, `remove_dangling.py`). Unrouted versions for an
+external router are in `for_autorouter/`.
+
 ## Panel (3 x 2), not used
 `panelize.py` can copy the finished board six times with tabs (`sh export_fab.sh panel` for its JLC
 files). Not used: it saved about 4 % on the quote, so the panel files were removed to avoid

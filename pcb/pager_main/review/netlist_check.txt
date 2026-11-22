@@ -1,2 +1,2 @@
-151 design connections checked, 0 problems
-JLCPCB places 48 parts, 8 part types
+166 design connections checked, 0 problems
+JLCPCB places 53 parts, 10 part types

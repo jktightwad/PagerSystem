@@ -10,8 +10,8 @@ D3,1,B5819W,C8598,https://jlcpcb.com/partdetail/C8598,JLC (top side),buzzer flyb
 J1,1,Touch,,,hand,"JST-XH 3 right angle, under: GND, OUT, 3V3"
 J2,1,Dock (pogo),,,hand,"JST-XH 2 right angle, under: GND, 5V"
 LED1-LED16,16,TZ-5050S2RGB-5V-I4-H1,C26167850,https://jlcpcb.com/partdetail/C26167850,JLC (top side),"TUOZHAN TZ2812, WS2812-compatible; JLC Economic + Standard PCBA"
-P1,1,Battery pads,,,hand,"under: GND, BAT+"
-P2,1,Motor pads,,,hand,"under: MOT-, VBAT"
+P1,1,Battery pads,,,hand,"under, right below Q3: GND, BAT+"
+P2,1,Motor pads,,,hand,"under, beside the module's 3V3 pin: MOT-, 3V3 (3 V motor)"
 Q1,1,AO3400A,C20917,https://jlcpcb.com/partdetail/C20917,JLC (top side),buzzer driver
 Q2,1,AO3400A,C20917,https://jlcpcb.com/partdetail/C20917,JLC (top side),motor driver
 Q3,1,AO3401A,C15127,https://jlcpcb.com/partdetail/C15127,JLC (top side),P-MOSFET power switch BAT+ -> VBAT (SW1 pulls its gate low = on)

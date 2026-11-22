@@ -1,8 +1,9 @@
 # Pager board: design description for review
 
 **Board:** `pager_main`. 54 x 48 mm, 2-layer FR4 (thickness as ordered; JLC default 1.6 mm). JLC Economic PCBA, top side only.
-**Status:** design revised after a first review (power switch, ideal diode, VBAT ring, bulk cap, buzzer
-diode). Re-routing is in progress; see `routing/ROUTING_BRIEF.md`. Nothing has been measured on this board yet.
+**Status:** revised after a first review (power switch, ideal diode, VBAT ring, bulk cap, buzzer diode,
+motor on 3.3 V) and routed (EasyEDA autorouter + local fixes). DRC: 0 errors (3 starved-thermal and one
+ring-end warnings); every pad is on the net the design says. Nothing has been measured on this board yet.
 
 ## What it does
 This is a table-queue pager. A ring of 16 addressable RGB LEDs shows status. An active buzzer and a
@@ -16,14 +17,14 @@ LiPo + -- P1.2 (BAT+) -- Q3 AO3401A P-MOSFET (S -> D) -- VBAT --+-- U1 B+ (modul
             +-- R10 100k -----+                                   |     -> LED1-16 VDD, CL1-16 100 nF each
                               SW1 (slide switch) -- GND           +-- C3, C4 47 uF bulk
 LiPo - -- P1.1 -------------------------------------- GND         +-- BZ1 + (active buzzer, low side Q1, D3 across it)
-                                                                  +-- motor + (P2.2, low side Q2, D1 across it)
                                                                   +-- R6/R7 divider -> GP2 (battery voltage)
 Dock pogo 5V -- J2.2 -- POGO5V --+-- U2 LM66100 ideal diode (VIN -> VOUT, CE = VOUT) -- MOD5V -- U1 5V pin
                                  +-- R8/R9 divider -> GP1 (docked / not docked)
-U1 3V3 (module regulator) --- J1.3 touch module VCC
+U1 3V3 (module regulator) --+-- J1.3 touch module VCC
+                             +-- motor + (P2.2, 3 V motor; low side Q2, D1 across it)
 ```
-- Single 1S LiPo, 3.0 to 4.2 V. The LEDs, buzzer and motor run straight from VBAT. Only the touch module
-  uses the module's 3.3 V.
+- Single 1S LiPo, 3.0 to 4.2 V. The LEDs and buzzer run straight from VBAT. The 3 V vibration motor
+  and the touch module run from the module's 3.3 V regulator.
 - **Power switch:** SW1 (an SS12F44, rated 300 mA per JLC listings) only switches Q3's gate, so the board
   current (up to about 1.3 A) flows through Q3, not the switch. With the switch off, the module's charger can
   still partly charge the battery through Q3's body diode, to roughly 3.5 V.
@@ -31,8 +32,11 @@ U1 3V3 (module regulator) --- J1.3 touch module VCC
   behind it; measured: 3.24 V into 1 kOhm). It also blocks a reversed dock connection (VIN rated to -6 V)
   and drops about 0.05 V. Measured charging through a 1N5819 instead: a 0.44 V drop. The SuperMini still
   charged with 4.45 V at its 5 V pin.
-- **VBAT copper:** a 1.0 mm ring fed from both ends. From Q3: module B+ 9.6 mOhm, motor 12 mOhm, worst LED
-  47 mOhm (single shortest path; parallel paths make it lower).
+- **VBAT copper:** a 1.0 mm ring inside the LEDs, open only beside the module cut-out. From Q3: LEDs
+  27-58 mOhm, buzzer 52 mOhm, module B+ 74 mOhm (single shortest path; parallel paths make it lower).
+- **Placement for short power paths:** battery pads and Q3 / R10 in the bottom-left corner, motor pads and
+  Q2 / D1 in the top-left corner, battery sense and buzzer driver above the module next to their GPIOs.
+  The LED chain starts at about 1 o'clock (LED1 next to GPIO 5); firmware needs a rotation offset.
 
 ## Signals (ESP32-S3 GPIO)
 | GPIO | Net | Use |
@@ -62,8 +66,8 @@ U1 3V3 (module regulator) --- J1.3 touch module VCC
    drive at 3.0 V battery adequate for about 1.3 A peak? Is the body-diode charging path acceptable?
 4. **U2 (LM66100) wiring:** CE tied to VOUT (datasheet 8.3.2), pin 4 (N/C) used as a stepping stone for that
    link, and ST tied to GND.
-5. **MOSFET drive (Q1, Q2).** AO3400A gates driven at 3.3 V through 330R, with 100k pull-downs. The motor is
-   PWM'd at about 20 kHz.
+5. **MOSFET drive (Q1, Q2).** AO3400A gates driven at 3.3 V through 330R, with 100k pull-downs. The 3 V motor
+   is PWM'd at about 20 kHz from the module's 3.3 V. Is the module regulator adequate for motor + Wi-Fi?
 6. **Decoupling and bulk.** 2 x 47 uF (C3, C4) plus 100 nF per LED on VBAT. Enough for the LED, motor and
    Wi-Fi current steps from a 500 mAh cell?
 7. **Layout.**
