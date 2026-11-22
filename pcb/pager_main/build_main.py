@@ -148,7 +148,7 @@ for pad in u1.Pads():
     nm = pad.GetNumber()
     pad.SetNet(net(pin_net[("U1", nm)]) if ("U1", nm) in pin_net else net("SPARE_" + nm))
 u1.Reference().SetVisible(False); u1.Value().SetVisible(False)
-text("ESP32-S3FH4R2", SM_X + 12, 0, 0.8, pcbnew.B_SilkS)
+text("ESP32-S3FH4R2", SM_X + 8, -3.8, 0.8, pcbnew.B_SilkS)          # between the cut-out and the lower pin row
 text("B+", SM_X + BHOLE_X, -BHOLE_DY - 1.6, 0.8); text("B-", SM_X + BHOLE_X, BHOLE_DY + 1.6, 0.8)
 
 # no bottom tracks under the module body (between the castellation pads); GND pour + stitching vias are
@@ -267,9 +267,22 @@ for num, dx in [("4", -SW_LEG), ("5", SW_LEG)]:
 fp_rect(sw, SWX - 6.0, SWY - 2.85, SWX + 6.0, SWY + 2.85, pcbnew.B_SilkS)
 board.Add(sw); set_nets(sw, "SW1", {"1": "ON", "2": "COM"})
 sw.Reference().SetVisible(False); sw.Value().SetVisible(False)
-text("SWITCH (under)", SWX, SWY - 4.0, 0.8, pcbnew.B_SilkS)
+text("SWITCH", SWX, SWY - 4.0, 0.8, pcbnew.B_SilkS)
 
 # ---------------- XH right-angle connectors (under), plug from the left edge ----------------
+def conn_labels(fp, label):
+    """two lines just past the open (plug) end of the body outline, outside it so they stay visible with the
+    connector fitted, turned to read from the plug side: pin letters on the line nearest the body, each in
+    line with its pin, the connector name beyond them"""
+    name, pin_labs = label
+    xs = [pcbnew.ToMM(g.GetBoundingBox().GetX()) + X0 for g in fp.GraphicalItems()
+          if g.GetLayer() == pcbnew.B_SilkS and g.Type() != pcbnew.PCB_FP_TEXT_T]
+    end = min(xs)                                     # open end of the body (towards the left edge)
+    pads = sorted(fp.Pads(), key=lambda p: p.GetNumber())
+    for p, lab in zip(pads, pin_labs):
+        text(lab, end - 0.8, Y1 - pcbnew.ToMM(p.GetPosition().y), 0.8, pcbnew.B_SilkS, rot=270)
+    ys = [Y1 - pcbnew.ToMM(p.GetPosition().y) for p in pads]
+    text(name, end - 2.1, sum(ys) / len(ys), 0.8, pcbnew.B_SilkS, rot=270)
 def xh(ref, pins, x, y, mapping, label):
     name = f"JST_XH_S{pins}B-XH-A_1x0{pins}_P2.50mm_Horizontal"
     fp = lib_fp("Connector_JST", name)
@@ -286,7 +299,7 @@ def xh(ref, pins, x, y, mapping, label):
     fp.Move(pcbnew.VECTOR2I(int(P(x, y).x - mx), int(P(x, y).y - my)))
     fp.Flip(P(x, y), False)
     set_nets(fp, ref, mapping)
-    text(label, x - 6.0, y, 0.8, pcbnew.B_SilkS, rot=90)
+    conn_labels(fp, label)
     return fp
 def xh_smd(ref, pins, x, y, label):
     """DEALON XH-nPWB SMD right angle under the board (datasheet land pattern): signal pads 1.3 x 5.0 on
@@ -310,8 +323,8 @@ if SMD_CONN:
     xh_smd("J1", 3, -11.5, 7.0, "TOUCH G O V")
     xh_smd("J2", 2, -11.5, -7.0, "DOCK G +")
 else:
-    xh("J1", 3, -11.5, 6.0, {"1": "1", "2": "2", "3": "3"}, "TOUCH G O V")
-    xh("J2", 2, -11.5, -7.0, {"1": "1", "2": "2"}, "DOCK G +")
+    xh("J1", 3, -11.5, 6.0, {"1": "1", "2": "2", "3": "3"}, ("TOUCH", ["G", "O", "V"]))
+    xh("J2", 2, -11.5, -7.0, {"1": "1", "2": "2"}, ("DOCK", ["G", "+"]))
 
 # ---------------- small parts (top, inside the ring) ----------------
 R0603 = ("Resistor_SMD", "R_0603_1608Metric")
@@ -369,20 +382,20 @@ else:
     bot_r = [n for n in ["GP8", "GP9", "GP10", "GP11", "GP12", "GP13"] if n in spares] + ["VBAT", "3V3", "GND"]
     holes = arc_holes(top_r, 31.0, +1) + arc_holes(bot_r, -31.0, -1)
 sp = new_fp("P3"); sp.SetValue("spare pins / power")
-under_labels = []
 for k, (name, a) in enumerate(holes):
     px, py = R_SPARE * math.cos(math.radians(a)), R_SPARE * math.sin(math.radians(a))
     pd = add_pad(sp, str(k + 1), px, py, (1.5, 1.5), kind="pth", drill=0.9,
                  shape=pcbnew.PAD_SHAPE_RECT if name == "GND" else pcbnew.PAD_SHAPE_CIRCLE)
     lab = name.replace("GP", "")
-    # top labels alternate inner / outer side along each arc so neighbours don't collide, counting from the
-    # GND hole at the end of the arc (GND inner, towards the LEDs)
-    arc = [h for h in holes if (math.sin(math.radians(h[1])) > 0) == (math.sin(math.radians(a)) > 0)]
-    from_gnd = len(arc) - 1 - arc.index((name, a))
-    r_lab = R_SPARE - 1.75 if from_gnd % 2 == 0 else R_SPARE + 1.8
+    # labels: GND, TX and VBAT on the inner side (towards the LEDs), the rest on the outer side, which reads as
+    # below the hole (text is upright with its top towards the board centre)
+    inner = name in ("GND", "TX", "VBAT")
+    r_lab = R_SPARE - 1.75 if inner else R_SPARE + 1.8
     text(lab, r_lab * math.cos(math.radians(a)), r_lab * math.sin(math.radians(a)), 0.8, rot=a + 90)
-    # underside label: placed after the test points (below), same alternation where it fits
-    under_labels.append((lab, a, from_gnd % 2 == 0))
+    # underside: same sides; the lower GND label moved further along the arc so VBAT fits beside it
+    a_b = a - 2.5 if name == "GND" and math.sin(math.radians(a)) < 0 else a
+    r_b = R_SPARE - 2.0 if inner else R_SPARE + 1.8
+    text(lab, r_b * math.cos(math.radians(a_b)), r_b * math.sin(math.radians(a_b)), 0.8, pcbnew.B_SilkS, rot=a_b + 90)
 board.Add(sp); sp.Reference().SetVisible(False); sp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(sp.Pads(), key=lambda p: int(p.GetNumber()))):
     name = holes[k][0]
@@ -399,32 +412,7 @@ for k, (lab, n) in enumerate(TPS):
 board.Add(tp); tp.Reference().SetVisible(False); tp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(tp.Pads(), key=lambda p: int(p.GetNumber()))):
     pad.SetNet(net(TPS[k][1]))
-text("GPIO TEST", 12.5 if os.environ.get("PAGER_SPARES") == "left" else 8.0, -17.6 if os.environ.get("PAGER_SPARES") == "left" else -18.6, 0.8, pcbnew.B_SilkS)
-
-# underside spare-pin labels: inner (preferred for GND and every second hole) or outer side of the hole,
-# whichever does not overlap another underside label or an underside pad; skipped if neither fits
-from shapely.geometry import Polygon as _Poly, box as _sbox
-from shapely import affinity as _aff
-def _tpoly(t):                       # text outline as a rotated rectangle (board mm, KiCad axes)
-    ang = t.GetTextAngleDegrees(); t.SetTextAngleDegrees(0); bb = t.GetBoundingBox(); t.SetTextAngleDegrees(ang)
-    cx, cy = pcbnew.ToMM(t.GetPosition().x), pcbnew.ToMM(t.GetPosition().y)
-    r = _sbox(pcbnew.ToMM(bb.GetX()), pcbnew.ToMM(bb.GetY()), pcbnew.ToMM(bb.GetRight()), pcbnew.ToMM(bb.GetBottom()))
-    return _aff.rotate(r, -ang, origin=(cx, cy))
-def _ppoly(p):                       # exact pad outline
-    sps = p.GetEffectivePolygon(); o = sps.COutline(0)
-    return _Poly([(pcbnew.ToMM(o.CPoint(k).x), pcbnew.ToMM(o.CPoint(k).y)) for k in range(o.PointCount())]).buffer(0)
-_under = [_tpoly(d) for d in board.GetDrawings() if d.Type() == pcbnew.PCB_TEXT_T and d.GetLayer() == pcbnew.B_SilkS]
-_under += [_ppoly(p) for f in board.GetFootprints() for p in f.Pads() if p.IsOnLayer(pcbnew.B_Cu)]
-for lab, a, inner_first in under_labels:
-    for r_b in ((R_SPARE - 2.0, R_SPARE + 1.8) if inner_first else (R_SPARE + 1.8, R_SPARE - 2.0)):
-        s_ = pcbnew.PCB_TEXT(board); s_.SetText(lab); s_.SetLayer(pcbnew.B_SilkS); s_.SetMirrored(True)
-        s_.SetPosition(P(r_b * math.cos(math.radians(a)), r_b * math.sin(math.radians(a))))
-        s_.SetTextSize(pcbnew.VECTOR2I(mm(0.8), mm(0.8))); s_.SetTextThickness(mm(0.12)); s_.SetTextAngleDegrees(a + 90)
-        tp_ = _tpoly(s_)
-        if not any(tp_.distance(o) < 0.25 for o in _under):
-            board.Add(s_); _under.append(tp_); break
-    else:
-        print(f"  underside label {lab}: no room, left off")
+text("GPIO TEST", 12.5 if os.environ.get("PAGER_SPARES") == "left" else 12.0, -17.6 if os.environ.get("PAGER_SPARES") == "left" else -12.8, 0.8, pcbnew.B_SilkS)
 
 # ---------------- mounting holes (4 corners) ----------------
 for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.2, Y0 + 2.2), (X1 - 2.2, Y0 + 2.2)]):
@@ -543,7 +531,6 @@ auto_place("R4", R0603, pinmap["R"], 13.0, -4.5)
 auto_place("C4", C1206, pinmap["C"], -12.0, -1.0)                # second VBAT bulk cap, near the ring
 auto_place("D3", SOD123, pinmap["D"], -2.5, 12.5)                # above the buzzer, between its pads
 
-text("POOL PAGER", -17.0, 0.0, 0.8, pcbnew.B_SilkS, rot=90)
 from fix_anchors import center_anchors
 center_anchors(board)                # JLC places parts at the footprint anchor: centre the hand-built ones
 board.Save(OUT)
