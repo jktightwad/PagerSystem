@@ -36,10 +36,12 @@ PARTS = {
     "P2":  ("Motor pads", None, "under, beside the module's 3V3 pin: MOT-, 3V3 (3 V motor)"),
 }
 NO_CAP = ()           # every LED has its own capacitor
+def led_cap(i):       # LED i's 100 nF cap: C5-C20 (same "C" prefix as C1/C2, so JLC's BOM row needs no confirming)
+    return f"C{i + 4}"
 for i in range(1, N_LED + 1):
     PARTS[f"LED{i}"] = ("TZ-5050S2RGB-5V-I4-H1", "C26167850", "TUOZHAN TZ2812, WS2812-compatible; JLC Economic + Standard PCBA")
     if i not in NO_CAP:
-        PARTS[f"CL{i}"] = ("100nF", "C14663", f"LED{i} decoupling")
+        PARTS[led_cap(i)] = ("100nF", "C14663", f"LED{i} decoupling")
 
 NETS = {
     "GND":    [("U1", "GND"), ("U1", "B-"), ("J1", "1"), ("J2", "1"), ("P1", "1"),
@@ -72,8 +74,8 @@ for i in range(1, N_LED + 1):
     NETS["VBAT"].append((f"LED{i}", "VDD"))
     NETS["GND"].append((f"LED{i}", "GND"))
     if i not in NO_CAP:
-        NETS["VBAT"].append((f"CL{i}", "1"))
-        NETS["GND"].append((f"CL{i}", "2"))
+        NETS["VBAT"].append((led_cap(i), "1"))
+        NETS["GND"].append((led_cap(i), "2"))
     if i < N_LED:
         NETS[f"LED_D{i}"] = [(f"LED{i}", "DOUT"), (f"LED{i+1}", "DIN")]
 

@@ -13,7 +13,7 @@ through spring (pogo) contacts. The ESP32-S3 handles Wi-Fi to the queue server.
 ```
 LiPo + -- P1.2 (BAT+) -- Q3 AO3401A P-MOSFET (S -> D) -- VBAT --+-- U1 B+ (module's battery input / charger)
             |                 gate (SW_G)                         +-- VBAT ring (1.0 mm copper circle inside the LEDs)
-            +-- R10 100k -----+                                   |     -> LED1-16 VDD, CL1-16 100 nF each
+            +-- R10 100k -----+                                   |     -> LED1-16 VDD, C5-C20 100 nF each
                               SW1 (slide switch) -- GND           +-- C3, C4 47 uF bulk
 LiPo - -- P1.1 -------------------------------------- GND         +-- BZ1 + (passive buzzer, low side Q1, D3 across it)
                                                                   +-- R6/R7 divider -> GP2 (battery voltage)

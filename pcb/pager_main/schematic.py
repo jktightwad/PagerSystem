@@ -9,7 +9,7 @@ error instead of being drawn on a wrong net.
 import os
 import schemdraw
 import schemdraw.elements as e
-from design_main import PARTS, NETS, N_LED
+from design_main import PARTS, NETS, N_LED, led_cap
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "review")
 os.makedirs(OUT, exist_ok=True)
@@ -169,7 +169,7 @@ with schemdraw.Drawing(file=os.path.join(OUT, "schematic.svg"), show=False) as d
         d += e.Line().at(L.VDD).up(0.8); d += (v := e.Dot()); d += e.Line().up(0.4); lab(d, net(ref, "VDD"), "top")
         d += e.Line().at(L.GND).down(0.6); d += (gd := e.Dot()); d += e.Ground(); net(ref, "GND")
         # its decoupling cap between the LED's VDD and GND, drawn beside it
-        c = f"CL{i}"
+        c = led_cap(i)
         d += e.Line().at(v.center).right(5.2)
         d += e.Capacitor().down(v.center[1] - gd.center[1]).label(f"{c}\n{val(c)}", "right", fontsize=9)
         d += e.Line().left(5.2); net(c, "1"); net(c, "2")

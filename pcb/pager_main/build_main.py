@@ -6,7 +6,7 @@ Design coordinates are mm with the LED ring centre at (0, 0), x right, y UP
 """
 import json, math, os
 import pcbnew
-from design_main import PARTS, NETS, N_LED
+from design_main import PARTS, NETS, N_LED, led_cap
 
 # PAGER_SMD_CONN=1 builds the variant with surface-mount touch / dock connectors (DEALON XH-3PWB /
 # XH-2PWB, right angle, under the board) for a JLC Standard (two-sided) assembly quote
@@ -195,8 +195,8 @@ for i in range(1, N_LED + 1):
     rc = R_LED - 2.6 - 0.75 - 0.3 - 0.6        # 0.6 further in than before: room for the VBAT ring (below)
     cx, cy = rc * math.cos(math.radians(a)), rc * math.sin(math.radians(a))
     ca = a
-    cp = place(lib_fp(*C0603), f"CL{i}", cx, cy, rot=90 + ca)
-    set_nets(cp, f"CL{i}", {"1": "1", "2": "2"})
+    cp = place(lib_fp(*C0603), led_cap(i), cx, cy, rot=90 + ca)
+    set_nets(cp, led_cap(i), {"1": "1", "2": "2"})
     # keep 0.5 mm + pad from the module cut-out: try the old radius (fine where the VBAT ring is open), then
     # small steps along the ring (towards the side away from the cut-out), until clear
     from shapely.geometry import Polygon as _Poly, Point as _Pt
@@ -210,7 +210,7 @@ for i in range(1, N_LED + 1):
             aa = a + da
             cp.SetPosition(P(rr * math.cos(math.radians(aa)), rr * math.sin(math.radians(aa)))); cp.SetOrientationDegrees(90 + aa)
             if _cut_gap(cp) >= 0.55 and not (rr > rc and FOUR is False and _ring_hits(aa)):
-                print(f"  CL{i} moved clear of the cut-out (r {rr:.2f}, {da:+.0f} deg)"); break
+                print(f"  {led_cap(i)} moved clear of the cut-out (r {rr:.2f}, {da:+.0f} deg)"); break
 # (no LED1 marker: the LEDs are JLC-fitted)
 
 # ---------------- VBAT ring (top copper, drawn here; the router keeps it with ROUTE_KEEP=1) ----------------
@@ -243,7 +243,7 @@ def _in_span(deg):
 ring_stubs = 0
 for f in list(board.GetFootprints()):
     ref = f.GetReference()
-    if not (ref.startswith("LED") or ref.startswith("CL")): continue
+    if not (ref.startswith("LED") or ref in {led_cap(i) for i in range(1, N_LED + 1)}): continue
     for pd in f.Pads():
         if pd.GetNetname() != "VBAT": continue
         px, py = pcbnew.ToMM(pd.GetPosition().x) + X0, Y1 - pcbnew.ToMM(pd.GetPosition().y)
@@ -515,7 +515,7 @@ for a_, b_ in [(_pp["3"], _pp["4"]), (_pp["4"], _o4), (_o4, _o6), (_o6, _pp["6"]
 _track(_pp["5"], _pp["2"], 0.25, netname="GND")
 # R5 (LED data) in the gap between the last LED and LED1, where no data hop runs: next to GPIO 5 and LED1's DIN
 # ground vias drawn here so an autorouter routes around them (both pads were boxed in otherwise):
-# U2 pin 2 straight out (away from the body) to a via; CL1's GND pad inward to a via
+# U2 pin 2 straight out (away from the body) to a via; the first LED cap's GND pad inward to a via
 def _gnd_stub_via(ref, pin, length, away_from=None, toward=None):
     f = [x for x in board.GetFootprints() if x.GetReference() == ref][0]
     pd = [q for q in f.Pads() if q.GetNumber() == pin][0]
@@ -527,7 +527,7 @@ def _gnd_stub_via(ref, pin, length, away_from=None, toward=None):
     v = pcbnew.PCB_VIA(board); v.SetPosition(P(vx, vy)); v.SetWidth(mm(0.6)); v.SetDrill(mm(0.3)); v.SetNet(net("GND")); board.Add(v)
 _u2c = [x for x in board.GetFootprints() if x.GetReference() == "U2"][0].GetPosition()
 _gnd_stub_via("U2", "2", 1.5, away_from=(pcbnew.ToMM(_u2c.x) + X0, Y1 - pcbnew.ToMM(_u2c.y)))
-# (a pre-drawn GND via for the capacitor at the old CL1 position was dropped: the LED chain now starts elsewhere)
+# (a pre-drawn GND via for the LED capacitor at the old first position was dropped: the LED chain now starts elsewhere)
 
 _a5 = a_first + 11.25
 auto_place("R5", R0603, pinmap["R"], (R_LED + 4.0) * math.cos(math.radians(_a5)), (R_LED + 4.0) * math.sin(math.radians(_a5)), outside=True)
