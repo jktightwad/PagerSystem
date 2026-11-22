@@ -10,7 +10,7 @@ requirements below are fixed. The circuit is in `schematic.pdf`, `netlist.md` (e
 
 ## What the board is
 - A table-queue pager.
-- It has a ring of 16 addressable RGB LEDs, an active buzzer, a vibration motor and a touch sensor.
+- It has a ring of 16 addressable RGB LEDs, a passive buzzer, a vibration motor and a touch sensor.
 - An ESP32-S3 module provides Wi-Fi.
 - It runs on a 1S LiPo and charges through spring contacts (pogo pins) when docked.
 - It goes inside a round enclosure, which will be made to fit the board.
@@ -47,7 +47,7 @@ requirements below are fixed. The circuit is in `schematic.pdf`, `netlist.md` (e
    - VBAT feeds:
      - the 16 LEDs, up to about 60 mA each at full white;
      - the module's B+, with Wi-Fi peaks of a few hundred mA;
-     - the buzzer (30 mA) and the motor.
+     - the buzzer (up to about 100 mA, PWM) and the motor.
    - The worst case is about 1.3 A total.
    - Keep VBAT resistance low to every LED and to the module. For reference, the current attempt achieves
      about 10 mOhm to the module and under 50 mOhm to the worst LED.

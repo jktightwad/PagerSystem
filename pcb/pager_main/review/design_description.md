@@ -2,11 +2,11 @@
 
 **Board:** `pager_main`. 54 x 48 mm, 2-layer FR4 (thickness as ordered; JLC default 1.6 mm). JLC Economic PCBA, top side only.
 **Status:** revised after a first review (power switch, ideal diode, VBAT ring, bulk cap, buzzer diode,
-motor on 3.3 V) and routed (EasyEDA autorouter + local fixes). DRC: 0 errors (3 starved-thermal and one
+motor on 3.3 V, then a lower passive buzzer) and routed (EasyEDA autorouter + local fixes). DRC: 0 errors (3 starved-thermal and one
 ring-end warnings); every pad is on the net the design says. Nothing has been measured on this board yet.
 
 ## What it does
-This is a table-queue pager. A ring of 16 addressable RGB LEDs shows status. An active buzzer and a
+This is a table-queue pager. A ring of 16 addressable RGB LEDs shows status. A passive (magnetic) buzzer and a
 vibration motor give alerts. A touch sensor acknowledges. The pagers stack on a charging base
 through spring (pogo) contacts. The ESP32-S3 handles Wi-Fi to the queue server.
 
@@ -16,7 +16,7 @@ LiPo + -- P1.2 (BAT+) -- Q3 AO3401A P-MOSFET (S -> D) -- VBAT --+-- U1 B+ (modul
             |                 gate (SW_G)                         +-- VBAT ring (1.0 mm copper circle inside the LEDs)
             +-- R10 100k -----+                                   |     -> LED1-16 VDD, CL1-16 100 nF each
                               SW1 (slide switch) -- GND           +-- C3, C4 47 uF bulk
-LiPo - -- P1.1 -------------------------------------- GND         +-- BZ1 + (active buzzer, low side Q1, D3 across it)
+LiPo - -- P1.1 -------------------------------------- GND         +-- BZ1 + (passive buzzer, low side Q1, D3 across it)
                                                                   +-- R6/R7 divider -> GP2 (battery voltage)
 Dock pogo 5V -- J2.2 -- POGO5V --+-- U2 LM66100 ideal diode (VIN -> VOUT, CE = VOUT) -- MOD5V -- U1 5V pin
                                  +-- R8/R9 divider -> GP1 (docked / not docked)
@@ -33,7 +33,7 @@ U1 3V3 (module regulator) --+-- J1.3 touch module VCC
   and drops about 0.05 V. Measured charging through a 1N5819 instead: a 0.44 V drop. The SuperMini still
   charged with 4.45 V at its 5 V pin.
 - **VBAT copper:** a 1.0 mm ring inside the LEDs, open only beside the module cut-out. From Q3: LEDs
-  27-58 mOhm, buzzer 52 mOhm, module B+ 74 mOhm (single shortest path; parallel paths make it lower).
+  27-58 mOhm, module B+ 74 mOhm (single shortest path; parallel paths make it lower).
 - **Placement for short power paths:** battery pads and Q3 / R10 in the bottom-left corner, motor pads and
   Q2 / D1 in the top-left corner, battery sense and buzzer driver above the module next to their GPIOs.
   The LED chain starts at about 1 o'clock (LED1 next to GPIO 5); firmware needs a rotation offset.
@@ -45,14 +45,16 @@ U1 3V3 (module regulator) --+-- J1.3 touch module VCC
 | GP2 | BAT_SENSE | VBAT / 2 (R6, R7 100k; C1 100 nF), analog in |
 | GP4 | TOUCH | touch module output (module on J1, 3.3 V) |
 | GP5 | RING_IO | LED data, through R5 330R to LED1 DIN; LEDs chained DOUT to DIN |
-| GP12 | BUZ_IO | buzzer on/off: R1 330R to Q1 gate, R2 100k pull-down |
+| GP12 | BUZ_IO | buzzer tone (PWM, about 2.7 kHz): R1 330R to Q1 gate, R2 100k pull-down |
 | GP13 | MOT_IO | motor (PWM): R3 330R to Q2 gate, R4 100k pull-down |
 
 ## Expected currents (estimates, not measured)
 - **LEDs:** up to about 60 mA each at full white, if they match the WS2812B. That would be about 1 A for
   16. Firmware caps brightness at 64/255, which brings the worst case to roughly 250 mA. The TZ2812's own
   datasheet figure has not been checked.
-- **Buzzer:** 30 mA (manufacturer figure at 5 V).
+- **Buzzer:** XHXDZ SMD8530-16R (C49246948), 16 Ohm coil, rated 3.6 V (2.5-4.5 V), max 100 mA at rated voltage with a
+  1/2-duty square wave (datasheet). It must only be driven with PWM: with Q1 held on, the coil alone (16 Ohm) would
+  take about 260 mA at 4.2 V. R2 holds Q1 off at reset.
 - **Motor:** unknown. Coreless vibration motors are typically under 100 mA, but this one is not measured.
 - **ESP32-S3:** Wi-Fi transmit peaks of a few hundred mA, drawn through the module's regulator.
 
@@ -78,6 +80,9 @@ U1 3V3 (module regulator) --+-- J1.3 touch module VCC
    - Does any part of the LED or driver layout look like a return-path problem?
 
 ## Not checked yet / estimates
+- The buzzer's VBAT path resistance was not recalculated after the buzzer change (it is now fed from D3's VBAT pad
+  with a 0.5 mm track).
+- BZ1 rotation for JLC (C49246948) is not checked yet against JLC's footprint.
 - The SS12F44 switch's end-leg spacing (11.2 mm) and the module antenna length (5 mm) are estimates.
 - The orientation of the LEDs, buzzer and diode will be checked in JLC's placement preview before
   ordering.

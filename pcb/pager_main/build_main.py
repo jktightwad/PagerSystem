@@ -241,17 +241,19 @@ for f in list(board.GetFootprints()):
 if not FOUR: print(f"  VBAT ring r={R_RING:.2f} mm, {W_RING} mm wide, {len(_span) / 2:.1f} deg of 360, {ring_stubs} stubs")
 
 # ---------------- buzzer (top, SMD, JLC-assembled) ----------------
-# S&S SMD-0955-05-27 active buzzer: 9 x 9 mm body, two 2 mm-wide terminals on opposite sides,
-# 11.4 mm tip to tip, 5.4 mm between them (datasheet). Terminals along x here; + on the left.
+# XHXDZ SMD8530-16R passive magnetic buzzer (C49246948): 8.5 x 8.5 x 3.0 mm body, four 2.0 x 2.0 mm pads
+# on 7.5 mm centres (datasheet "H. Solder pads size": 5.5 mm between pads, 9.5 mm overall). Datasheet top
+# view has + bottom-right and - top-right, the other two pads are dummies (mechanical only, left unconnected).
+# Placed as in that top view (board y is up): + bottom-right, - top-right, dummies on the left.
 BZX, BZY = -2.5, 8.0
 bz = new_fp("BZ1"); bz.SetValue(PARTS["BZ1"][0])
-for num, sx in [("1", -1), ("2", 1)]:
-    add_pad(bz, num, BZX + sx * 4.2, BZY, (3.4, 2.4), side="top", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
-fp_rect(bz, BZX - 4.5, BZY - 4.5, BZX + 4.5, BZY + 4.5, pcbnew.F_SilkS)
-fp_rect(bz, BZX - 6.0, BZY - 4.8, BZX + 6.0, BZY + 4.8, pcbnew.F_CrtYd, w=0.05)
+for num, sx, sy in [("1", 1, -1), ("2", 1, 1), ("3", -1, 1), ("4", -1, -1)]:
+    add_pad(bz, num, BZX + sx * 3.75, BZY + sy * 3.75, (2.0, 2.0), side="top", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
+fp_rect(bz, BZX - 4.25, BZY - 4.25, BZX + 4.25, BZY + 4.25, pcbnew.F_SilkS)
+fp_rect(bz, BZX - 5.0, BZY - 5.0, BZX + 5.0, BZY + 5.0, pcbnew.F_CrtYd, w=0.05)
 board.Add(bz); set_nets(bz, "BZ1", {"1": "+", "2": "-"})
 bz.Reference().SetVisible(False); bz.Value().SetVisible(False)
-text("+", BZX - 4.2, BZY + 2.1, 0.8)
+text("+", BZX + 3.75, BZY - 5.6, 0.8)
 
 # ---------------- switch SS12F44 (under): 3 pins 2.5 mm, end legs slotted ----------------
 SWX, SWY, SW_LEG = -2.0, -11.5, 5.6          # leg spacing 11.2 mm is an ESTIMATE - measure

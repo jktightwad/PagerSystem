@@ -26,7 +26,7 @@ if variant == "smdconn":   # JLC also fits these (Standard PCBA, both sides)
     parts["J2"] = ("XH-2PWB SMD right angle (DEALON)", "C2905024")
     parts["SW1"] = ("SS12F44G4 slide switch (through-hole)", "C2887261")
 BOTTOM = {"J1", "J2", "SW1"}   # parts that sit under the board
-FOOT = {"R": "0603", "C": "0603", "Q": "SOT-23", "D": "SOD-123", "L": "5050", "B": "SMD 9x9", "J": "XH SMD", "S": "THT", "U": "SC-70-6"}
+FOOT = {"R": "0603", "C": "0603", "Q": "SOT-23", "D": "SOD-123", "L": "5050", "B": "SMD 8.5x8.5", "J": "XH SMD", "S": "THT", "U": "SC-70-6"}
 # panel copies are LED1_3 etc.: the part data comes from the base reference
 base = (lambda r: r.rsplit("_", 1)[0]) if variant == "panel" else (lambda r: r)
 with open(f"{outd}/pos_all.csv") as f:
@@ -52,12 +52,11 @@ with open(f"{outd}/pos_all.csv") as f, open(f"{outd}/cpl_jlc.csv", "w", newline=
             # KiCad as top-side footprints: list them as Bottom for JLC
             if base(ref) in BOTTOM: side = "Bottom"
             # JLC's library footprints differ in orientation from ours for some parts (checked against JLC's
-            # footprint views): BZ1 (C55014110) has its pads top/bottom with + on top, ours left/right with + on the
-            # left -> +90. AO3400A (C20917, Q1, Q2) has pin 3 left and 1/2 right, KiCad's SOT-23 the opposite -> +180.
+            # footprint views): BZ1 (C49246948) not checked yet -> 0 until JLC's preview is compared. AO3400A (C20917, Q1, Q2) has pin 3 left and 1/2 right, KiCad's SOT-23 the opposite -> +180.
             # LM66100 (C2869734, U2) has pins in rows (1-2-3 along the bottom, pin 1 bottom-left), KiCad's SC-70-6 in
             # columns (1-2-3 down the left) = ours turned 90 deg counter-clockwise -> -90.
             # B5819W (C8598) and the LED (C26167850) match KiCad's footprints (no change).
-            ROT_FIX = {"BZ1": 90.0, "Q1": 180.0, "Q2": 180.0, "Q3": 180.0, "U2": -90.0}   # AO3401A (C15127, Q3): same as the AO3400A
+            ROT_FIX = {"BZ1": 0.0, "Q1": 180.0, "Q2": 180.0, "Q3": 180.0, "U2": -90.0}   # AO3401A (C15127, Q3): same as the AO3400A
             rot = (float(row["Rot"]) + ROT_FIX.get(base(ref), 0.0)) % 360
             w.writerow([ref, f'{float(row["PosX"]):.4f}', f'{float(row["PosY"]):.4f}', side, f'{rot:.2f}'])
 print(f"{outd}/bom_jlc.csv, {outd}/cpl_jlc.csv written")
