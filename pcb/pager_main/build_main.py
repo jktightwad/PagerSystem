@@ -172,7 +172,7 @@ LED = ("LED_SMD", "LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm")      # pins 1 VDD, 2 DOU
 C0603 = ("Capacitor_SMD", "C_0603_1608Metric")
 # ring turned so every LED's capacitor clears the cut-out (spacing stays 22.5 deg; offset 19.75 deg found by search,
 # copper about 0.4 mm from the cut-out edge)
-a_first = 19.75 + 22.5 * 12                                   # LED1 (bottom right), chain runs clockwise
+a_first = 19.75                                               # LED1 at about 1 o'clock (nearest GPIO 5), chain runs clockwise
 for i in range(1, N_LED + 1):
     a = a_first - (i - 1) * 22.5
     x, y = R_LED * math.cos(math.radians(a)), R_LED * math.sin(math.radians(a))
@@ -315,12 +315,9 @@ C1206 = ("Capacitor_SMD", "C_1206_3216Metric")
 SOT23 = ("Package_TO_SOT_SMD", "SOT-23")
 SOD123 = ("Diode_SMD", "D_SOD-123")
 ya, yb, yc = 1.0, -3.0, -6.8
-small = {
-    "R6": (R0603, -7.5, ya, 90), "R7": (R0603, -5.8, ya, 90), "C1": (C0603, -4.1, ya, 90),
+small = {   # the rest are placed next to what they connect to (auto_place, further down)
     "R8": (R0603, -1.6, ya, 90), "R9": (R0603, 0.1, ya, 90), "C2": (C0603, 1.8, ya, 90),
-    "Q1": (SOT23, -6.5, yb, 0), "R1": (R0603, -3.8, yb, 90), "R2": (R0603, -2.2, yb, 90),
-    "Q2": (SOT23, 1.0, yb, 0), "R3": (R0603, 3.7, yb, 90), "R4": (R0603, 5.3, yb, 90),
-    "R5": (R0603, -6.0, yc, 0), "C3": (C1206, -1.5, yc, 0), "D1": (SOD123, 3.5, yc, 180),
+    "C3": (C1206, -1.5, yc, 0),
 }
 pinmap = {"R": {"1": "1", "2": "2"}, "C": {"1": "1", "2": "2"}, "Q": {"1": "G", "2": "S", "3": "D"}, "D": {"1": "K", "2": "A"}}
 for ref, (lf, x, y, rot) in small.items():
@@ -335,11 +332,13 @@ def wire_pads(ref, x, y, labels, pitch=2.8, size=(1.8, 2.6)):
     board.Add(fp); fp.Reference().SetVisible(False); fp.Value().SetVisible(False); return fp
 # battery pads right below Q3 (BAT+ goes straight to its source), motor pads beside the module's 3V3 pin
 # (motor + is 3V3): both in the bottom strip between the module's 5V/GND/3V3 pin row and the test pads
-P1X, P2X, PY = 7.4, 12.9, -12.35
-p1 = wire_pads("P1", P1X, PY, ["-", "+"], size=(1.8, 2.4)); set_nets(p1, "P1", {"1": "1", "2": "2"})
-text("BAT - +", P1X, PY - 1.95, 0.8, pcbnew.B_SilkS)
-p2 = wire_pads("P2", P2X, PY, ["-", "+"], size=(1.8, 2.4)); set_nets(p2, "P2", {"1": "1", "2": "2"})
-text("MOT - +", P2X, PY - 1.95, 0.8, pcbnew.B_SilkS)
+# battery pads in the bottom-left corner (Q3 / R10 placed just inside the ring beside them), motor pads in
+# the top-left corner by J1's 3V3 pin (Q2 / R3 / R4 / D1 beside them): easy to reach with an iron
+CX, CY = -17.6, 18.4
+p1 = wire_pads("P1", CX, -CY, ["-", "+"]); set_nets(p1, "P1", {"1": "1", "2": "2"})
+text("BAT - +", CX, -CY + 2.3, 0.8, pcbnew.B_SilkS)
+p2 = wire_pads("P2", CX, CY, ["-", "+"]); set_nets(p2, "P2", {"1": "1", "2": "2"})
+text("MOT - +", CX, CY - 2.3, 0.8, pcbnew.B_SilkS)
 # spare pins + power: through-holes on an arc just outside the LED ring, in the two left corners.
 # Each corner takes the spares from the module row on its side (the 5V/GND/3V3 row faces -y),
 # plus 3V3 and GND (and VBAT at the bottom) for future additions.
@@ -414,13 +413,25 @@ def _obstacles():
                 bb = pd.GetBoundingBox()
                 obs.append((pcbnew.ToMM(bb.GetLeft()) - 0.3, pcbnew.ToMM(bb.GetTop()) - 0.3,
                             pcbnew.ToMM(bb.GetRight()) + 0.3, pcbnew.ToMM(bb.GetBottom()) + 0.3))
-        if not big and any(pd.IsOnLayer(pcbnew.F_Cu) for pd in f.Pads()):
+        at_origin = f.GetPosition().x == 0 and f.GetPosition().y == 0    # hand-built, anchor not centred yet: pads only
+        if not big and not at_origin and any(pd.IsOnLayer(pcbnew.F_Cu) for pd in f.Pads()):
             obs.append(_bbox_mm(f, 0.25))
+        if at_origin:                                                       # but keep their top-side outline (buzzer body)
+            cy = [g.GetBoundingBox() for g in f.GraphicalItems() if g.GetLayer() == pcbnew.F_CrtYd]
+            if cy:
+                obs.append((min(pcbnew.ToMM(bb.GetLeft()) for bb in cy) - 0.25, min(pcbnew.ToMM(bb.GetTop()) for bb in cy) - 0.25,
+                            max(pcbnew.ToMM(bb.GetRight()) for bb in cy) + 0.25, max(pcbnew.ToMM(bb.GetBottom()) for bb in cy) + 0.25))
+    for t in board.GetTracks():                                             # pre-drawn copper (ring, U2 links, vias)
+        if t.Type() == pcbnew.PCB_VIA_T or t.GetLayer() == pcbnew.F_Cu:
+            bb = t.GetBoundingBox()
+            obs.append((pcbnew.ToMM(bb.GetLeft()) - 0.25, pcbnew.ToMM(bb.GetTop()) - 0.25,
+                        pcbnew.ToMM(bb.GetRight()) + 0.25, pcbnew.ToMM(bb.GetBottom()) + 0.25))
     return obs
 _outline = pcbnew.SHAPE_POLY_SET()
 board.GetBoardPolygonOutlines(_outline)
 _keepout = [z for z in board.Zones() if z.GetIsRuleArea() and z.GetDoNotAllowTracks() and z.IsOnLayer(pcbnew.F_Cu)]
-def auto_place(ref, lf, pins, tx, ty, rots=(0, 90, 180, 270)):
+def auto_place(ref, lf, pins, tx, ty, rots=(0, 90, 180, 270), outside=False):
+    """outside=False: inside the VBAT ring; outside=True: beyond the LEDs (board corners)"""
     obs = _obstacles(); best = None
     # footprint outline per rotation, relative to its position (loaded once)
     rel = {}
@@ -432,7 +443,7 @@ def auto_place(ref, lf, pins, tx, ty, rots=(0, 90, 180, 270)):
     for d, gx, gy in cand:
         if best: break
         x, y = tx + gx * 0.25, ty + gy * 0.25
-        if math.hypot(x, y) > R_RING - 1.0: continue
+        if (math.hypot(x, y) > R_RING - 1.0) if not outside else (math.hypot(x, y) < R_LED + 1.0): continue
         kx, ky = pcbnew.ToMM(P(x, y).x), pcbnew.ToMM(P(x, y).y)
         if True:
             for rot in rots:
@@ -440,9 +451,16 @@ def auto_place(ref, lf, pins, tx, ty, rots=(0, 90, 180, 270)):
                 if any(x0 < o[2] and x1 > o[0] and y0 < o[3] and y1 > o[1] for o in obs): continue
                 corners = [pcbnew.VECTOR2I(pcbnew.FromMM(u), pcbnew.FromMM(v)) for u in (x0 - 0.3, x1 + 0.3) for v in (y0 - 0.3, y1 + 0.3)]
                 if not all(_outline.Contains(c) for c in corners): continue
-                if any(math.hypot(pcbnew.ToMM(c.x) + X0, Y1 - pcbnew.ToMM(c.y)) > R_RING - W_RING / 2 - 0.3 for c in corners): continue
+                from shapely.geometry import box as _box, Polygon as _CP
+                if _CP(cut).distance(_box(x0 + X0, Y1 - y1, x1 + X0, Y1 - y0)) < 0.5: continue   # clear of the module cut-out
+                rc_ = [math.hypot(pcbnew.ToMM(c.x) + X0, Y1 - pcbnew.ToMM(c.y)) for c in corners]
+                if (max(rc_) > R_RING - W_RING / 2 - 0.3) if not outside else (min(rc_) < R_LED): continue   # LED outlines are obstacles
                 if any(z.Outline().Contains(c) for z in _keepout for c in corners): continue
                 best = (d, x, y, rot); break
+    if not best:
+        kx, ky = pcbnew.ToMM(P(tx, ty).x), pcbnew.ToMM(P(tx, ty).y)
+        near = [o for o in obs if o[0] < kx + 5 and o[2] > kx - 5 and o[1] < ky + 5 and o[3] > ky - 5]
+        print("  obstacles near the target (KiCad mm):", [tuple(round(v, 1) for v in o) for o in near])
     assert best, f"no room for {ref}"
     fp = place(lib_fp(*lf), ref, best[1], best[2], best[3]); set_nets(fp, ref, pins)
     print(f"  {ref} at ({best[1]:.2f}, {best[2]:.2f}) rot {best[3]}, {best[0]:.1f} mm from its target")
@@ -457,11 +475,7 @@ _ux = ((_pp["4"][0] - _pp["3"][0]) / 1.9, (_pp["4"][1] - _pp["3"][1]) / 1.9)    
 _o4 = (_pp["4"][0] + 0.65 * _ux[0], _pp["4"][1] + 0.65 * _ux[1]); _o6 = (_pp["6"][0] + 0.65 * _ux[0], _pp["6"][1] + 0.65 * _ux[1])
 for a_, b_ in [(_pp["3"], _pp["4"]), (_pp["4"], _o4), (_o4, _o6), (_o6, _pp["6"])]: _track(a_, b_, 0.25, netname="MOD5V")
 _track(_pp["5"], _pp["2"], 0.25, netname="GND")
-auto_place("Q3", SOT23, pinmap["Q"], 2.0, -11.5)                 # near the switch / battery pads
-auto_place("R10", R0603, pinmap["R"], 2.0, -13.5)
-auto_place("C4", C1206, pinmap["C"], -1.5, -9.5)                 # next to C3
-auto_place("D3", SOD123, pinmap["D"], -2.5, 12.5)                # above the buzzer, between its pads
-
+# R5 (LED data) in the gap between the last LED and LED1, where no data hop runs: next to GPIO 5 and LED1's DIN
 # ground vias drawn here so an autorouter routes around them (both pads were boxed in otherwise):
 # U2 pin 2 straight out (away from the body) to a via; CL1's GND pad inward to a via
 def _gnd_stub_via(ref, pin, length, away_from=None, toward=None):
@@ -475,7 +489,24 @@ def _gnd_stub_via(ref, pin, length, away_from=None, toward=None):
     v = pcbnew.PCB_VIA(board); v.SetPosition(P(vx, vy)); v.SetWidth(mm(0.6)); v.SetDrill(mm(0.3)); v.SetNet(net("GND")); board.Add(v)
 _u2c = [x for x in board.GetFootprints() if x.GetReference() == "U2"][0].GetPosition()
 _gnd_stub_via("U2", "2", 1.5, away_from=(pcbnew.ToMM(_u2c.x) + X0, Y1 - pcbnew.ToMM(_u2c.y)))
-_gnd_stub_via("CL1", "2", 1.3, toward=(6.22, 0.0))      # straight up: clear of the test pads below
+# (a pre-drawn GND via for the capacitor at the old CL1 position was dropped: the LED chain now starts elsewhere)
+
+_a5 = a_first + 11.25
+auto_place("R5", R0603, pinmap["R"], (R_LED + 4.0) * math.cos(math.radians(_a5)), (R_LED + 4.0) * math.sin(math.radians(_a5)), outside=True)
+auto_place("Q3", SOT23, pinmap["Q"], CX + 1.0, -CY, outside=True)        # battery corner, right above the BAT pads
+auto_place("R10", R0603, pinmap["R"], CX + 3.5, -CY + 2.0, outside=True)
+auto_place("Q1", SOT23, pinmap["Q"], 12.5, -6.0)                 # buzzer driver above the module, by GPIO 12
+auto_place("R1", R0603, pinmap["R"], 14.5, -4.5)
+auto_place("R2", R0603, pinmap["R"], 12.5, -3.8)
+auto_place("R6", R0603, pinmap["R"], 12.0, 6.5)                  # battery sense above the module, by GPIO 2
+auto_place("R7", R0603, pinmap["R"], 13.8, 5.5)
+auto_place("C1", C0603, pinmap["C"], 12.0, 4.8)
+auto_place("Q2", SOT23, pinmap["Q"], CX + 1.0, CY, outside=True)         # motor corner, right above the MOT pads
+auto_place("D1", SOD123, pinmap["D"], CX + 3.5, CY - 2.0, outside=True)
+auto_place("R3", R0603, pinmap["R"], 14.5, -4.5)                 # gate resistor + pull-down above the module, by GPIO 13
+auto_place("R4", R0603, pinmap["R"], 13.0, -4.5)
+auto_place("C4", C1206, pinmap["C"], -12.0, -1.0)                # second VBAT bulk cap, near the ring
+auto_place("D3", SOD123, pinmap["D"], -2.5, 12.5)                # above the buzzer, between its pads
 
 text("POOL PAGER", -17.0, 0.0, 0.8, pcbnew.B_SilkS, rot=90)
 from fix_anchors import center_anchors
