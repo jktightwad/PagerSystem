@@ -11,7 +11,7 @@
 
 - **Top:** 16 × TUOZHAN TZ-5050S2RGB-5V-I4-H1 (LCSC C26167850, allowed in JLC Economic PCBA; the XINGLIGHT part was Standard-only), evenly spaced (22.5°) on a 20.5 mm radius,
   ring turned 19.75° so every LED keeps its own 100 nF cap beside it, clear of the cut-out.
-  Passive SMD buzzer XHXDZ SMD8530-16R (C49246948, 8.5 x 8.5 x 3.0 mm, 16 Ω, 2.7 kHz, PWM tone on GP12;
+  Passive SMD buzzer Huaneng MLT-8530 (C94599, 8.5 x 8.5 x 3.0 mm, 16 Ω, 2.7 kHz, PWM tone on GP12;
   four pads, + and − on the right, the two left pads are mechanical dummies) and
   the small parts inside the ring; all JLC-assembled.
 - **Under:** SuperMini flat on castellated pads, antenna end at the right edge (no copper

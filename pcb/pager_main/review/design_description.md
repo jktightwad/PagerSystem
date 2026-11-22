@@ -51,9 +51,9 @@ U1 3V3 (module regulator) --+-- J1.3 touch module VCC
 - **LEDs:** up to about 60 mA each at full white, if they match the WS2812B. That would be about 1 A for
   16. Firmware caps brightness at 64/255, which brings the worst case to roughly 250 mA. The TZ2812's own
   datasheet figure has not been checked.
-- **Buzzer:** XHXDZ SMD8530-16R (C49246948), 16 Ohm coil, rated 3.6 V (2.5-4.5 V), max 100 mA at rated voltage with a
-  1/2-duty square wave (datasheet). It must only be driven with PWM: with Q1 held on, the coil alone (16 Ohm) would
-  take about 260 mA at 4.2 V. R2 holds Q1 off at reset.
+- **Buzzer:** Huaneng MLT-8530 (C94599), 16 Ohm coil, rated 3.6 V (2.5-4.5 V), max 95 mA with a 2.7 kHz
+  50 % square wave at 5 Vp-p (datasheet). It must only be driven with PWM: with Q1 held on, the coil alone (16 Ohm)
+  would take about 260 mA at 4.2 V. R2 holds Q1 off at reset.
 - **Motor:** unknown. Coreless vibration motors are typically under 100 mA, but this one is not measured.
 - **ESP32-S3:** Wi-Fi transmit peaks of a few hundred mA, drawn through the module's regulator.
 

@@ -1,5 +1,5 @@
 Refs,Qty,Value / part,LCSC,Part page (datasheet linked there),Fitted by,Note
-BZ1,1,SMD8530-16R,C49246948,https://jlcpcb.com/partdetail/C49246948,JLC (top side),"XHXDZ passive magnetic buzzer 8.5x8.5x3.0 mm, 16 ohm, 2.7 kHz, 2.5-4.5 V, 85 dB@10 cm; PWM tone on GP12; JLC-assembled"
+BZ1,1,MLT-8530,C94599,https://jlcpcb.com/partdetail/C94599,JLC (top side),"Huaneng MLT-8530 passive magnetic buzzer 8.5x8.5x3.0 mm, 16 ohm, 2.7 kHz, 2.5-4.5 V, 80 dB min @10 cm (5 Vp-p); PWM tone on GP12; JLC-assembled"
 C1,1,100nF,C14663,https://jlcpcb.com/partdetail/C14663,JLC (top side),battery divider filter (same part as the LED caps)
 C2,1,100nF,C14663,https://jlcpcb.com/partdetail/C14663,JLC (top side),dock divider filter (same part as the LED caps)
 C3,1,47uF 10V,C96123,https://jlcpcb.com/partdetail/C96123,JLC (top side),"LED / VBAT bulk cap (Samsung CL31A476MPHNNNE, 1206)"

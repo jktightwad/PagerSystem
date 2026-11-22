@@ -12,7 +12,7 @@ PARTS = {
     "Q3":  ("AO3401A", "C15127", "P-MOSFET power switch BAT+ -> VBAT (SW1 pulls its gate low = on)"),
     "R10": ("100k", "C25803", "Q3 gate pull-up to BAT+ (off when SW1 is open)"),
     "U2":  ("LM66100DCKR", "C2869734", "ideal diode, dock 5 V -> module 5 V: blocks backfeed (CE = VOUT) and reverse polarity"),
-    "BZ1": ("SMD8530-16R", "C49246948", "XHXDZ passive magnetic buzzer 8.5x8.5x3.0 mm, 16 ohm, 2.7 kHz, 2.5-4.5 V, 85 dB@10 cm; PWM tone on GP12; JLC-assembled"),
+    "BZ1": ("MLT-8530", "C94599", "Huaneng MLT-8530 passive magnetic buzzer 8.5x8.5x3.0 mm, 16 ohm, 2.7 kHz, 2.5-4.5 V, 80 dB min @10 cm (5 Vp-p); PWM tone on GP12; JLC-assembled"),
     "Q1":  ("AO3400A", "C20917", "buzzer driver"),
     "Q2":  ("AO3400A", "C20917", "motor driver"),
     "R1":  ("330R", "C23138", "Q1 gate"),

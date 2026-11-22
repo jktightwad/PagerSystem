@@ -254,18 +254,18 @@ for f in list(board.GetFootprints()):
 if not FOUR: print(f"  VBAT ring r={R_RING:.2f} mm, {W_RING} mm wide, {len(_span) / 2:.1f} deg of 360, {ring_stubs} stubs")
 
 # ---------------- buzzer (top, SMD, JLC-assembled) ----------------
-# XHXDZ SMD8530-16R passive magnetic buzzer (C49246948): 8.5 x 8.5 x 3.0 mm body, four 2.0 x 2.0 mm pads
-# on 7.5 mm centres (datasheet "H. Solder pads size": 5.5 mm between pads, 9.5 mm overall). Datasheet top
-# view has + bottom-right and - top-right, the other two pads are dummies (mechanical only, left unconnected).
-# Placed as in that top view (board y is up): + bottom-right, - top-right, dummies on the left.
+# Huaneng MLT-8530 passive magnetic buzzer (C94599): 8.5 x 8.5 x 3.0 mm body, terminals at the four corners.
+# Pads as JLC's library footprint for it (BUZ-SMD_4P-L8.5-W8.5-P8.50-BR): 2.4 x 2.4 mm on 7.2 mm centres. The
+# datasheet top view has + and - on one side (the other two are dummy pads), the sound-port mark opposite.
+# Placed here (board y is up): + bottom-right, - top-right, dummies on the left.
 BZX, BZY = -2.5, 8.0
 bz = new_fp("BZ1"); bz.SetValue(PARTS["BZ1"][0])
 for num, sx, sy in [("1", 1, -1), ("2", 1, 1), ("3", -1, 1), ("4", -1, -1)]:
-    add_pad(bz, num, BZX + sx * 3.75, BZY + sy * 3.75, (2.0, 2.0), side="top", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
+    add_pad(bz, num, BZX + sx * 3.6, BZY + sy * 3.6, (2.4, 2.4), side="top", shape=pcbnew.PAD_SHAPE_ROUNDRECT)
 fp_rect(bz, BZX - 5.0, BZY - 5.0, BZX + 5.0, BZY + 5.0, pcbnew.F_CrtYd, w=0.05)
 board.Add(bz); set_nets(bz, "BZ1", {"1": "+", "2": "-"})
 bz.Reference().SetVisible(False); bz.Value().SetVisible(False)
-text("+", BZX + 3.75, BZY - 5.6, 0.8)
+text("+", BZX + 3.6, BZY - 5.6, 0.8)
 
 # ---------------- switch SS12F44 (under): 3 pins 2.5 mm, end legs slotted ----------------
 SWX, SWY, SW_LEG = -2.0, -11.5, 5.6          # leg spacing 11.2 mm is an ESTIMATE - measure
