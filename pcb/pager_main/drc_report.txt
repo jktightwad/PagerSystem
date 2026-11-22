@@ -1,27 +1,31 @@
 ** Drc report for pager_main.kicad_pcb **
-** Created on 2026-11-22 03:09:00 **
+** Created on 2026-11-22 03:17:24 **
 
-** Found 128 DRC violations **
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(41.5544 mm, 28.4974 mm): Line on F.Silkscreen
-    @(38.4971 mm, 34.8729 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(41.5544 mm, 28.4974 mm): Line on F.Silkscreen
-    @(41.9393 mm, 21.4373 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(41.1805 mm, 46.4882 mm): PCB Text '3V3' on F.Silkscreen
-    @(42.8272 mm, 45.1288 mm): PCB Text 'VBAT' on F.Silkscreen
+** Found 122 DRC violations **
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(38.4971 mm, 34.8729 mm): Line on F.Silkscreen
     @(33.2327 mm, 39.5930 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(38.4971 mm, 34.8729 mm): Line on F.Silkscreen
+    @(41.5544 mm, 28.4974 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(33.2327 mm, 39.5930 mm): Line on F.Silkscreen
     @(26.5627 mm, 41.9393 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(41.9393 mm, 21.4373 mm): Line on F.Silkscreen
+    @(41.5544 mm, 28.4974 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(41.9393 mm, 21.4373 mm): Line on F.Silkscreen
+    @(39.5930 mm, 14.7673 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(39.5930 mm, 14.7673 mm): Line on F.Silkscreen
+    @(34.8729 mm, 9.5029 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(26.5627 mm, 41.9393 mm): Line on F.Silkscreen
@@ -44,14 +48,6 @@
     @(6.4456 mm, 19.5026 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(39.5930 mm, 14.7673 mm): Line on F.Silkscreen
-    @(41.9393 mm, 21.4373 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(39.5930 mm, 14.7673 mm): Line on F.Silkscreen
-    @(34.8729 mm, 9.5029 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
     @(34.8729 mm, 9.5029 mm): Line on F.Silkscreen
     @(28.4974 mm, 6.4456 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
@@ -60,20 +56,28 @@
     @(21.4373 mm, 6.0607 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(14.7673 mm, 8.4070 mm): Line on F.Silkscreen
     @(21.4373 mm, 6.0607 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
     @(14.7673 mm, 8.4070 mm): Line on F.Silkscreen
-    @(9.5029 mm, 13.1271 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(9.5029 mm, 13.1271 mm): Line on F.Silkscreen
     @(6.4456 mm, 19.5026 mm): Line on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
-    @(37.3633 mm, 3.4653 mm): PCB Text 'GND' on B.Silkscreen
-    @(38.8736 mm, 4.5314 mm): PCB Text '3V3' on B.Silkscreen
+    @(9.5029 mm, 13.1271 mm): Line on F.Silkscreen
+    @(14.7673 mm, 8.4070 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(3.1900 mm, 27.1900 mm): Line on B.Silkscreen
+    @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(3.8000 mm, 32.0000 mm): Line on B.Silkscreen
+    @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
+    @(9.3000 mm, 30.0000 mm): Line on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
@@ -81,23 +85,11 @@
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
-    @(3.8000 mm, 17.7500 mm): Line on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
     @(9.3000 mm, 15.7500 mm): Line on B.Silkscreen
-    @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(40.2992 mm, 42.2917 mm): PCB Text 'VBAT' on B.Silkscreen
-    @(38.8736 mm, 43.4686 mm): PCB Text '3V3' on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(42.5000 mm, 40.8000 mm): PCB Text '13' on B.Silkscreen
-    @(41.6320 mm, 41.0107 mm): PCB Text '11' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
-    @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
+    @(3.8000 mm, 17.7500 mm): Line on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
@@ -105,30 +97,15 @@
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
-    @(9.3000 mm, 20.7500 mm): Line on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
-    @(9.3000 mm, 30.0000 mm): Line on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(6.5000 mm, 31.0000 mm): PCB Text 'DOCK G +' on B.Silkscreen
-    @(3.8000 mm, 32.0000 mm): Line on B.Silkscreen
+    @(6.5000 mm, 18.0000 mm): PCB Text 'TOUCH G O V' on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
-    @(3.1900 mm, 27.1900 mm): Line on B.Silkscreen
+    @(9.3000 mm, 20.7500 mm): Line on B.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; Severity: warning
     @(7.0000 mm, 24.0000 mm): PCB Text 'POOL PAGER' on B.Silkscreen
     @(3.1900 mm, 23.0600 mm): Line on B.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(37.3633 mm, 44.5347 mm): PCB Text 'GND' on B.Silkscreen
-    @(38.8736 mm, 43.4686 mm): PCB Text '3V3' on B.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(42.8644 mm, 39.6328 mm): PCB Text '10' on B.Silkscreen
 [silk_over_copper]: Silkscreen clipped by solder mask
     Local override; Severity: warning
     @(18.9480 mm, 42.6791 mm): Footprint Text '1' of LED6

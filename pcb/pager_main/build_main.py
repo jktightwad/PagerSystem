@@ -338,9 +338,14 @@ def wire_pads(ref, x, y, labels, pitch=2.8, size=(1.8, 2.6)):
 # the top-left corner by J1's 3V3 pin (Q2 / R3 / R4 / D1 beside them): easy to reach with an iron
 CX, CY = -17.6, 18.4
 p1 = wire_pads("P1", CX, -CY, ["-", "+"]); set_nets(p1, "P1", {"1": "1", "2": "2"})
-text("BAT - +", CX, -CY + 2.3, 0.8, pcbnew.B_SilkS)
+def pad_labels(name, x, y, dy, labels, pitch=2.8):
+    """two lines beside a wire-pad pair: the signs right next to their own pads, the name one line further"""
+    for k, lab in enumerate(labels):
+        text(lab, x + (k - (len(labels) - 1) / 2) * pitch, y + dy, 1.0, pcbnew.B_SilkS)
+    text(name, x, y + dy + (1.4 if dy > 0 else -1.4), 0.8, pcbnew.B_SilkS)
+pad_labels("BAT", CX, -CY, 2.3, ["-", "+"])
 p2 = wire_pads("P2", CX, CY, ["-", "+"]); set_nets(p2, "P2", {"1": "1", "2": "2"})
-text("MOT - +", CX, CY - 2.3, 0.8, pcbnew.B_SilkS)
+pad_labels("MOT", CX, CY, -2.3, ["-", "+"])
 # spare pins + power: through-holes on an arc just outside the LED ring, in the two left corners.
 # Each corner takes the spares from the module row on its side (the 5V/GND/3V3 row faces -y),
 # plus 3V3 and GND (and VBAT at the bottom) for future additions.
@@ -361,20 +366,20 @@ else:
     bot_r = [n for n in ["GP8", "GP9", "GP10", "GP11", "GP12", "GP13"] if n in spares] + ["VBAT", "3V3", "GND"]
     holes = arc_holes(top_r, 31.0, +1) + arc_holes(bot_r, -31.0, -1)
 sp = new_fp("P3"); sp.SetValue("spare pins / power")
+under_labels = []
 for k, (name, a) in enumerate(holes):
     px, py = R_SPARE * math.cos(math.radians(a)), R_SPARE * math.sin(math.radians(a))
     pd = add_pad(sp, str(k + 1), px, py, (1.5, 1.5), kind="pth", drill=0.9,
                  shape=pcbnew.PAD_SHAPE_RECT if name == "GND" else pcbnew.PAD_SHAPE_CIRCLE)
     lab = name.replace("GP", "")
-    # top label just outside the hole where it fits on the board, underside label just inside it
-    lx, ly = (R_SPARE + 1.8) * math.cos(math.radians(a)), (R_SPARE + 1.8) * math.sin(math.radians(a))
-    if X0 + 1.2 < lx < X1 - 1.2 and Y0 + 1.2 < ly < Y1 - 1.2:
-        text(lab, lx, ly, 0.8, rot=a + 90)
-    else:                                    # no room outside: label it on the inner side (towards the LEDs)
-        ix, iy = (R_SPARE - 1.75) * math.cos(math.radians(a)), (R_SPARE - 1.75) * math.sin(math.radians(a))
-        text(lab, ix, iy, 0.8, rot=a + 90)
-    bx, by = (R_SPARE - 2.0) * math.cos(math.radians(a)), (R_SPARE - 2.0) * math.sin(math.radians(a))
-    text(lab, bx, by, 0.8, pcbnew.B_SilkS, rot=a + 90)
+    # top labels alternate inner / outer side along each arc so neighbours don't collide, counting from the
+    # GND hole at the end of the arc (GND inner, towards the LEDs)
+    arc = [h for h in holes if (math.sin(math.radians(h[1])) > 0) == (math.sin(math.radians(a)) > 0)]
+    from_gnd = len(arc) - 1 - arc.index((name, a))
+    r_lab = R_SPARE - 1.75 if from_gnd % 2 == 0 else R_SPARE + 1.8
+    text(lab, r_lab * math.cos(math.radians(a)), r_lab * math.sin(math.radians(a)), 0.8, rot=a + 90)
+    # underside label: placed after the test points (below), same alternation where it fits
+    under_labels.append((lab, a, from_gnd % 2 == 0))
 board.Add(sp); sp.Reference().SetVisible(False); sp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(sp.Pads(), key=lambda p: int(p.GetNumber()))):
     name = holes[k][0]
@@ -392,6 +397,31 @@ board.Add(tp); tp.Reference().SetVisible(False); tp.Value().SetVisible(False)
 for k, pad in enumerate(sorted(tp.Pads(), key=lambda p: int(p.GetNumber()))):
     pad.SetNet(net(TPS[k][1]))
 text("GPIO TEST", 12.5 if os.environ.get("PAGER_SPARES") == "left" else 8.0, -17.6 if os.environ.get("PAGER_SPARES") == "left" else -18.6, 0.8, pcbnew.B_SilkS)
+
+# underside spare-pin labels: inner (preferred for GND and every second hole) or outer side of the hole,
+# whichever does not overlap another underside label or an underside pad; skipped if neither fits
+from shapely.geometry import Polygon as _Poly, box as _sbox
+from shapely import affinity as _aff
+def _tpoly(t):                       # text outline as a rotated rectangle (board mm, KiCad axes)
+    ang = t.GetTextAngleDegrees(); t.SetTextAngleDegrees(0); bb = t.GetBoundingBox(); t.SetTextAngleDegrees(ang)
+    cx, cy = pcbnew.ToMM(t.GetPosition().x), pcbnew.ToMM(t.GetPosition().y)
+    r = _sbox(pcbnew.ToMM(bb.GetX()), pcbnew.ToMM(bb.GetY()), pcbnew.ToMM(bb.GetRight()), pcbnew.ToMM(bb.GetBottom()))
+    return _aff.rotate(r, -ang, origin=(cx, cy))
+def _ppoly(p):                       # exact pad outline
+    sps = p.GetEffectivePolygon(); o = sps.COutline(0)
+    return _Poly([(pcbnew.ToMM(o.CPoint(k).x), pcbnew.ToMM(o.CPoint(k).y)) for k in range(o.PointCount())]).buffer(0)
+_under = [_tpoly(d) for d in board.GetDrawings() if d.Type() == pcbnew.PCB_TEXT_T and d.GetLayer() == pcbnew.B_SilkS]
+_under += [_ppoly(p) for f in board.GetFootprints() for p in f.Pads() if p.IsOnLayer(pcbnew.B_Cu)]
+for lab, a, inner_first in under_labels:
+    for r_b in ((R_SPARE - 2.0, R_SPARE + 1.8) if inner_first else (R_SPARE + 1.8, R_SPARE - 2.0)):
+        s_ = pcbnew.PCB_TEXT(board); s_.SetText(lab); s_.SetLayer(pcbnew.B_SilkS); s_.SetMirrored(True)
+        s_.SetPosition(P(r_b * math.cos(math.radians(a)), r_b * math.sin(math.radians(a))))
+        s_.SetTextSize(pcbnew.VECTOR2I(mm(0.8), mm(0.8))); s_.SetTextThickness(mm(0.12)); s_.SetTextAngleDegrees(a + 90)
+        tp_ = _tpoly(s_)
+        if not any(tp_.distance(o) < 0.25 for o in _under):
+            board.Add(s_); _under.append(tp_); break
+    else:
+        print(f"  underside label {lab}: no room, left off")
 
 # ---------------- mounting holes (4 corners) ----------------
 for k, (x, y) in enumerate([(X0 + 2.2, Y1 - 2.2), (X1 - 2.2, Y1 - 2.2), (X0 + 2.2, Y0 + 2.2), (X1 - 2.2, Y0 + 2.2)]):
