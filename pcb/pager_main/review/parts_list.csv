@@ -15,16 +15,16 @@ P2,1,Motor pads,,,hand,"under, beside the module's 3V3 pin: MOT-, 3V3 (3 V motor
 Q1,1,AO3400A,C20917,https://jlcpcb.com/partdetail/C20917,JLC (top side),buzzer driver
 Q2,1,AO3400A,C20917,https://jlcpcb.com/partdetail/C20917,JLC (top side),motor driver
 Q3,1,AO3401A,C15127,https://jlcpcb.com/partdetail/C15127,JLC (top side),P-MOSFET power switch BAT+ -> VBAT (SW1 pulls its gate low = on)
-R1,1,330R,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),Q1 gate
-R2,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q1 gate pull-down
-R3,1,330R,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),Q2 gate
-R4,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q2 gate pull-down
-R5,1,330R,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),LED data
-R6,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),battery divider top
-R7,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),battery divider bottom
-R8,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),dock divider top
-R9,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),dock divider bottom
-R10,1,100k,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q3 gate pull-up to BAT+ (off when SW1 is open)
+R1,1,330Ω,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),Q1 gate
+R2,1,100kΩ,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q1 gate pull-down
+R3,1,330Ω,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),Q2 gate
+R4,1,100kΩ,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q2 gate pull-down
+R5,1,330Ω,C23138,https://jlcpcb.com/partdetail/C23138,JLC (top side),LED data
+R6,1,100kΩ,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),battery divider top
+R7,1,100kΩ,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),battery divider bottom
+R8,1,100kΩ,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),dock divider top
+R9,1,100kΩ,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),dock divider bottom
+R10,1,100kΩ,C25803,https://jlcpcb.com/partdetail/C25803,JLC (top side),Q3 gate pull-up to BAT+ (off when SW1 is open)
 SW1,1,SS12F44-G3 slide switch,,,hand,under the board; switches Q3's gate only (the switch is rated 300 mA)
 U1,1,ESP32-S3 SuperMini,,,hand,"under the board, castellated edges; B+/B- through plated holes"
 U2,1,LM66100DCKR,C2869734,https://jlcpcb.com/partdetail/C2869734,JLC (top side),"ideal diode, dock 5 V -> module 5 V: blocks backfeed (CE = VOUT) and reverse polarity"

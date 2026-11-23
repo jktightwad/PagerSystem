@@ -129,7 +129,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 21f93ba9-4c04-46c5-92f4-c66a048bf212)
     )
-    (fp_text value "330R" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "330Ω" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 6a5b960f-4127-4a4f-a06f-9fb10adb182e)
     )
@@ -268,7 +268,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp b472a09d-f268-4aca-8ff5-1eddf66662c6)
     )
-    (fp_text value "330R" (at 0 1.43) (layer "F.Fab") hide
+    (fp_text value "330Ω" (at 0 1.43) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 2a8014ba-1bdd-43a4-b4e9-82f097662a45)
     )
@@ -370,7 +370,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 08b0f5aa-f691-4eeb-bff6-683e5fd372d1)
     )
-    (fp_text value "100k" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "100kΩ" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 576c0040-296a-40cd-95f2-3e25de213040)
     )
@@ -1062,7 +1062,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 5fa10c9a-f19c-4684-b9a9-b24bcddb60a1)
     )
-    (fp_text value "100k" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "100kΩ" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp c20b56ba-8677-4c87-aae0-2711641a70e9)
     )
@@ -1160,7 +1160,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 994c0cd7-f4a3-42c4-8a23-dad69eabb66e)
     )
-    (fp_text value "100k" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "100kΩ" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp c0002643-588c-4c19-80c8-22ce738d5d7f)
     )
@@ -1311,7 +1311,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 1f049437-8ec9-41fd-9daa-4a7d3132ebef)
     )
-    (fp_text value "100k" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "100kΩ" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 8e0b3a93-6790-4335-9a02-1f0cb135bba8)
     )
@@ -1434,7 +1434,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 10631f3b-e997-4196-8cc3-2370083f5e0e)
     )
-    (fp_text value "330R" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "330Ω" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 0684274c-7cba-469b-b015-93980a75377d)
     )
@@ -1782,7 +1782,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 553e5fc5-a183-4a80-ba84-ba864b263110)
     )
-    (fp_text value "100k" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "100kΩ" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp c963a784-3e0c-43d3-a4e7-606e5f9c467c)
     )
@@ -1909,7 +1909,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp c5be4158-e923-45bc-9a81-c7213c656d6d)
     )
-    (fp_text value "100k" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "100kΩ" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp d6a7a272-5e75-4997-872f-998264af73d6)
     )
@@ -2044,7 +2044,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp d753d306-fd35-48a9-ada1-192347757f08)
     )
-    (fp_text value "100k" (at 0 1.43 90) (layer "F.Fab") hide
+    (fp_text value "100kΩ" (at 0 1.43 90) (layer "F.Fab") hide
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 0a08569f-5407-4388-afa6-6cc56c1ebb41)
     )
@@ -7770,6 +7770,7 @@
         (xy 3.132037 4.2972)
         (xy 3.780884 3.863654)
         (xy 3.863654 3.780884)
+        (xy 3.895197 3.733676)
         (xy 3.917698 3.700001)
         (xy 6.994318 3.700001)
         (xy 7.014955 3.85676)
@@ -7837,6 +7838,7 @@
         (xy 6.994318 3.699998)
         (xy 6.994318 3.700001)
         (xy 3.917698 3.700001)
+        (xy 3.927803 3.684879)
         (xy 4.2972 3.132037)
         (xy 4.341995 3.023893)
         (xy 4.494235 2.258526)
@@ -13035,6 +13037,7 @@
         (xy 52.732037 4.2972)
         (xy 53.380884 3.863654)
         (xy 53.463654 3.780884)
+        (xy 53.495197 3.733676)
         (xy 53.4995 3.727236)
         (xy 53.4995 11.7)
         (xy 49.671307 11.7)
@@ -14460,6 +14463,7 @@
         (xy 4.2972 44.867962)
         (xy 3.863654 44.219115)
         (xy 3.780884 44.136345)
+        (xy 3.61065 44.022598)
         (xy 3.332673 43.83686)
         (xy 3.49598 43.83686)
         (xy 3.518434 43.855043)
